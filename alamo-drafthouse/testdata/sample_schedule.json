@@ -1,0 +1,52 @@
+{
+  "data": {
+    "cinemas": [
+      { "id": "2601", "slug": "dc-bryant-street", "name": "DC Bryant Street" },
+      { "id": "2602", "slug": "dc-crystal-city", "name": "DC Crystal City" }
+    ],
+    "presentations": [
+      { "slug": "the-thing-1982", "show": { "title": "The Thing (1982)" } },
+      { "slug": "paddington-in-peru", "show": { "title": "Paddington in Peru" } },
+      { "slug": "alien-1979", "show": { "title": "Alien (1979)" } },
+      { "slug": "crystal-only-film", "show": { "title": "Crystal City Exclusive" } }
+    ],
+    "sessions": [
+      {
+        "sessionId": "1",
+        "cinemaId": "2601",
+        "presentationSlug": "the-thing-1982",
+        "showTimeClt": "2099-10-31T19:30:00"
+      },
+      {
+        "sessionId": "2",
+        "cinemaId": "2601",
+        "presentationSlug": "the-thing-1982",
+        "showTimeClt": "2099-10-31T22:15:00"
+      },
+      {
+        "sessionId": "3",
+        "cinemaId": "2601",
+        "presentationSlug": "paddington-in-peru",
+        "showTimeClt": "2099-11-02T13:00:00"
+      },
+      {
+        "sessionId": "4",
+        "cinemaId": "2601",
+        "presentationSlug": "alien-1979",
+        "showTimeClt": "2099-11-05T20:00:00"
+      },
+      {
+        "sessionId": "5",
+        "cinemaId": "2602",
+        "presentationSlug": "crystal-only-film",
+        "showTimeClt": "2099-11-05T20:00:00"
+      },
+      {
+        "sessionId": "6",
+        "cinemaId": "2601",
+        "presentationSlug": "alien-1979",
+        "showTimeClt": "2020-01-01T20:00:00"
+      }
+    ]
+  }
+}
