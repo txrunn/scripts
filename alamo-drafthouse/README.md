@@ -240,3 +240,41 @@ fixture so it cannot drift back into fiction.
   Everything bookable is reported; you judge.
 - Showtimes are treated as cinema-local wall time, which is correct for a
   DC-only tracker and avoids a timezone dependency.
+
+## Running it as a GitHub Action
+
+`.github/workflows/alamo-new-films.yml` runs the check daily and **opens an issue
+when films are added**. GitHub emails you about issues in your own repo, so there
+are no SMTP secrets to configure and nothing to keep running on your laptop.
+
+The workflow, in order: runs the test suite, fetches the feed once and
+`--verify`s it, checks for new films against the CI ledger, writes a job summary,
+and — only when something was added — opens an issue and commits the updated
+ledger.
+
+### State on ephemeral runners
+
+Runners keep nothing between runs, so the ledger is committed back to the repo at
+`alamo-drafthouse/ci-state/dc-bryant-street.json`. That is deliberately *not*
+`state/` (which is gitignored for local runs) — the CI ledger and your local one
+are independent, so run one or the other, not both, or each will report films the
+other already told you about.
+
+The commit happens only on days something was added. The `seen` map is unchanged
+otherwise, and a daily no-op commit would bury the real history. A side effect
+worth having: `git log alamo-drafthouse/ci-state/` becomes a record of exactly
+when each film went on sale.
+
+### Things to know
+
+- **Cron is UTC and ignores DST.** `0 13 * * *` is 9am EDT, 8am EST.
+- **Scheduled runs can be delayed** by up to an hour under GitHub load. Fine
+  daily, useless for a race.
+- **60 days of repo inactivity disables scheduled workflows.** The ledger commit
+  resets that clock, but only on days something is added. If Alamo goes two
+  months without a new title, GitHub emails a warning before disabling; any
+  commit re-arms it.
+- **Verify it works before trusting it:** run the workflow by hand from the
+  Actions tab (`workflow_dispatch`) and read the job summary. The first manual
+  run also confirms the runner can reach `drafthouse.com` — if Alamo's CDN blocks
+  datacenter IPs, the `--verify` step fails loudly rather than reporting nothing.

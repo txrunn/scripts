@@ -1,0 +1,127 @@
+name: Alamo new films
+
+# Checks daily for movies that have newly gone on sale at DC Bryant Street and
+# opens an issue when there are any. GitHub emails you about issues in your own
+# repo, so no SMTP secrets are needed.
+#
+# The ledger lives in the repo at alamo-drafthouse/ci-state/ and is committed
+# back on days something is added -- runners are ephemeral, so state has to
+# persist somewhere, and the repo doubles as an audit trail of what appeared
+# when. It is deliberately NOT alamo-drafthouse/state/, which is gitignored for
+# local runs; the two ledgers are independent.
+
+on:
+  schedule:
+    # 13:00 UTC = 9am EDT / 8am EST. GitHub cron is always UTC and does not
+    # follow DST, so this drifts by an hour in winter.
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: alamo-new-films
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run the test suite
+        run: python -m unittest discover -s alamo-drafthouse -t alamo-drafthouse
+
+      # One fetch, reused below. --verify fails the job if Alamo changes the
+      # API, which is the early warning that the parser needs attention -- far
+      # better than a run that quietly reports nothing forever.
+      - name: Fetch and verify the feed
+        run: |
+          set -o pipefail
+          python alamo-drafthouse/alamo_new_films.py \
+            --verify --dump "$RUNNER_TEMP/raw.json" | tee "$RUNNER_TEMP/verify.txt"
+
+      - name: Check for new films
+        run: |
+          set -o pipefail
+          python alamo-drafthouse/alamo_new_films.py \
+            --from-file "$RUNNER_TEMP/raw.json" \
+            --state alamo-drafthouse/ci-state/dc-bryant-street.json \
+            --report-dir "$RUNNER_TEMP/reports" | tee "$RUNNER_TEMP/report.txt"
+
+      - name: Did anything get added?
+        id: detect
+        run: |
+          if compgen -G "$RUNNER_TEMP/reports/*.json" > /dev/null; then
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            if [ "${{ steps.detect.outputs.new }}" = "true" ]; then
+              echo "## New films at DC Bryant Street"
+              echo
+              echo '```'
+              cat "$RUNNER_TEMP/report.txt"
+              echo '```'
+            else
+              echo "## Nothing new today"
+            fi
+            echo
+            echo "<details><summary>API contract check</summary>"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/verify.txt" 2>/dev/null || echo "(verify did not run)"
+            echo '```'
+            echo
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open an issue
+        if: steps.detect.outputs.new == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "New films are now bookable at Alamo DC Bryant Street."
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/report.txt"
+            echo '```'
+            echo
+            echo "[Browse the calendar](https://drafthouse.com/dc-metro-area?showCalendar=true)"
+            echo
+            echo "_Opened by the \`alamo-new-films\` workflow_"
+          } > "$RUNNER_TEMP/issue.md"
+          gh issue create \
+            --title "New at Bryant Street — $(date -u +%Y-%m-%d)" \
+            --body-file "$RUNNER_TEMP/issue.md" \
+            --label "alamo" || \
+          gh issue create \
+            --title "New at Bryant Street — $(date -u +%Y-%m-%d)" \
+            --body-file "$RUNNER_TEMP/issue.md"
+
+      # Only on days something was added: the ledger's `seen` map is unchanged
+      # otherwise, and a daily no-op commit would bury real history.
+      - name: Persist the ledger
+        if: steps.detect.outputs.new == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add alamo-drafthouse/ci-state/dc-bryant-street.json
+          if git diff --cached --quiet; then
+            echo "ledger unchanged, nothing to commit"
+          else
+            git commit -m "Record new Bryant Street films seen on $(date -u +%Y-%m-%d)"
+            git push
+          fi
