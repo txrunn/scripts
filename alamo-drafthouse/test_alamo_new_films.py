@@ -301,6 +301,12 @@ class TestRobustness(ScriptTestCase):
         self.assertEqual(code, 1, "an API change must not look like a quiet 'nothing new'")
         self.assertEqual(out, "")
 
+    def test_error_messages_suggest_no_platform_specific_paths(self):
+        """A hint that tells a Windows user to write to /tmp is a hint that fails."""
+        source = os.path.join(os.path.dirname(os.path.abspath(anf.__file__)), "alamo_new_films.py")
+        with open(source, encoding="utf-8") as handle:
+            self.assertNotIn("/tmp/", handle.read())
+
     def test_corrupt_state_file_is_an_error_not_a_reset(self):
         with open(self.state, "w", encoding="utf-8") as handle:
             handle.write("{ this is not json")

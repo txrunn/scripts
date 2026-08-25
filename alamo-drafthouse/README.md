@@ -204,11 +204,11 @@ of looking like a quiet day.
 
 `--verify` fails, naming the checks that broke and dumping the real keys:
 
-```bash
-./alamo_new_films.py --verify --dump /tmp/raw.json
+```powershell
+python alamo_new_films.py --verify --dump raw.json
 ```
 
-`/tmp/raw.json` has the actual payload. The fix is localized to `extract()`,
+`raw.json` has the actual payload. The fix is localized to `extract()`,
 `presentation_title()`, `session_cinema_key()`, and `parse_showtime()` in
 `alamo_new_films.py` — each is a small function whose only job is tolerating one
 piece of the schema.
@@ -219,7 +219,7 @@ piece of the schema.
 python3 -m unittest discover -s . -t . -v
 ```
 
-46 tests, no network. Covers the diff logic (new / seen / removed / returning /
+47 tests, no network. Covers the diff logic (new / seen / removed / returning /
 gap in runs), bookability (`SOLDOUT`, `PAST`, and announced-but-not-on-sale
 excluded, hidden sessions and presentations excluded, a film reported on the day
 it flips to `ONSALE`, and a sold-out film reported when seats reopen),

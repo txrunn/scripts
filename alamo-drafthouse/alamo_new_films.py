@@ -160,7 +160,7 @@ def extract(payload):
     raise SchemaError(
         "could not find 'presentations' and 'sessions' in the response "
         f"(top-level keys: {found}{detail}). "
-        "Re-run with --dump /tmp/raw.json and inspect the payload."
+        "Re-run with --dump raw.json and inspect the payload."
     )
 
 
