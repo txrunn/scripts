@@ -53,7 +53,11 @@ jobs:
           python alamo-drafthouse/alamo_new_films.py \
             --from-file "$RUNNER_TEMP/raw.json" \
             --state alamo-drafthouse/ci-state/dc-bryant-street.json \
-            --report-dir "$RUNNER_TEMP/reports" | tee "$RUNNER_TEMP/report.txt"
+            --report-dir "$RUNNER_TEMP/reports" \
+            --format markdown | tee "$RUNNER_TEMP/report.md"
+          # The trailing "JSON report: <path>" line is a local-run convenience
+          # and only noise in an issue.
+          sed -i '/^JSON report: /d' "$RUNNER_TEMP/report.md"
 
       - name: Did anything get added?
         id: detect
@@ -71,9 +75,7 @@ jobs:
             if [ "${{ steps.detect.outputs.new }}" = "true" ]; then
               echo "## New films at DC Bryant Street"
               echo
-              echo '```'
-              cat "$RUNNER_TEMP/report.txt"
-              echo '```'
+              cat "$RUNNER_TEMP/report.md"
             else
               echo "## Nothing new today"
             fi
@@ -93,15 +95,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           {
-            echo "New films are now bookable at Alamo DC Bryant Street."
+            cat "$RUNNER_TEMP/report.md"
             echo
-            echo '```'
-            cat "$RUNNER_TEMP/report.txt"
-            echo '```'
-            echo
-            echo "[Browse the calendar](https://drafthouse.com/dc-metro-area?showCalendar=true)"
-            echo
-            echo "_Opened by the \`alamo-new-films\` workflow_"
+            echo "<sub>Opened by the <a href=\"https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\">alamo-new-films</a> workflow.</sub>"
           } > "$RUNNER_TEMP/issue.md"
           # Lead the title with the special-event count -- that is the part
           # worth opening the email for.

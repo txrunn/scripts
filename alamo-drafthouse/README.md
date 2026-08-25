@@ -177,6 +177,11 @@ SMTP secret to manage.
 Each run: tests → fetch + `--verify` → check for new films → job summary → (only
 if something was added) open an issue and commit the ledger.
 
+The issue body is real markdown (`--format markdown`): a table per tier, film
+titles as links to their booking page, and a date span rather than a single
+showtime for films with a run. Dumping the terminal report into a code fence
+would give you monospace text and dead links.
+
 Try it by hand first: **[Actions tab](https://github.com/txrunn/scripts/actions)
 → "Alamo new films" → Run workflow**, then read the job summary. That first run
 also proves the runner can reach drafthouse.com.
@@ -223,6 +228,7 @@ from it when there's something to book:
 | `--skip-regular` | Drop ordinary releases; keep events *and* advance screenings. (`--events-only` is an alias.) |
 | `--status STATUS` | Status counted as bookable, repeatable (default `ONSALE`; `ALL` ignores status). |
 | `--force-report` | On a cold start, list the whole slate instead of seeding quietly. |
+| `--format text\|markdown` | Report style. `text` (default) for a terminal; `markdown` for tables and clickable links in a GitHub issue. |
 | `--dry-run` | Report, but write no state and no JSON. |
 | `--from-file PATH` | Read a saved response instead of fetching. Offline testing. |
 | `--dump PATH` | Save the raw response for debugging. |
@@ -284,7 +290,7 @@ and `parse_showtime()`. A feed change should only ever need edits there.
 python -m unittest discover -s . -t . -v
 ```
 
-65 tests, no network — every one drives the script through `--from-file`.
+72 tests, no network — every one drives the script through `--from-file`.
 
 Coverage: diff logic (new / seen / removed / returning / gaps between runs);
 bookability (`SOLDOUT`, `PAST`, announced-but-not-on-sale and hidden entries all
@@ -295,7 +301,9 @@ slate, shelf labels not promoting, prose never supplying a label, tier beating
 showtime, `--skip-regular` keeping advance screenings); outputs; and robustness
 (an unknown schema fails loudly rather than looking like a quiet day, corrupt
 state, ambiguous cinema match, the several shapes `market` can take, absolute
-state paths).
+state paths), and markdown rendering (links not fences, the series column
+dropped when unused, a clock time only for single-date films, pipes in titles
+escaped).
 
 `testdata/sample_schedule.json` mirrors field names observed on the live feed,
 and a test asserts they stay present so the fixture can't drift into fiction.
