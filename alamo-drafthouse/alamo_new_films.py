@@ -750,12 +750,11 @@ def format_report_markdown(new_films, market, label):
             lines.append("| " + " | ".join(cells) + " |")
         lines.append("")
 
+    # Nothing issue-specific here: this same markdown is also used for the
+    # Actions run summary, where a line about closing an issue makes no sense.
     lines += [
-        "---",
-        "",
-        f"[Full calendar](https://drafthouse.com/{market}?showCalendar=true)"
-        " · Titles link to their booking page."
-        " · Closing this issue does nothing; the tracker uses its own ledger.",
+        f"Titles link to all showtimes for that film."
+        f" · [Full DC Metro calendar](https://drafthouse.com/{market}?showCalendar=true)",
     ]
     return "\n".join(lines) + "\n"
 
@@ -1065,7 +1064,10 @@ def main(argv=None):
     if not args.dry_run:
         if new_films or args.json_always:
             path = write_report_json(args.report_dir, new_films, args.market, label)
-            if new_films:
+            # A local convenience only. In markdown the output is a document
+            # destined for an issue body, and a filesystem path from a
+            # throwaway runner has no meaning to whoever reads it.
+            if new_films and args.format == "text":
                 print(f"JSON report: {path}")
         save_ledger(state_path, seen)
 

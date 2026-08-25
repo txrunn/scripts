@@ -174,13 +174,26 @@ task running from any working directory writes here. Override with `--state` /
 films are added. GitHub emails you about issues in your own repo, so there's no
 SMTP secret to manage.
 
-Each run: tests → fetch + `--verify` → check for new films → job summary → (only
-if something was added) open an issue and commit the ledger.
+Steps, in order — the names are what you see in the Actions UI:
+
+| Step | Does what | Skipped when |
+|---|---|---|
+| Run tests | Guards against a bad commit reaching a scheduled run | never |
+| Fetch schedule and check the API contract | One fetch, reused below; fails the run on schema drift | never |
+| Find newly bookable films | The actual diff | never |
+| Decide whether to alert | Sets the `new` output | never |
+| Write the run summary | Renders the summary you read | never (`if: always()`) |
+| Open an issue for the new films | The alert | nothing new |
+| Commit the updated ledger | Persists state | nothing new |
+
+A quiet run leaves the last two greyed out and the summary reads "Nothing new
+today" — followed by the counts, so a healthy quiet day is distinguishable from
+a run that silently stopped working.
 
 The issue body is real markdown (`--format markdown`): a table per tier, film
-titles as links to their booking page, and a date span rather than a single
-showtime for films with a run. Dumping the terminal report into a code fence
-would give you monospace text and dead links.
+titles linked to all showtimes for that film, and a date span rather than a
+single showtime for films with a run. Dumping the terminal report into a code
+fence would give monospace text and dead links.
 
 Try it by hand first: **[Actions tab](https://github.com/txrunn/scripts/actions)
 → "Alamo new films" → Run workflow**, then read the job summary. That first run

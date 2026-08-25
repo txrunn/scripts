@@ -26,28 +26,33 @@ permissions:
   issues: write
 
 jobs:
-  check:
+  bryant-street:
+    name: DC Bryant Street
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Run the test suite
+      # Guards against a bad commit reaching a scheduled run, where a silent
+      # mis-report looks exactly like a quiet day.
+      - name: Run tests
         run: python -m unittest discover -s alamo-drafthouse -t alamo-drafthouse
 
       # One fetch, reused below. --verify fails the job if Alamo changes the
       # API, which is the early warning that the parser needs attention -- far
       # better than a run that quietly reports nothing forever.
-      - name: Fetch and verify the feed
+      - name: Fetch schedule and check the API contract
         run: |
           set -o pipefail
           python alamo-drafthouse/alamo_new_films.py \
             --verify --dump "$RUNNER_TEMP/raw.json" | tee "$RUNNER_TEMP/verify.txt"
 
-      - name: Check for new films
+      - name: Find newly bookable films
         run: |
           set -o pipefail
           python alamo-drafthouse/alamo_new_films.py \
@@ -55,32 +60,50 @@ jobs:
             --state alamo-drafthouse/ci-state/dc-bryant-street.json \
             --report-dir "$RUNNER_TEMP/reports" \
             --format markdown | tee "$RUNNER_TEMP/report.md"
-          # The trailing "JSON report: <path>" line is a local-run convenience
-          # and only noise in an issue.
-          sed -i '/^JSON report: /d' "$RUNNER_TEMP/report.md"
+          # The report is empty on a quiet day, which would leave this step
+          # blank in the log -- indistinguishable from a step that did nothing.
+          [ -s "$RUNNER_TEMP/report.md" ] || echo "No new films since the last run."
 
-      - name: Did anything get added?
+      - name: Decide whether to alert
         id: detect
         run: |
           if compgen -G "$RUNNER_TEMP/reports/*.json" > /dev/null; then
             echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "New films found -- will open an issue and commit the ledger."
           else
             echo "new=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing new -- no issue, no commit."
           fi
 
-      - name: Job summary
+      - name: Write the run summary
         if: always()
         run: |
+          # A quiet run should still say what it saw. "Nothing new" alone
+          # cannot be told apart from a run that silently stopped working.
+          STATS=$(sed -n 's/^upcoming bookable sessions at target *PASS *//p' "$RUNNER_TEMP/verify.txt" 2>/dev/null)
+          WINDOW=$(sed -n 's/^schedule window *INFO *//p' "$RUNNER_TEMP/verify.txt" 2>/dev/null)
+          TIERS=$(sed -n 's/^event classification *INFO *//p' "$RUNNER_TEMP/verify.txt" 2>/dev/null)
           {
             if [ "${{ steps.detect.outputs.new }}" = "true" ]; then
               echo "## New films at DC Bryant Street"
               echo
               cat "$RUNNER_TEMP/report.md"
+              echo
+              echo "---"
             else
               echo "## Nothing new today"
+              echo
+            fi
+            if [ -n "$STATS" ]; then
+              echo "Currently tracking **${STATS}** at DC Bryant Street."
+              echo
+              echo "- Schedule window: ${WINDOW:-unknown}"
+              echo "- Mix: ${TIERS:-unknown}"
+            else
+              echo "> The API check did not complete, so no counts are available."
             fi
             echo
-            echo "<details><summary>API contract check</summary>"
+            echo "<details><summary>Full API contract check</summary>"
             echo
             echo '```'
             cat "$RUNNER_TEMP/verify.txt" 2>/dev/null || echo "(verify did not run)"
@@ -89,7 +112,7 @@ jobs:
             echo "</details>"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Open an issue
+      - name: Open an issue for the new films
         if: steps.detect.outputs.new == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -97,7 +120,10 @@ jobs:
           {
             cat "$RUNNER_TEMP/report.md"
             echo
-            echo "<sub>Opened by the <a href=\"https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\">alamo-new-films</a> workflow.</sub>"
+            echo "---"
+            echo
+            echo "<sub>Opened by the <a href=\"https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\">alamo-new-films</a> workflow."
+            echo "Close this whenever — the tracker uses its own ledger, so nothing here is re-reported either way.</sub>"
           } > "$RUNNER_TEMP/issue.md"
           # Lead the title with the special-event count -- that is the part
           # worth opening the email for.
@@ -119,7 +145,7 @@ jobs:
 
       # Only on days something was added: the ledger's `seen` map is unchanged
       # otherwise, and a daily no-op commit would bury real history.
-      - name: Persist the ledger
+      - name: Commit the updated ledger
         if: steps.detect.outputs.new == 'true'
         run: |
           git config user.name "github-actions[bot]"
