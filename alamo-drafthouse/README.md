@@ -377,12 +377,13 @@ $d.sessions | Group-Object status | Select-Object Name, Count
   are ranked last but never dropped.
 - **Showtimes are treated as cinema-local wall time**, correct for a DC-only
   tracker and avoids a timezone dependency.
-- **The retry/backoff path has never been exercised against a real network
-  failure** — only against fixtures.
-- **The show links in reports are unconfirmed.** They are built as
-  `drafthouse.com/<market>/show/<slug>`, the form a third-party client used;
-  Alamo also serves `drafthouse.com/show/<slug>`. If a link 404s, change
-  `SHOW_URL` in `alamo_new_films.py` to the shorter form.
+- **Report links go to a film's page, not a checkout.** `SHOW_URL` builds
+  `drafthouse.com/<market>/show/<slug>`, confirmed working against a live slug;
+  Alamo also serves the shorter `drafthouse.com/show/<slug>`. The page lists
+  every showtime for that film, so booking is one more click.
+- **The retry/backoff path has only been exercised by a blocked-egress failure**,
+  not a flaky or slow network. It retried three times with backoff and exited 1
+  cleanly, which is the behaviour that matters.
 
 ---
 

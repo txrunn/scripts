@@ -104,6 +104,8 @@ ADVANCE_MARKERS = (
 )
 
 SCHEDULE_URL = "https://drafthouse.com/s/mother/v2/schedule/market/{market}"
+# Confirmed against a live slug. Alamo also serves the market-less
+# drafthouse.com/show/<slug>; either resolves to the film's showtimes page.
 SHOW_URL = "https://drafthouse.com/{market}/show/{slug}"
 
 # State lives next to the script, not in a per-user config dir, so everything the
