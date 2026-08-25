@@ -78,13 +78,18 @@ New films are grouped into three tiers, best first:
    Quote-Alongs, anniversaries, Q&As, fan events. These run once and their seats
    go early, so they lead.
 2. **Regular releases** — ordinary showings.
-3. **Advance screenings** — last, on the assumption that a new release with a
-   preview will get a regular run anyway, so missing the preview costs little.
-   Borne out by the live slate: all three advance screenings at Bryant
-   (Dune: Part Three, Hope, The Dog Stars) already had a regular counterpart.
+3. **Advance screenings** — last, because the film itself returns: all three
+   advance screenings at Bryant (Dune: Part Three, Hope, The Dog Stars) already
+   had a regular counterpart on the slate.
+
+   **Last is not skippable.** Advance screenings sometimes come with free merch,
+   and the later regular run does not substitute for that — the film comes back,
+   the poster does not. The feed exposes no merch signal (see below), so the
+   tier heading tells you to check rather than pretending it is redundant, and
+   `--skip-regular` deliberately keeps this tier.
 
 Tier beats showtime, so a Film Club screening two months out still ranks above a
-regular release tomorrow. `--events-only` drops tiers 2 and 3 entirely.
+regular release tomorrow. `--skip-regular` drops tier 2 only.
 
 Classification is decided by Alamo's own fields, in this order:
 
@@ -112,8 +117,9 @@ one sentence decide a film's label.
 
 **Merch cannot be detected.** The feed's entire attribute vocabulary is
 `first-run`, `alamo-exclusive`, `advance-sales`, `family-friendly` — nothing
-about giveaways or posters. A merch screening is prioritized only if it is also a
-named series, which in practice covers most of them. Note that `advance-sales`
+about giveaways or posters. Named-series events are prioritized regardless, but
+a merch-bearing advance screening is indistinguishable from a plain one, which
+is why that tier is ordered last but never dropped. Note that `advance-sales`
 sits on ordinary first-run films (Avengers: Doomsday, Dune: Part Three) and
 deliberately does *not* count as an advance screening, and `alamo-exclusive`
 marks all specialty programming.
@@ -123,7 +129,7 @@ On the live slate this splits 32 special events / 32 regular / 3 advance.
 
 Adding a series Alamo invents later is one line in `PRIORITY_MARKERS`.
 
-**Note:** `--events-only` still records everything in the ledger, so turning the
+**Note:** `--skip-regular` still records everything in the ledger, so turning the
 flag off later will not resurface titles an earlier run already reported.
 
 ## How "new" is decided
@@ -248,7 +254,7 @@ curl.exe -s 'https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area' |
 | `--dry-run` | Report, but write no state and no JSON. |
 | `--force-report` | On a cold start, list the whole current slate instead of seeding quietly. |
 | `--status STATUS` | Session status counted as bookable, repeatable (default `ONSALE`; `ALL` ignores status). |
-| `--events-only` | Report only special events; skip regular releases and advance screenings. |
+| `--skip-regular` | Drop ordinary releases; keep special events *and* advance screenings (they may carry merch). `--events-only` is accepted as an alias. |
 | `--json-always` | Write the JSON report even when nothing is new. |
 | `--state PATH` | Ledger location (default `state/` next to the script). |
 | `--report-dir PATH` | JSON report directory (default `state/reports/`). |
@@ -276,7 +282,7 @@ piece of the schema.
 python3 -m unittest discover -s . -t . -v
 ```
 
-64 tests, no network. Covers the diff logic (new / seen / removed / returning /
+65 tests, no network. Covers the diff logic (new / seen / removed / returning /
 gap in runs), bookability (`SOLDOUT`, `PAST`, and announced-but-not-on-sale
 excluded, hidden sessions and presentations excluded, a film reported on the day
 it flips to `ONSALE`, and a sold-out film reported when seats reopen),
@@ -284,8 +290,9 @@ filtering (other cinemas, past showtimes, unparseable timestamps), outputs (JSON
 written only when non-empty, `--dry-run` writes nothing), and robustness (unknown
 schema fails loudly rather than looking like a quiet day, corrupt state,
 ambiguous cinema match, the several shapes `market` can take), priority tiering
-(real event slugs from the live slate, structured-field classification, merch
-outranking series, tier beating showtime, `--events-only`), and that the default
+(real event slugs and eventType objects from the live slate, shelf labels not
+promoting, prose never supplying a label, tier beating showtime, `--skip-regular`
+keeping advance screenings), and that the default
 state paths are absolute and land beside the script.
 
 `testdata/sample_schedule.json` mirrors the field names observed on the live

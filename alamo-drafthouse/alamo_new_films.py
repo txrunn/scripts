@@ -54,7 +54,11 @@ TIER_ADVANCE = 2
 TIER_HEADINGS = {
     TIER_EVENT: "SPECIAL EVENTS — one-offs, book early",
     TIER_REGULAR: "REGULAR RELEASES",
-    TIER_ADVANCE: "ADVANCE SCREENINGS — a regular run usually follows",
+    # Ranked last because a regular run normally follows, but not dismissable:
+    # advance screenings sometimes come with free merch, and the later regular
+    # run does not substitute for that. The feed exposes no merch signal, so the
+    # heading says to check rather than pretending the tier is redundant.
+    TIER_ADVANCE: "ADVANCE SCREENINGS — check for merch; the film returns, the merch does not",
 }
 
 # Matched as substrings against slug + title + Alamo's structured event fields.
@@ -900,9 +904,12 @@ def build_parser():
         "--force-report", action="store_true", help="on the first run, list the whole slate instead of seeding quietly"
     )
     parser.add_argument(
+        "--skip-regular",
         "--events-only",
+        dest="skip_regular",
         action="store_true",
-        help="report only special events, dropping regular releases and advance screenings",
+        help="drop ordinary releases, keeping special events and advance screenings "
+        "(advance screenings are kept because they may carry merch)",
     )
     parser.add_argument(
         "--status",
@@ -951,8 +958,8 @@ def main(argv=None):
     baseline = seen is None
     seen = seen or {}
     new_films = {slug: film for slug, film in films.items() if slug not in seen}
-    if args.events_only:
-        new_films = {s: f for s, f in new_films.items() if f["tier"] == TIER_EVENT}
+    if args.skip_regular:
+        new_films = {s: f for s, f in new_films.items() if f["tier"] != TIER_REGULAR}
 
     # The ledger records every new film regardless of --events-only, so toggling
     # the flag never resurfaces a title the previous run already showed you.

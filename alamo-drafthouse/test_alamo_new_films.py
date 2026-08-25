@@ -469,22 +469,35 @@ class TestReportOrdering(ScriptTestCase):
         code, out = self.run_script(data, "--force-report")
         self.assertLess(out.index("Club Film"), out.index("Regular Film"))
 
-    def test_events_only_drops_the_rest(self):
+    def test_skip_regular_drops_only_ordinary_releases(self):
         data = payload(
-            {"film-club-y": "Club Film", "plain-film": "Regular Film"},
-            [session("film-club-y"), session("plain-film")],
+            {
+                "film-club-y": "Club Film",
+                "plain-film": "Regular Film",
+                "advance-screening-z": "Preview Film",
+            },
+            [session("film-club-y"), session("plain-film"), session("advance-screening-z")],
         )
-        code, out = self.run_script(data, "--force-report", "--events-only")
+        code, out = self.run_script(data, "--force-report", "--skip-regular")
         self.assertIn("Club Film", out)
         self.assertNotIn("Regular Film", out)
+        self.assertIn(
+            "Preview Film", out, "advance screenings may carry merch and must be kept"
+        )
 
-    def test_events_only_still_ledgers_everything(self):
+    def test_events_only_is_still_accepted_as_an_alias(self):
+        data = payload({"plain-film": "Regular Film"}, [session("plain-film")])
+        code, out = self.run_script(data, "--force-report", "--events-only")
+        self.assertEqual(code, 0)
+        self.assertNotIn("Regular Film", out)
+
+    def test_skip_regular_still_ledgers_everything(self):
         """Toggling the flag must not resurface a title a previous run showed."""
         data = payload(
             {"film-club-y": "Club Film", "plain-film": "Regular Film"},
             [session("film-club-y"), session("plain-film")],
         )
-        self.run_script(data, "--force-report", "--events-only")
+        self.run_script(data, "--force-report", "--skip-regular")
         code, out = self.run_script(data)
         self.assertEqual(out, "", "the regular film was already recorded, not new")
 
