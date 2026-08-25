@@ -202,29 +202,39 @@ def parse_showtime(value):
     return parsed.replace(tzinfo=None)
 
 
+def _normalize_cinema(cinema):
+    """Coerce one cinema-ish dict into {id, slug, name}, or None if it isn't one."""
+    if not isinstance(cinema, dict):
+        return None
+    identifier = cinema.get("id", cinema.get("cinemaId", cinema.get("cinemaid")))
+    slug = cinema.get("slug") or cinema.get("cinemaSlug") or ""
+    name = cinema.get("name") or cinema.get("cinemaName") or cinema.get("title") or ""
+    if identifier is None and not slug:
+        return None
+    return {"id": str(identifier) if identifier is not None else slug, "slug": slug, "name": name}
+
+
 def collect_cinemas(payload, sessions):
     """Every cinema we can see, as a list of {id, slug, name} dicts.
 
-    Prefers an explicit cinema list in the payload; falls back to whatever
-    identifiers the sessions themselves carry.
+    `data` is known to hold presentations/sessions/market and no top-level
+    `cinemas`, so the cinema list is looked for in each plausible spot in turn
+    rather than at one assumed path; failing that we fall back to whatever
+    identifiers the sessions themselves carry. `--list-cinemas` reports what was
+    actually found, which is the way to confirm this on live data.
     """
-    cinemas = []
-    scopes = [payload.get("data"), payload]
+    data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
+    market = data.get("market") if isinstance(data.get("market"), dict) else {}
+    scopes = [market, data, payload]
+
     for scope in scopes:
         if not isinstance(scope, dict):
             continue
-        listing = scope.get("cinemas")
-        if isinstance(listing, list) and listing:
-            for cinema in listing:
-                if not isinstance(cinema, dict):
-                    continue
-                cinemas.append(
-                    {
-                        "id": str(cinema.get("id", cinema.get("cinemaId", ""))),
-                        "slug": cinema.get("slug", cinema.get("cinemaSlug", "")),
-                        "name": cinema.get("name", cinema.get("cinemaName", "")),
-                    }
-                )
+        for key in ("cinemas", "theaters", "theatres", "locations"):
+            listing = scope.get(key)
+            if not isinstance(listing, list) or not listing:
+                continue
+            cinemas = [c for c in (_normalize_cinema(item) for item in listing) if c]
             if cinemas:
                 return cinemas
 
@@ -269,7 +279,20 @@ def resolve_cinema(cinemas, sessions, explicit_id=None, match=CINEMA_MATCH):
     ]
     if len(hits) == 1:
         hit = hits[0]
-        return hit["id"], (hit["name"] or hit["slug"] or hit["id"])
+        label = hit["name"] or hit["slug"] or hit["id"]
+        # The cinema list and the sessions do not have to agree on which
+        # identifier they use, so pick whichever of the two the sessions
+        # actually key on rather than trusting the list's `id`.
+        for candidate in (hit["id"], hit["slug"]):
+            if candidate and candidate in session_keys:
+                return candidate, label
+        if not session_keys:
+            return hit["id"], label
+        raise SchemaError(
+            f"found cinema '{label}' (id={hit['id']}, slug={hit['slug'] or '-'}), but no "
+            f"session references it. Sessions key on: {sorted(session_keys)[:8]}. "
+            f"Pin the right one with --cinema-id."
+        )
     if len(hits) > 1:
         names = ", ".join(f"{c['id']}={c['name'] or c['slug']}" for c in hits)
         raise SchemaError(

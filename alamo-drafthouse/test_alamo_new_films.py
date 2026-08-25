@@ -275,6 +275,40 @@ class TestUnits(unittest.TestCase):
         key, label = anf.resolve_cinema(cinemas, sessions, None, "bryant")
         self.assertEqual(key, "dc-bryant-street")
 
+    def test_cinemas_nested_under_market(self):
+        """The live feed puts the cinema list under data.market, not data."""
+        data = {
+            "data": {
+                "market": {
+                    "slug": "dc-metro-area",
+                    "cinemas": [
+                        {"id": "2601", "slug": "dc-bryant-street", "name": "DC Bryant Street"},
+                        {"id": "2602", "slug": "dc-crystal-city", "name": "DC Crystal City"},
+                    ],
+                },
+                "presentations": [],
+                "sessions": [],
+            }
+        }
+        cinemas = anf.collect_cinemas(data, [])
+        self.assertEqual(len(cinemas), 2)
+        key, label = anf.resolve_cinema(cinemas, [], None, "bryant")
+        self.assertEqual((key, label), ("2601", "DC Bryant Street"))
+
+    def test_sessions_keying_on_slug_while_list_uses_numeric_ids(self):
+        """Cinema list and sessions need not agree on the identifier."""
+        cinemas = [{"id": "2601", "slug": "dc-bryant-street", "name": "DC Bryant Street"}]
+        sessions = [{"cinemaSlug": "dc-bryant-street", "presentationSlug": "a"}]
+        key, label = anf.resolve_cinema(cinemas, sessions, None, "bryant")
+        self.assertEqual(key, "dc-bryant-street")
+        self.assertEqual(label, "DC Bryant Street")
+
+    def test_cinema_matched_but_referenced_by_no_session_is_an_error(self):
+        cinemas = [{"id": "2601", "slug": "dc-bryant-street", "name": "DC Bryant Street"}]
+        sessions = [{"cinemaId": "9999", "presentationSlug": "a"}]
+        with self.assertRaises(anf.SchemaError):
+            anf.resolve_cinema(cinemas, sessions, None, "bryant")
+
     def test_ambiguous_match_is_rejected(self):
         cinemas = [
             {"id": "1", "slug": "bryant-north", "name": "Bryant North"},
