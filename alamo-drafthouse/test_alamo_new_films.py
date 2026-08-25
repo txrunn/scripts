@@ -310,21 +310,57 @@ class TestClassification(unittest.TestCase):
         tier, label = self.tier("crunchyroll-anime-night-sneak-peek-9-21-2026")
         self.assertEqual((tier, label), (anf.TIER_EVENT, "Anime Night"))
 
-    def test_merch_outranks_everything(self):
-        tier, label = self.tier("some-film", presentationAttributeSlugs=["free-merch"])
-        self.assertEqual((tier, label), (anf.TIER_EVENT, "Free merch"))
+    def test_super_title_object_is_read(self):
+        """superTitle is an object in the live feed, not a string."""
+        self.assertEqual(
+            self.tier(
+                "plain-slug",
+                superTitle={"superTitle": "FILM CLUB", "type": "COLLECTION", "slug": "film-club"},
+            ),
+            (anf.TIER_EVENT, "Film Club"),
+        )
 
     def test_structured_fields_classify_when_the_slug_is_plain(self):
         """Alamo's own event fields are used, not just slug substrings."""
-        self.assertEqual(
-            self.tier("plain-slug", superTitle="FILM CLUB"), (anf.TIER_EVENT, "Film Club")
-        )
         self.assertEqual(
             self.tier("plain-slug", eventType="Movie Party"), (anf.TIER_EVENT, "Movie Party")
         )
         self.assertEqual(
             self.tier("plain-slug", event={"name": "Terror Tuesday"}),
             (anf.TIER_EVENT, "Terror Tuesday"),
+        )
+
+    def test_live_attribute_vocabulary_does_not_misclassify(self):
+        """The four real attribute slugs must not trip any marker.
+
+        advance-sales in particular sits on ordinary first-run films like
+        Avengers: Doomsday and must not read as an advance screening.
+        """
+        for slug, attrs in [
+            ("avengers-doomsday", ["advance-sales", "first-run"]),
+            ("dune-part-three", ["advance-sales", "first-run"]),
+            ("paw-patrol-the-dino-movie", ["family-friendly", "first-run"]),
+            ("tony", ["first-run"]),
+        ]:
+            with self.subTest(slug=slug):
+                self.assertEqual(
+                    self.tier(slug, presentationAttributeSlugs=attrs),
+                    (anf.TIER_REGULAR, None),
+                )
+
+    def test_drafthouse_recommends_is_not_an_event(self):
+        """A COLLECTION superTitle is a shelf label, not a one-off event."""
+        self.assertEqual(
+            self.tier(
+                "teenage-sex-and-death-at-camp-miasma",
+                superTitle={
+                    "superTitle": "Drafthouse Recommends",
+                    "type": "COLLECTION",
+                    "slug": "drafthouse-recommends",
+                },
+                presentationAttributeSlugs=["first-run"],
+            ),
+            (anf.TIER_REGULAR, None),
         )
 
 

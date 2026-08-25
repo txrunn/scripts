@@ -75,8 +75,8 @@ status entirely.
 New films are grouped into three tiers, best first:
 
 1. **Special events** — Film Club, Movie Party, Epic Sunday, Terror Tuesday,
-   Quote-Alongs, anniversaries, Q&As, fan events, and anything flagged with free
-   merch. These run once and their seats go early, so they lead.
+   Quote-Alongs, anniversaries, Q&As, fan events. These run once and their seats
+   go early, so they lead.
 2. **Regular releases** — ordinary showings.
 3. **Advance screenings** — last, on the assumption that a new release with a
    preview will get a regular run anyway, so missing the preview costs little.
@@ -86,12 +86,23 @@ New films are grouped into three tiers, best first:
 Tier beats showtime, so a Film Club screening two months out still ranks above a
 regular release tomorrow. `--events-only` drops tiers 2 and 3 entirely.
 
-Classification checks Alamo's structured fields (`superTitle`, `eventType`,
-`event`, `presentationAttributeSlugs`) first and falls back to markers in the
-slug (`film-club-…`, `mean-girls-movie-party`, `epic-sunday-…`). Ordering within
-`PRIORITY_MARKERS` decides ties, so merch outranks the series name. An event that
-is *also* a preview stays an event — a one-off Anime Night sneak peek is not made
-redundant by a later regular run.
+Classification matches markers against the slug, the title, and Alamo's
+structured fields (`superTitle`, `eventType`, `event`,
+`presentationAttributeSlugs`) folded into one haystack. In practice the **slug is
+the load-bearing signal**: on the live slate `eventType` is null and `superTitle`
+is usually null, so `film-club-rear-window` and `mean-girls-movie-party` are what
+actually classify. The structured fields are read where populated —
+`superTitle` is an object, `{superTitle, type, slug}`, not a string.
+
+An event that is *also* a preview stays an event: a one-off Anime Night sneak
+peek is not made redundant by a later regular run.
+
+**Merch cannot be detected.** The feed's entire attribute vocabulary is
+`first-run`, `alamo-exclusive`, `advance-sales`, `family-friendly` — nothing
+about giveaways or posters. A merch screening is prioritized only if it is also a
+named series. Note that `advance-sales` sits on ordinary first-run films
+(Avengers: Doomsday, Dune: Part Three) and deliberately does *not* count as an
+advance screening.
 
 On the live slate this splits 32 special events / 32 regular / 3 advance.
 `--verify` prints the same breakdown so you can sanity-check it.
@@ -251,7 +262,7 @@ piece of the schema.
 python3 -m unittest discover -s . -t . -v
 ```
 
-58 tests, no network. Covers the diff logic (new / seen / removed / returning /
+60 tests, no network. Covers the diff logic (new / seen / removed / returning /
 gap in runs), bookability (`SOLDOUT`, `PAST`, and announced-but-not-on-sale
 excluded, hidden sessions and presentations excluded, a film reported on the day
 it flips to `ONSALE`, and a sold-out film reported when seats reopen),

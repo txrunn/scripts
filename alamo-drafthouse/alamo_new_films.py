@@ -20,6 +20,7 @@ import gzip
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 import time
@@ -57,15 +58,15 @@ TIER_HEADINGS = {
 }
 
 # Matched as substrings against slug + title + Alamo's structured event fields.
-# Order matters: the first hit wins, so put merch and specific series above the
-# generic words they contain. Every marker below "free merch" was observed in
-# the live DC Bryant Street slate.
+# Order matters: the first hit wins, so specific series come before the generic
+# words they contain. Every marker here was observed in the live DC Bryant
+# Street slate.
+#
+# Note on merch: the feed has no merch signal to match. Its whole attribute
+# vocabulary is first-run / alamo-exclusive / advance-sales / family-friendly,
+# so free-poster and giveaway screenings are indistinguishable here and are
+# caught only insofar as they are also a named series.
 PRIORITY_MARKERS = (
-    ("free-merch", "Free merch"),
-    ("merch", "Merch"),
-    ("giveaway", "Giveaway"),
-    ("collectible", "Collectible"),
-    ("exclusive-poster", "Exclusive poster"),
     ("film-club", "Film Club"),
     ("movie-party", "Movie Party"),
     ("quote-along", "Quote-Along"),
@@ -248,30 +249,42 @@ def hidden_presentation_slugs(presentations):
     )
 
 
+def _text_values(value):
+    """Flatten a field into its string parts.
+
+    Alamo's shapes here are inconsistent -- superTitle is an object
+    ({"superTitle": "Drafthouse Recommends", "type": ..., "slug": ...}),
+    eventType is a bare string or null, presentationAttributeSlugs is a list --
+    so unwrap all three rather than assuming any one of them.
+    """
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [v for v in value.values() if isinstance(v, str)]
+    if isinstance(value, list):
+        return [v for v in value if isinstance(v, str)]
+    return []
+
+
 def classification_text(presentation):
     """Everything about a presentation worth matching event markers against.
 
-    Alamo carries structured fields -- eventType, superTitle,
-    presentationAttributeSlugs -- alongside a slug that encodes the same thing
-    (film-club-rear-window, mean-girls-movie-party). All of them are folded into
-    one lowercase haystack: the structured fields are the better signal where
-    they are populated, and the slug is a reliable backstop where they are not.
+    Folds the structured fields and the slug into one lowercase haystack.
+    Punctuation becomes hyphens so a superTitle of "FILM CLUB" matches the same
+    marker as a slug of "film-club-rear-window".
     """
     parts = [presentation.get("slug", ""), presentation_title(presentation)]
-    for key in ("superTitle", "eventType", "primaryCollectionSlug"):
-        value = presentation.get(key)
-        if isinstance(value, str):
-            parts.append(value)
-    event = presentation.get("event")
-    if isinstance(event, str):
-        parts.append(event)
-    elif isinstance(event, dict):
-        parts.extend(str(v) for v in event.values() if isinstance(v, (str, int)))
-    for key in ("presentationAttributeSlugs", "formatSlugs"):
-        value = presentation.get(key)
-        if isinstance(value, list):
-            parts.extend(str(item) for item in value)
-    return " ".join(parts).lower().replace("_", "-").replace(" ", "-")
+    for key in (
+        "superTitle",
+        "eventType",
+        "event",
+        "primaryCollectionSlug",
+        "presentationAttributeSlugs",
+        "formatSlugs",
+    ):
+        parts.extend(_text_values(presentation.get(key)))
+    text = " ".join(parts).lower()
+    return re.sub(r"[^a-z0-9]+", "-", text)
 
 
 def classify(presentation):
