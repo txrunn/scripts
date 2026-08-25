@@ -36,6 +36,12 @@ MARKET_SLUG = "dc-metro-area"
 CINEMA_MATCH = "bryant"
 CINEMA_ID = None
 
+# A session counts as bookable only in these statuses. The live feed uses
+# "ONSALE"; --verify prints the full distribution so you can see whether any
+# other status in this market is also purchasable, and --status widens the set
+# without a code change.
+BOOKABLE_STATUSES = frozenset({"ONSALE"})
+
 SCHEDULE_URL = "https://drafthouse.com/s/mother/v2/schedule/market/{market}"
 SHOW_URL = "https://drafthouse.com/{market}/show/{slug}"
 
@@ -175,6 +181,13 @@ def index_presentations(presentations):
     return index
 
 
+def hidden_presentation_slugs(presentations):
+    """Slugs Alamo has flagged as hidden -- not meant to be surfaced."""
+    return frozenset(
+        p["slug"] for p in presentations if p.get("slug") and p.get("isHidden") is True
+    )
+
+
 def session_cinema_key(session):
     """The value a session uses to identify its cinema, plus which field it came from."""
     for key in ("cinemaId", "cinemaSlug", "cinemaid", "cinema_id"):
@@ -214,29 +227,51 @@ def _normalize_cinema(cinema):
     return {"id": str(identifier) if identifier is not None else slug, "slug": slug, "name": name}
 
 
-def collect_cinemas(payload, sessions):
-    """Every cinema we can see, as a list of {id, slug, name} dicts.
-
-    `data` is known to hold presentations/sessions/market and no top-level
-    `cinemas`, so the cinema list is looked for in each plausible spot in turn
-    rather than at one assumed path; failing that we fall back to whatever
-    identifiers the sessions themselves carry. `--list-cinemas` reports what was
-    actually found, which is the way to confirm this on live data.
-    """
-    data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
-    market = data.get("market") if isinstance(data.get("market"), dict) else {}
-    scopes = [market, data, payload]
-
-    for scope in scopes:
-        if not isinstance(scope, dict):
-            continue
-        for key in ("cinemas", "theaters", "theatres", "locations"):
-            listing = scope.get(key)
-            if not isinstance(listing, list) or not listing:
-                continue
+def _cinema_list_from(scope):
+    """A cinemas-style list hanging directly off `scope`, normalized. None if absent."""
+    if not isinstance(scope, dict):
+        return None
+    for key in ("cinemas", "theaters", "theatres", "locations"):
+        listing = scope.get(key)
+        if isinstance(listing, list) and listing:
             cinemas = [c for c in (_normalize_cinema(item) for item in listing) if c]
             if cinemas:
                 return cinemas
+    return None
+
+
+def collect_cinemas(payload, sessions):
+    """Every cinema we can see, as a list of {id, slug, name} dicts.
+
+    `market` is a list in the live feed, holding either cinemas directly or
+    market objects that contain them, so both are handled -- nested lists first,
+    since a market wrapper has a slug of its own and would otherwise be mistaken
+    for a cinema. Failing all that we fall back to whatever identifiers the
+    sessions themselves carry. `--list-cinemas` reports what was actually found.
+    """
+    data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
+    scopes = [data, payload]
+
+    for scope in scopes:
+        found = _cinema_list_from(scope)
+        if found:
+            return found
+
+    for scope in scopes:
+        market = scope.get("market") if isinstance(scope, dict) else None
+        if isinstance(market, dict):
+            found = _cinema_list_from(market)
+            if found:
+                return found
+        elif isinstance(market, list):
+            nested = []
+            for entry in market:
+                nested.extend(_cinema_list_from(entry) or [])
+            if nested:
+                return nested
+            direct = [c for c in (_normalize_cinema(item) for item in market) if c]
+            if direct:
+                return direct
 
     seen = {}
     for session in sessions:
@@ -305,8 +340,27 @@ def resolve_cinema(cinemas, sessions, explicit_id=None, match=CINEMA_MATCH):
     )
 
 
-def upcoming_films(sessions, titles, cinema_key, now=None):
-    """Films with at least one future session at `cinema_key`.
+def is_bookable(session, statuses=None):
+    """Can you actually buy a ticket to this session right now?
+
+    You want to hear about a film the day it goes on sale, not the day it is
+    announced, so a session only counts when its status is on-sale and it is not
+    hidden. Sessions with no status at all are counted -- absence of the field is
+    not evidence that it cannot be booked.
+    """
+    if session.get("isHidden") is True:
+        return False
+    allowed = statuses or BOOKABLE_STATUSES
+    if "ALL" in allowed:
+        return True
+    status = session.get("status")
+    if status is None:
+        return True
+    return str(status).upper() in allowed
+
+
+def upcoming_films(sessions, titles, cinema_key, now=None, statuses=None, hidden_slugs=frozenset()):
+    """Films with at least one future, bookable session at `cinema_key`.
 
     Returns slug -> {"title", "first_showtime", "session_count"}.
     """
@@ -319,7 +373,9 @@ def upcoming_films(sessions, titles, cinema_key, now=None):
         if key != cinema_key:
             continue
         slug = session.get("presentationSlug") or session.get("slug")
-        if not slug:
+        if not slug or slug in hidden_slugs:
+            continue
+        if not is_bookable(session, statuses):
             continue
         showtime = parse_showtime(session.get("showTimeClt") or session.get("showTimeUtc"))
         if showtime is None:
@@ -521,10 +577,40 @@ def mode_verify(payload, presentations, sessions, args):
         cinema_key, label = None, None
 
     if cinema_key is not None:
-        films = upcoming_films(sessions, index_presentations(presentations), cinema_key)
+        at_target = [s for s in sessions if session_cinema_key(s)[1] == cinema_key]
+        statuses = {}
+        for session in at_target:
+            statuses[str(session.get("status", "<none>"))] = (
+                statuses.get(str(session.get("status", "<none>")), 0) + 1
+            )
+        results.append(
+            (
+                "session statuses at target",
+                "INFO",
+                ", ".join(f"{name}={count}" for name, count in sorted(statuses.items()))
+                + f" (counted as bookable: {sorted(args.status or BOOKABLE_STATUSES)})",
+            )
+        )
+        hidden_sessions = sum(1 for s in at_target if s.get("isHidden") is True)
+        hidden_films = hidden_presentation_slugs(presentations)
+        results.append(
+            (
+                "hidden entries excluded",
+                "INFO",
+                f"{hidden_sessions} session(s), {len(hidden_films)} presentation(s)",
+            )
+        )
+
+        films = upcoming_films(
+            sessions,
+            index_presentations(presentations),
+            cinema_key,
+            statuses=args.status,
+            hidden_slugs=hidden_films,
+        )
         total = sum(f["session_count"] for f in films.values())
         check(
-            "upcoming sessions at target",
+            "upcoming bookable sessions at target",
             bool(films),
             f"{total} sessions, {len(films)} distinct films",
         )
@@ -587,12 +673,22 @@ def build_parser():
     parser.add_argument(
         "--force-report", action="store_true", help="on the first run, list the whole slate instead of seeding quietly"
     )
+    parser.add_argument(
+        "--status",
+        action="append",
+        metavar="STATUS",
+        help=f"session status counted as bookable, repeatable "
+        f"(default: {' '.join(sorted(BOOKABLE_STATUSES))}). "
+        f"Use --status ALL to ignore status entirely.",
+    )
     return parser
 
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
     state_path = os.path.expanduser(args.state)
+    if args.status:
+        args.status = frozenset(s.upper() for s in args.status)
 
     try:
         payload = load_payload(args)
@@ -605,7 +701,13 @@ def main(argv=None):
 
         cinemas = collect_cinemas(payload, sessions)
         cinema_key, label = resolve_cinema(cinemas, sessions, args.cinema_id, args.match)
-        films = upcoming_films(sessions, index_presentations(presentations), cinema_key)
+        films = upcoming_films(
+            sessions,
+            index_presentations(presentations),
+            cinema_key,
+            statuses=args.status,
+            hidden_slugs=hidden_presentation_slugs(presentations),
+        )
         seen = load_ledger(state_path)
     except (FetchError, SchemaError) as exc:
         print(f"error: {exc}", file=sys.stderr)

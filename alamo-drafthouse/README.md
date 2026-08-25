@@ -53,6 +53,21 @@ on quiet days, so you only hear from it when there is something to book:
 schtasks /create /tn "Alamo new films" /tr "python C:\path\to\alamo_new_films.py" /sc daily /st 09:00
 ```
 
+## What counts as "bookable"
+
+A film is reported when it first has at least one session at Bryant that is:
+
+- in the **future**, and
+- **on sale** (`status == "ONSALE"`), not merely announced, and
+- **not hidden** (neither the session nor the presentation has `isHidden: true`).
+
+The on-sale check is the point of the whole thing: Alamo lists sessions before
+tickets go live, and you want to hear about a film the day you can *buy*, not the
+day it appears. `--verify` prints the full status distribution for the market so
+you can see whether any status other than `ONSALE` is also purchasable; widen the
+set with `--status ONSALE --status SOMETHING_ELSE`, or `--status ALL` to ignore
+status entirely.
+
 ## How "new" is decided
 
 State is a **cumulative ledger** of every film ever seen bookable at Bryant
@@ -86,17 +101,22 @@ presentation has show.title            PASS  63/63
 session has presentationSlug           PASS  2914/2914
 session has cinema identifier          PASS  cinemaId, 2914/2914
 session has parseable showtime         PASS  2914/2914
-target cinema resolvable               PASS  key=2601 "DC Bryant Street"
-upcoming sessions at target            PASS  612 sessions, 38 distinct films
+target cinema resolvable               PASS  key=1102 "DC Bryant Street"
+session statuses at target             INFO  ANNOUNCED=41, ONSALE=571 (counted as bookable: ['ONSALE'])
+hidden entries excluded                INFO  3 session(s), 1 presentation(s)
+upcoming bookable sessions at target   PASS  571 sessions, 38 distinct films
 every session slug resolves to a film  PASS  38/38
-schedule window                        INFO  2026-08-25 .. 2026-09-17 (23 days out)
+schedule window                        INFO  2026-08-25 .. 2026-12-15 (112 days out)
 ```
 
-Two lines are worth reading closely:
+Three lines are worth reading closely:
 
-- **`upcoming sessions at target`** — cross-check that distinct-film count
-  against what <https://drafthouse.com/dc-metro-area?showCalendar=true> shows for
-  Bryant. If they agree, the cinema filter and the session→film join are right.
+- **`upcoming bookable sessions at target`** — cross-check that distinct-film
+  count against what <https://drafthouse.com/dc-metro-area?showCalendar=true>
+  shows for Bryant. If they agree, the cinema filter and the session→film join
+  are right.
+- **`session statuses at target`** — if a status other than `ONSALE` turns out to
+  be purchasable, widen the set with `--status`.
 - **`schedule window`** — how far ahead Alamo publishes, i.e. the maximum lead
   time this tracker can ever give you.
 
@@ -134,6 +154,7 @@ curl.exe -s 'https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area' |
 | `--from-file PATH` | Read a saved response instead of fetching. Offline testing. |
 | `--dry-run` | Report, but write no state and no JSON. |
 | `--force-report` | On a cold start, list the whole current slate instead of seeding quietly. |
+| `--status STATUS` | Session status counted as bookable, repeatable (default `ONSALE`; `ALL` ignores status). |
 | `--json-always` | Write the JSON report even when nothing is new. |
 | `--state PATH` | Ledger location. |
 | `--report-dir PATH` | JSON report directory. |
@@ -161,11 +182,17 @@ piece of the schema.
 python3 -m unittest discover -s . -t . -v
 ```
 
-26 tests, no network. Covers the diff logic (new / seen / removed / returning /
-gap in runs), filtering (other cinemas, past showtimes, unparseable timestamps),
-outputs (JSON written only when non-empty, `--dry-run` writes nothing), and
-robustness (unknown schema fails loudly rather than looking like a quiet day,
-corrupt state, ambiguous cinema match).
+40 tests, no network. Covers the diff logic (new / seen / removed / returning /
+gap in runs), bookability (announced-but-not-on-sale excluded, hidden sessions
+and presentations excluded, a film reported on the day it flips to `ONSALE`),
+filtering (other cinemas, past showtimes, unparseable timestamps), outputs (JSON
+written only when non-empty, `--dry-run` writes nothing), and robustness (unknown
+schema fails loudly rather than looking like a quiet day, corrupt state,
+ambiguous cinema match, the several shapes `market` can take).
+
+`testdata/sample_schedule.json` mirrors the field names observed on the live
+`dc-metro-area` feed, and one test asserts those fields are still present in the
+fixture so it cannot drift back into fiction.
 
 ## Caveats
 

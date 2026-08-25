@@ -27,24 +27,27 @@ LATER = dt.datetime.now() + dt.timedelta(days=10)
 PAST = dt.datetime.now() - dt.timedelta(days=3)
 
 
-def session(slug, cinema=BRYANT, when=SOON):
+def session(slug, cinema=BRYANT, when=SOON, status="ONSALE", hidden=False):
     return {
         "cinemaId": cinema,
         "presentationSlug": slug,
+        "status": status,
+        "isHidden": hidden,
         "showTimeClt": when.isoformat(timespec="seconds"),
     }
 
 
-def payload(films, sessions):
-    """Build a schedule payload. `films` is slug -> title."""
+def payload(films, sessions, hidden_films=()):
+    """Build a schedule payload shaped like the live feed. `films` is slug -> title."""
     return {
         "data": {
-            "cinemas": [
+            "market": [
                 {"id": BRYANT, "slug": "dc-bryant-street", "name": "DC Bryant Street"},
                 {"id": CRYSTAL, "slug": "dc-crystal-city", "name": "DC Crystal City"},
             ],
             "presentations": [
-                {"slug": slug, "show": {"title": title}} for slug, title in films.items()
+                {"slug": slug, "show": {"title": title}, "isHidden": slug in hidden_films}
+                for slug, title in films.items()
             ],
             "sessions": sessions,
         }
@@ -181,6 +184,66 @@ class TestFiltering(ScriptTestCase):
         self.assertNotIn("Film B", out)
 
 
+class TestBookability(ScriptTestCase):
+    """You want to hear about a film when it goes on sale, not when it is announced."""
+
+    def test_announced_but_not_on_sale_is_not_reported(self):
+        data = payload(
+            {"soon": "Not Yet Bookable"}, [session("soon", status="ANNOUNCED")]
+        )
+        code, out = self.run_script(data, "--force-report")
+        self.assertEqual(code, 0)
+        self.assertNotIn("Not Yet Bookable", out)
+
+    def test_film_is_reported_on_the_day_it_goes_on_sale(self):
+        announced = payload({"a": "Dune Part Three"}, [session("a", status="ANNOUNCED")])
+        onsale = payload({"a": "Dune Part Three"}, [session("a", status="ONSALE")])
+
+        code, out = self.run_script(announced)
+        self.assertIn("Baseline established: 0 film(s)", out)
+
+        code, out = self.run_script(onsale)
+        self.assertIn("Dune Part Three", out)
+
+    def test_hidden_session_is_not_bookable(self):
+        data = payload({"a": "Hidden Show"}, [session("a", hidden=True)])
+        code, out = self.run_script(data, "--force-report")
+        self.assertNotIn("Hidden Show", out)
+
+    def test_hidden_presentation_is_excluded(self):
+        data = payload({"a": "Hidden Film"}, [session("a")], hidden_films={"a"})
+        code, out = self.run_script(data, "--force-report")
+        self.assertNotIn("Hidden Film", out)
+
+    def test_status_flag_widens_the_bookable_set(self):
+        data = payload({"a": "Announced Film"}, [session("a", status="ANNOUNCED")])
+        code, out = self.run_script(data, "--force-report", "--status", "ANNOUNCED")
+        self.assertIn("Announced Film", out)
+
+    def test_status_all_ignores_status_entirely(self):
+        data = payload({"a": "Whatever Film"}, [session("a", status="SOMETHING_NEW")])
+        code, out = self.run_script(data, "--force-report", "--status", "ALL")
+        self.assertIn("Whatever Film", out)
+
+    def test_session_without_status_is_assumed_bookable(self):
+        """Absence of the field is not evidence a session cannot be booked."""
+        bare = {"cinemaId": BRYANT, "presentationSlug": "a", "showTimeClt": SOON.isoformat()}
+        data = payload({"a": "Film A"}, [bare])
+        code, out = self.run_script(data, "--force-report")
+        self.assertIn("Film A", out)
+
+    def test_mixed_statuses_count_only_the_bookable_ones(self):
+        data = payload(
+            {"a": "Film A"},
+            [
+                session("a", when=SOON, status="ONSALE"),
+                session("a", when=LATER, status="ANNOUNCED"),
+            ],
+        )
+        code, out = self.run_script(data, "--force-report")
+        self.assertIn("(1 upcoming)", out)
+
+
 class TestOutputs(ScriptTestCase):
     def test_json_report_written_only_when_something_is_new(self):
         before = payload({"a": "Film A"}, [session("a")])
@@ -275,17 +338,14 @@ class TestUnits(unittest.TestCase):
         key, label = anf.resolve_cinema(cinemas, sessions, None, "bryant")
         self.assertEqual(key, "dc-bryant-street")
 
-    def test_cinemas_nested_under_market(self):
-        """The live feed puts the cinema list under data.market, not data."""
+    def test_cinemas_from_market_as_a_list(self):
+        """data.market is a list in the live feed, not an object."""
         data = {
             "data": {
-                "market": {
-                    "slug": "dc-metro-area",
-                    "cinemas": [
-                        {"id": "2601", "slug": "dc-bryant-street", "name": "DC Bryant Street"},
-                        {"id": "2602", "slug": "dc-crystal-city", "name": "DC Crystal City"},
-                    ],
-                },
+                "market": [
+                    {"id": "1102", "slug": "dc-bryant-street", "name": "DC Bryant Street"},
+                    {"id": "1103", "slug": "dc-crystal-city", "name": "DC Crystal City"},
+                ],
                 "presentations": [],
                 "sessions": [],
             }
@@ -293,7 +353,41 @@ class TestUnits(unittest.TestCase):
         cinemas = anf.collect_cinemas(data, [])
         self.assertEqual(len(cinemas), 2)
         key, label = anf.resolve_cinema(cinemas, [], None, "bryant")
-        self.assertEqual((key, label), ("2601", "DC Bryant Street"))
+        self.assertEqual((key, label), ("1102", "DC Bryant Street"))
+
+    def test_cinemas_from_market_list_wrapping_a_cinemas_key(self):
+        """Or a list of market objects that each hold a cinema list."""
+        data = {
+            "data": {
+                "market": [
+                    {
+                        "slug": "dc-metro-area",
+                        "cinemas": [
+                            {"id": "1102", "slug": "dc-bryant-street", "name": "DC Bryant Street"}
+                        ],
+                    }
+                ],
+                "presentations": [],
+                "sessions": [],
+            }
+        }
+        cinemas = anf.collect_cinemas(data, [])
+        self.assertEqual(cinemas[0]["name"], "DC Bryant Street")
+
+    def test_cinemas_from_market_as_an_object(self):
+        data = {
+            "data": {
+                "market": {
+                    "cinemas": [
+                        {"id": "1102", "slug": "dc-bryant-street", "name": "DC Bryant Street"}
+                    ]
+                },
+                "presentations": [],
+                "sessions": [],
+            }
+        }
+        cinemas = anf.collect_cinemas(data, [])
+        self.assertEqual(cinemas[0]["id"], "1102")
 
     def test_sessions_keying_on_slug_while_list_uses_numeric_ids(self):
         """Cinema list and sessions need not agree on the identifier."""
@@ -329,10 +423,30 @@ class TestFixture(unittest.TestCase):
         cinemas = anf.collect_cinemas(data, sessions)
         key, label = anf.resolve_cinema(cinemas, sessions, None, "bryant")
         self.assertEqual(label, "DC Bryant Street")
-        films = anf.upcoming_films(sessions, anf.index_presentations(presentations), key)
-        self.assertEqual(set(films), {"the-thing-1982", "paddington-in-peru", "alien-1979"})
+        films = anf.upcoming_films(
+            sessions,
+            anf.index_presentations(presentations),
+            key,
+            hidden_slugs=anf.hidden_presentation_slugs(presentations),
+        )
+        self.assertEqual(
+            set(films),
+            {"the-thing-1982", "paddington-in-peru", "alien-1979"},
+            "other cinema, announced-only, and hidden films must all be excluded",
+        )
         self.assertEqual(films["the-thing-1982"]["session_count"], 2)
         self.assertEqual(films["alien-1979"]["session_count"], 1, "past session excluded")
+
+    def test_sample_matches_the_real_session_shape(self):
+        """Guard the fields the live feed was observed to use."""
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "testdata", "sample_schedule.json")
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+        sample = data["data"]["sessions"][0]
+        for field in ("cinemaId", "sessionId", "presentationSlug", "status", "showTimeClt", "isHidden"):
+            self.assertIn(field, sample)
+        self.assertIn("show", data["data"]["presentations"][0])
+        self.assertIn("slug", data["data"]["presentations"][0])
 
 
 if __name__ == "__main__":
