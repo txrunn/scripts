@@ -1,195 +1,251 @@
 # Alamo DC Bryant Street — new-film tracker
 
-Run it daily; it tells you which movies have **newly become bookable** at Alamo
-Drafthouse DC Bryant Street since you last looked. Re-releases and repertory
-count the same as first-run films. Removals are never reported.
+Tells you which movies have **newly become bookable** at Alamo Drafthouse DC
+Bryant Street since you last looked, so you can spend a Season Pass on them
+before the good seats go. Re-releases, repertory and one-off events all count.
 
-It prints **nothing** when nothing is new, so a cron job only mails you on days
-that actually matter.
+It prints **nothing** when nothing is new. Silence means "no news", which is what
+makes it safe to run daily from a scheduler.
 
 Python 3.9+, standard library only. Nothing to install.
 
-## Quick start
+---
 
-```bash
-# 1. Confirm the API still looks the way we expect (see "Verifying the API").
-./alamo_new_films.py --verify
+## The three commands you actually need
 
-# 2. Seed the baseline. Prints a one-line summary, no film list.
-./alamo_new_films.py
+```powershell
+# Is anything new? (this is the whole job)
+python alamo_new_films.py
 
-# 3. From here on, run it daily.
-./alamo_new_films.py
+# Is the API still shaped the way the parser expects?
+python alamo_new_films.py --verify
+
+# Start over from scratch
+Remove-Item -Recurse -Force state
+python alamo_new_films.py          # re-seeds a baseline, reports nothing
 ```
 
-Typical output on a day something was added:
+On macOS/Linux use `./alamo_new_films.py` and `rm -rf state`.
+
+**First run seeds a baseline.** It records everything currently bookable and
+reports none of it — you already know what's on the calendar today. From then on
+you only hear about additions.
+
+---
+
+## What a report looks like
 
 ```
-2 new films bookable at DC Bryant Street (2026-08-25)
+3 new films bookable at DC Bryant Street (2026-08-25)
 
-  The Thing (1982)
-    first showtime  Fri Oct 31, 7:30 PM   (4 upcoming)
-    https://drafthouse.com/dc-metro-area/show/the-thing-1982
+SPECIAL EVENTS — one-offs, book early  (1)
 
-  Paddington in Peru
-    first showtime  Sun Nov 02, 1:00 PM   (11 upcoming)
-    https://drafthouse.com/dc-metro-area/show/paddington-in-peru
+  Taxi Driver  [Film Club]
+    first showtime  Sat Aug 29, 4:00 PM   (1 upcoming)
+    https://drafthouse.com/dc-metro-area/show/film-club-taxi-driver
 
-JSON report: C:\...\alamo-drafthouse\state\reports\new-films-2026-08-25.json
+REGULAR RELEASES  (1)
+
+  Avengers: Doomsday
+    first showtime  Thu Sep 10, 8:00 PM   (12 upcoming)
+    https://drafthouse.com/dc-metro-area/show/avengers-doomsday
+
+ADVANCE SCREENINGS — check for merch; the film returns, the merch does not  (1)
+
+  The Dog Stars  [Advance screening]
+    first showtime  Fri Sep 4, 6:00 PM   (1 upcoming)
+    https://drafthouse.com/dc-metro-area/show/advance-screening-the-dog-stars
+
+JSON report: ...\alamo-drafthouse\state\reports\new-films-2026-08-25.json
 ```
+
+Same data lands in `state/reports/new-films-<date>.json` with a `tier` and
+`event_label` on each film, if you ever want to pipe it somewhere.
+
+---
+
+## How it works
+
+```
+GET drafthouse.com/s/mother/v2/schedule/market/dc-metro-area
+        │
+        ├─ data.presentations[]   one per film/event  (slug, show.title, eventType, superTitle)
+        └─ data.sessions[]        one per showtime    (cinemaId, presentationSlug, showTimeClt, status)
+        │
+   keep sessions at cinemaId 1101 (Bryant), in the future, status ONSALE, not hidden
+        │
+   group into films, classify each into a tier
+        │
+   compare against the ledger  →  report only slugs never seen before
+        │
+   append new slugs to the ledger
+```
+
+### What counts as "bookable"
+
+A film is reported when it first has a session at Bryant that is **in the
+future**, **on sale** (`status == "ONSALE"` — not `SOLDOUT`, not `PAST`), and
+**not hidden**.
+
+The on-sale check is the point of the whole thing: Alamo lists sessions before
+tickets go live, and you want to hear about a film the day you can *buy*, not the
+day it's announced. A sold-out show is no use to a Season Pass either — if it
+later opens seats, the new `ONSALE` session brings it in then.
+
+### What counts as "new"
+
+The ledger is **cumulative** — every slug ever seen bookable at Bryant — not a
+yesterday-vs-today snapshot. Three consequences:
+
+- **Skipping days is safe.** Laptop off, travel, a failed run: the addition is
+  still caught next time rather than swallowed by the gap.
+- **A film that drops off and comes back is not re-reported.** You knew about it.
+- **Removals never surface**, by construction.
+
+Each film is reported exactly once, the first time it becomes bookable.
+
+Note that Alamo gives the same film a different slug per presentation, so
+*Rear Window* appears both as `rear-window` and `film-club-rear-window`. Those
+are genuinely different bookable events, so both are reported.
+
+### Priority tiers
+
+| Tier | What | Why there |
+|---|---|---|
+| 1. Special events | Film Club, Movie Party, EPIC Sunday, Terror Tuesday, Quote-Alongs, anniversaries, Q&As | Run once; seats go early |
+| 2. Regular releases | Ordinary showings | The default |
+| 3. Advance screenings | Previews, early access, insider screenings | The film returns in a regular run — **but the merch doesn't**, so check rather than skip |
+
+Tier beats showtime: a Film Club screening two months out ranks above a regular
+release tomorrow. `--skip-regular` drops tier 2 only, deliberately keeping tier 3.
+
+Classification uses Alamo's own fields, in order:
+
+1. **`eventType`** — an object on every special event, `null` on every ordinary
+   release. A declared field, so a series Alamo invents next month is picked up
+   with no code change here.
+2. **`superTitle.superTitle`** supplies the label ("EPIC Sunday", "Film Club"),
+   but only for something already established as an event — on a regular film
+   it's a merchandising shelf. *Teenage Sex and Death at Camp Miasma* carries
+   `superTitle: "Drafthouse Recommends"` with `eventType: null` and stays a
+   regular release.
+3. **Slug markers** (`film-club-…`, `mean-girls-movie-party`) as fallback if
+   `eventType` is ever missing. On the live slate they agree with `eventType` on
+   all 67 films.
+4. **Advance markers** last, so an Anime Night *sneak peek* stays an event rather
+   than being written off as a preview.
+
+Only slug and title are matched against markers — `eventType.description` is
+boilerplate shared by every event ("a movie-inspired feast, an interactive
+party") and would otherwise supply labels from one shared sentence.
+
+Live slate splits **32 events / 32 regular / 3 advance**. Add a new series in
+`PRIORITY_MARKERS` (one line) if the fallback ever needs it.
+
+---
+
+## Where state lives
+
+```
+alamo-drafthouse/
+  alamo_new_films.py
+  state/                          ← gitignored, safe to delete
+    dc-bryant-street.json         ← the ledger
+    reports/
+      new-films-2026-08-25.json   ← one per day something was added
+  ci-state/
+    dc-bryant-street.json         ← the GitHub Action's separate ledger (committed)
+```
+
+Paths are absolute and derived from the script's own location, so a scheduled
+task running from any working directory writes here. Override with `--state` /
+`--report-dir`.
+
+> **Run local *or* CI, not both.** They keep independent ledgers, so each will
+> report films the other already told you about.
+
+---
 
 ## Scheduling
 
-**cron (macOS / Linux)** — 9am daily. cron mails you stdout, and stdout is empty
-on quiet days, so you only hear from it when there is something to book:
+### GitHub Actions (recommended — nothing to keep running)
+
+`.github/workflows/alamo-new-films.yml` runs daily and **opens an issue** when
+films are added. GitHub emails you about issues in your own repo, so there's no
+SMTP secret to manage.
+
+Each run: tests → fetch + `--verify` → check for new films → job summary → (only
+if something was added) open an issue and commit the ledger.
+
+Try it by hand first: **[Actions tab](https://github.com/txrunn/scripts/actions)
+→ "Alamo new films" → Run workflow**, then read the job summary. That first run
+also proves the runner can reach drafthouse.com.
+
+Things that will bite you eventually:
+
+- **Cron is UTC and ignores DST.** `0 13 * * *` is 9am EDT, 8am EST.
+- **Runs can be delayed** up to an hour under GitHub load.
+- **60 days of repo inactivity disables scheduled workflows.** The ledger commit
+  resets that clock, but only on days something is added. GitHub emails a warning
+  first; any commit re-arms it.
+- State persists by being **committed back** to `ci-state/`, since runners keep
+  nothing. Side benefit: `git log alamo-drafthouse/ci-state/` is a record of when
+  each film went on sale.
+
+### Local
+
+**Windows Task Scheduler** (note: it doesn't mail you stdout, so either check
+`state\reports\` or redirect to a log):
+
+```powershell
+schtasks /create /tn "Alamo new films" /sc daily /st 09:00 ^
+  /tr "python C:\path\to\alamo-drafthouse\alamo_new_films.py"
+```
+
+**cron** — mails you stdout, and stdout is empty on quiet days, so you only hear
+from it when there's something to book:
 
 ```
 0 9 * * * /full/path/to/alamo_new_films.py
 ```
 
-**Windows Task Scheduler:**
+---
+
+## Options
+
+| Flag | Purpose |
+|---|---|
+| `--verify` | Check the API contract and exit. |
+| `--list-cinemas` | Every cinema in the market with its id and session count. |
+| `--cinema-id ID` | Pin the cinema id, skipping name matching. |
+| `--match TEXT` | Cinema name/slug substring (default `bryant`). |
+| `--market SLUG` | Market slug (default `dc-metro-area`). |
+| `--skip-regular` | Drop ordinary releases; keep events *and* advance screenings. (`--events-only` is an alias.) |
+| `--status STATUS` | Status counted as bookable, repeatable (default `ONSALE`; `ALL` ignores status). |
+| `--force-report` | On a cold start, list the whole slate instead of seeding quietly. |
+| `--dry-run` | Report, but write no state and no JSON. |
+| `--from-file PATH` | Read a saved response instead of fetching. Offline testing. |
+| `--dump PATH` | Save the raw response for debugging. |
+| `--json-always` | Write the JSON report even when nothing is new. |
+| `--state PATH` | Ledger location (default `state/`). |
+| `--report-dir PATH` | JSON report directory (default `state/reports/`). |
+
+Exit `0` on a successful run whether or not anything is new; `1` on a network,
+schema, or config error, with a message on stderr — so a broken scheduled run
+reaches you instead of looking like a quiet day.
+
+---
+
+## When it breaks
+
+**Start here:**
 
 ```powershell
-schtasks /create /tn "Alamo new films" /tr "python C:\path\to\alamo_new_films.py" /sc daily /st 09:00
+python alamo_new_films.py --verify --dump raw.json
 ```
 
-## What counts as "bookable"
-
-A film is reported when it first has at least one session at Bryant that is:
-
-- in the **future**, and
-- **on sale** (`status == "ONSALE"`) — not `SOLDOUT`, not `PAST`, and
-- **not hidden** (neither the session nor the presentation has `isHidden: true`).
-
-The on-sale check is the point of the whole thing: Alamo lists sessions before
-tickets go live, and you want to hear about a film the day you can *buy*, not the
-day it appears. A sold-out show is no use to a Season Pass either, so `SOLDOUT`
-does not make a film count as newly bookable — if that film later opens more
-seats, the new `ONSALE` session brings it in then. `--verify` prints the full status distribution for the market so
-you can see whether any status other than `ONSALE` is also purchasable; widen the
-set with `--status ONSALE --status SOMETHING_ELSE`, or `--status ALL` to ignore
-status entirely.
-
-## Priority order
-
-New films are grouped into three tiers, best first:
-
-1. **Special events** — Film Club, Movie Party, Epic Sunday, Terror Tuesday,
-   Quote-Alongs, anniversaries, Q&As, fan events. These run once and their seats
-   go early, so they lead.
-2. **Regular releases** — ordinary showings.
-3. **Advance screenings** — last, because the film itself returns: all three
-   advance screenings at Bryant (Dune: Part Three, Hope, The Dog Stars) already
-   had a regular counterpart on the slate.
-
-   **Last is not skippable.** Advance screenings sometimes come with free merch,
-   and the later regular run does not substitute for that — the film comes back,
-   the poster does not. The feed exposes no merch signal (see below), so the
-   tier heading tells you to check rather than pretending it is redundant, and
-   `--skip-regular` deliberately keeps this tier.
-
-Tier beats showtime, so a Film Club screening two months out still ranks above a
-regular release tomorrow. `--skip-regular` drops tier 2 only.
-
-Classification is decided by Alamo's own fields, in this order:
-
-1. **`eventType`** — a rich object on every special event (`{slug:
-   "special-event", title: "Special Event", …}`) and `null` on every ordinary
-   release. A declared field beats any inference from naming, so this decides
-   first, and a series Alamo invents tomorrow is picked up with no code change.
-2. **`superTitle.superTitle`** supplies the display label — "EPIC Sunday",
-   "Film Club", "Terror Tuesday" — but only for something already established as
-   an event. On a regular film it is a merchandising shelf, not a series:
-   *Teenage Sex and Death at Camp Miasma* carries `superTitle: "Drafthouse
-   Recommends"` with `eventType: null` and is correctly left as a regular
-   release.
-3. **Slug markers** (`film-club-…`, `mean-girls-movie-party`) are the fallback
-   for a feed where `eventType` is missing. On the live slate they classify all
-   67 films identically to the `eventType` path.
-4. **Advance markers** run last, so a one-off Anime Night sneak peek stays an
-   event rather than being written off as a preview whose regular run will never
-   come.
-
-Only the slug and title are matched against markers. `eventType.description` is
-boilerplate shared by every event — it reads "a movie-inspired feast, an
-interactive party" — so folding it into the haystack would let words from that
-one sentence decide a film's label.
-
-**Merch cannot be detected.** The feed's entire attribute vocabulary is
-`first-run`, `alamo-exclusive`, `advance-sales`, `family-friendly` — nothing
-about giveaways or posters. Named-series events are prioritized regardless, but
-a merch-bearing advance screening is indistinguishable from a plain one, which
-is why that tier is ordered last but never dropped. Note that `advance-sales`
-sits on ordinary first-run films (Avengers: Doomsday, Dune: Part Three) and
-deliberately does *not* count as an advance screening, and `alamo-exclusive`
-marks all specialty programming.
-
-On the live slate this splits 32 special events / 32 regular / 3 advance.
-`--verify` prints the same breakdown so you can sanity-check it.
-
-Adding a series Alamo invents later is one line in `PRIORITY_MARKERS`.
-
-**Note:** `--skip-regular` still records everything in the ledger, so turning the
-flag off later will not resurface titles an earlier run already reported.
-
-## How "new" is decided
-
-State is a **cumulative ledger** of every film ever seen bookable at Bryant, not
-a yesterday-vs-today snapshot. That matters in three cases a naive diff gets
-wrong:
-
-- **You skip days.** Laptop off, travel, cron failure — the addition is still
-  caught on the next run instead of being silently swallowed by the gap.
-- **A film drops off and comes back.** Not re-reported. You already knew about it.
-- **Removals.** Never surface at all, by construction.
-
-A film is reported exactly once: the first time it has at least one *future*
-showtime at Bryant.
-
-### Where state lives
-
-Everything the tracker writes goes in `state/`, next to the script:
-
-```
-alamo-drafthouse/
-  alamo_new_films.py
-  state/                          # gitignored
-    dc-bryant-street.json         # the ledger
-    reports/
-      new-films-2026-08-25.json   # one per day something was added
-```
-
-The paths are absolute and derived from the script's own location, so a
-scheduled task running from an arbitrary working directory still writes here.
-Override with `--state` / `--report-dir` if you want them elsewhere.
-
-**To start over**, delete `state/` — the next run seeds a fresh baseline:
-
-```powershell
-Remove-Item -Recurse -Force alamo-drafthouse\state
-```
-
-```bash
-rm -rf alamo-drafthouse/state
-```
-
-Earlier versions wrote to `~/.local/state/alamo-drafthouse/`. If you ran one of
-those, that directory is now orphaned and safe to delete:
-
-```powershell
-Remove-Item -Recurse -Force "$env:USERPROFILE\.local\state\alamo-drafthouse"
-```
-
-## Verifying the API
-
-Alamo's schedule endpoint is undocumented and unversioned in practice, so the
-script ships with a mode that checks every field it depends on:
-
-```bash
-./alamo_new_films.py --verify
-```
-
-Real output from the live `dc-metro-area` feed on 2026-08-25:
+`--verify` checks every field the script depends on and prints a PASS/FAIL line
+each. Real output from the live feed:
 
 ```
 data.presentations present             PASS  72 items
@@ -200,147 +256,130 @@ session has presentationSlug           PASS  662/662
 session has cinema identifier          PASS  cinemaId, 662/662
 session has parseable showtime         PASS  662/662
 target cinema resolvable               PASS  key=1101 "DC Bryant Street"
-session statuses at target             INFO  ONSALE=220, PAST=1, SOLDOUT=1 (counted as bookable: ['ONSALE'])
+session statuses at target             INFO  ONSALE=220, PAST=1, SOLDOUT=1
 hidden entries excluded                INFO  1 session(s), 0 presentation(s)
+event classification                   INFO  32 special event(s), 32 regular, 3 advance
 upcoming bookable sessions at target   PASS  218 sessions, 67 distinct films
 every session slug resolves to a film  PASS  67/67
 schedule window                        INFO  2026-08-25 .. 2026-12-24 (121 days out)
 ```
 
-Three lines are worth reading closely:
-
-- **`upcoming bookable sessions at target`** — cross-check that distinct-film
-  count against what <https://drafthouse.com/dc-metro-area?showCalendar=true>
-  shows for Bryant. If they agree, the cinema filter and the session→film join
-  are right.
-- **`session statuses at target`** — the observed statuses at Bryant are
-  `ONSALE`, `SOLDOUT`, and `PAST`; only `ONSALE` is counted. If a new status
-  turns out to be purchasable, widen the set with `--status`.
-- **`schedule window`** — how far ahead Alamo publishes, i.e. the maximum lead
-  time this tracker can ever give you.
-
-`--verify` exits non-zero on any FAIL and prints the real keys it found, which is
-what you need to correct the field names if Alamo changes the API.
-
-### Checking the endpoint by hand
-
-```bash
-curl -s 'https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area' \
-  | python3 -c 'import json,sys; d=json.load(sys.stdin); print(list(d.get("data",d)))'
-```
-
-In **PowerShell**, `curl` is an alias for `Invoke-WebRequest` and will prompt you
-for a `Uri:` instead of running the above. Use one of:
-
-```powershell
-curl.exe -s 'https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area' | python -c "import json,sys; d=json.load(sys.stdin); print(list(d.get('data',d)))"
-```
-
-```powershell
-(Invoke-RestMethod 'https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area').data.PSObject.Properties.Name
-```
-
-## Options
-
-| Flag | Purpose |
+| Symptom | Likely cause |
 |---|---|
-| `--verify` | Check the API contract and exit. |
-| `--list-cinemas` | Print every cinema in the market with its id and session count. |
-| `--cinema-id ID` | Pin the cinema id, skipping name matching. |
-| `--match TEXT` | Cinema name/slug substring (default `bryant`). |
-| `--market SLUG` | Market slug (default `dc-metro-area`). |
-| `--dump PATH` | Save the raw response for debugging. |
-| `--from-file PATH` | Read a saved response instead of fetching. Offline testing. |
-| `--dry-run` | Report, but write no state and no JSON. |
-| `--force-report` | On a cold start, list the whole current slate instead of seeding quietly. |
-| `--status STATUS` | Session status counted as bookable, repeatable (default `ONSALE`; `ALL` ignores status). |
-| `--skip-regular` | Drop ordinary releases; keep special events *and* advance screenings (they may carry merch). `--events-only` is accepted as an alias. |
-| `--json-always` | Write the JSON report even when nothing is new. |
-| `--state PATH` | Ledger location (default `state/` next to the script). |
-| `--report-dir PATH` | JSON report directory (default `state/reports/`). |
+| `could not find 'presentations' and 'sessions'` | Alamo changed the response shape. `raw.json` has the truth; fix `extract()`. |
+| `could not find a cinema matching 'bryant'` | Cinema list moved. Run `--list-cinemas`, then pass `--cinema-id`. |
+| Reports nothing for days | Cross-check the film count in `--verify` against the [calendar](https://drafthouse.com/dc-metro-area?showCalendar=true). If they disagree, the filter is wrong. |
+| Reports films you knew about | Two ledgers in play (local *and* CI), or `state/` was deleted. |
+| A status other than `ONSALE` is purchasable | `--status ONSALE --status THE_NEW_ONE` |
 
-Exit `0` on a successful run (new films or not), `1` on a network, schema, or
-config error — with a message on stderr, so a broken cron job reaches you instead
-of looking like a quiet day.
+Schema tolerance is deliberately confined to four small functions in
+`alamo_new_films.py`: `extract()`, `presentation_title()`, `session_cinema_key()`
+and `parse_showtime()`. A feed change should only ever need edits there.
 
-## When Alamo changes the API
-
-`--verify` fails, naming the checks that broke and dumping the real keys:
-
-```powershell
-python alamo_new_films.py --verify --dump raw.json
-```
-
-`raw.json` has the actual payload. The fix is localized to `extract()`,
-`presentation_title()`, `session_cinema_key()`, and `parse_showtime()` in
-`alamo_new_films.py` — each is a small function whose only job is tolerating one
-piece of the schema.
+---
 
 ## Tests
 
-```bash
-python3 -m unittest discover -s . -t . -v
+```powershell
+python -m unittest discover -s . -t . -v
 ```
 
-65 tests, no network. Covers the diff logic (new / seen / removed / returning /
-gap in runs), bookability (`SOLDOUT`, `PAST`, and announced-but-not-on-sale
-excluded, hidden sessions and presentations excluded, a film reported on the day
-it flips to `ONSALE`, and a sold-out film reported when seats reopen),
-filtering (other cinemas, past showtimes, unparseable timestamps), outputs (JSON
-written only when non-empty, `--dry-run` writes nothing), and robustness (unknown
-schema fails loudly rather than looking like a quiet day, corrupt state,
-ambiguous cinema match, the several shapes `market` can take), priority tiering
-(real event slugs and eventType objects from the live slate, shelf labels not
-promoting, prose never supplying a label, tier beating showtime, `--skip-regular`
-keeping advance screenings), and that the default
-state paths are absolute and land beside the script.
+65 tests, no network — every one drives the script through `--from-file`.
 
-`testdata/sample_schedule.json` mirrors the field names observed on the live
-`dc-metro-area` feed, and one test asserts those fields are still present in the
-fixture so it cannot drift back into fiction.
+Coverage: diff logic (new / seen / removed / returning / gaps between runs);
+bookability (`SOLDOUT`, `PAST`, announced-but-not-on-sale and hidden entries all
+excluded; a film reported the day it flips to `ONSALE`; a sold-out film reported
+when seats reopen); filtering (other cinemas, past showtimes, unparseable
+timestamps); tiering (real event slugs and `eventType` objects from the live
+slate, shelf labels not promoting, prose never supplying a label, tier beating
+showtime, `--skip-regular` keeping advance screenings); outputs; and robustness
+(an unknown schema fails loudly rather than looking like a quiet day, corrupt
+state, ambiguous cinema match, the several shapes `market` can take, absolute
+state paths).
+
+`testdata/sample_schedule.json` mirrors field names observed on the live feed,
+and a test asserts they stay present so the fixture can't drift into fiction.
+
+---
+
+## The API
+
+Undocumented and unversioned. Everything below was observed on the live
+`dc-metro-area` feed, not from documentation.
+
+```
+GET https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area
+```
+
+`data` holds `presentations`, `sessions`, `market`, `presentationAttributes`,
+`sessionAttributes`, `formats`, `agePolicies`, `queues`, `relatedPresentations`.
+
+**Session** — `cinemaId` `sessionId` `presentationSlug` `status` `showTimeClt`
+`showTimeUtc` `businessDateClt` `cinemaTimeZoneName` `formatSlug`
+`sessionAttributeSlugs` `agePolicySlug` `screenNumber` `reservedSeating`
+`isHidden` `ticketTypes*Count`
+
+**Presentation** — `slug` `show` `event` `eventType` `superTitle` `formatSlugs`
+`presentationAttributeSlugs` `associatedPresentationSlugs` `openingDateClt`
+`primaryCollectionSlug` `isHidden`
+
+| Field | Observed values |
+|---|---|
+| `status` | `ONSALE`, `SOLDOUT`, `PAST` |
+| `presentationAttributeSlugs` | `first-run`, `alamo-exclusive`, `advance-sales`, `family-friendly` — **that's the whole vocabulary** |
+| `eventType` | `null` on regular films; `{id, slug: "special-event", title, description, collectionSlug}` on events |
+| `superTitle` | `null`, or `{superTitle: "EPIC Sunday", type: "COLLECTION", slug: "epic-sunday"}` |
+| Bryant's `cinemaId` | `1101` |
+
+Watch out: `advance-sales` sits on **ordinary** first-run films (Avengers:
+Doomsday, Dune: Part Three). It means pre-sale is open, *not* that it's an
+advance screening.
+
+Poke at it by hand — in PowerShell, `curl` is an alias for `Invoke-WebRequest`
+and will prompt you for a `Uri:`, so use `curl.exe` or:
+
+```powershell
+$d = (Invoke-RestMethod 'https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area').data
+$d.presentations[0] | ConvertTo-Json -Depth 4
+$d.sessions | Group-Object status | Select-Object Name, Count
+```
+
+---
 
 ## Caveats
 
 - **Season Pass eligibility is not modeled.** Alamo excludes some special events
-  and premium formats from the pass, and the feed does not reliably flag which.
+  and premium formats from the pass and the feed doesn't reliably flag which.
   Everything bookable is reported; you judge.
-- Showtimes are treated as cinema-local wall time, which is correct for a
-  DC-only tracker and avoids a timezone dependency.
+- **Merch can't be detected.** The four attribute slugs above are the entire
+  vocabulary — nothing about giveaways or posters. That's why advance screenings
+  are ranked last but never dropped.
+- **Showtimes are treated as cinema-local wall time**, correct for a DC-only
+  tracker and avoids a timezone dependency.
+- **The retry/backoff path has never been exercised against a real network
+  failure** — only against fixtures.
+- **The show links in reports are unconfirmed.** They are built as
+  `drafthouse.com/<market>/show/<slug>`, the form a third-party client used;
+  Alamo also serves `drafthouse.com/show/<slug>`. If a link 404s, change
+  `SHOW_URL` in `alamo_new_films.py` to the shorter form.
 
-## Running it as a GitHub Action
+---
 
-`.github/workflows/alamo-new-films.yml` runs the check daily and **opens an issue
-when films are added**. GitHub emails you about issues in your own repo, so there
-are no SMTP secrets to configure and nothing to keep running on your laptop.
+## Links
 
-The workflow, in order: runs the test suite, fetches the feed once and
-`--verify`s it, checks for new films against the CI ledger, writes a job summary,
-and — only when something was added — opens an issue and commits the updated
-ledger.
+**Alamo**
+- [DC Metro calendar](https://drafthouse.com/dc-metro-area?showCalendar=true) — what the tracker is watching
+- [DC Bryant Street](https://drafthouse.com/dc-metro-area/theater/dc-bryant-street)
+- [The Highbinder (Bryant St bar)](https://drafthouse.com/dc-metro-area/theater-bar/dc-bryant-street)
+- [Schedule endpoint](https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area) — raw JSON
 
-### State on ephemeral runners
+**This repo**
+- [Actions runs](https://github.com/txrunn/scripts/actions) — history and job summaries
+- [Issues](https://github.com/txrunn/scripts/issues) — where new-film alerts land
+- `git log alamo-drafthouse/ci-state/` — when each film went on sale
 
-Runners keep nothing between runs, so the ledger is committed back to the repo at
-`alamo-drafthouse/ci-state/dc-bryant-street.json`. That is deliberately *not*
-`state/` (which is gitignored for local runs) — the CI ledger and your local one
-are independent, so run one or the other, not both, or each will report films the
-other already told you about.
-
-The commit happens only on days something was added. The `seen` map is unchanged
-otherwise, and a daily no-op commit would bury the real history. A side effect
-worth having: `git log alamo-drafthouse/ci-state/` becomes a record of exactly
-when each film went on sale.
-
-### Things to know
-
-- **Cron is UTC and ignores DST.** `0 13 * * *` is 9am EDT, 8am EST.
-- **Scheduled runs can be delayed** by up to an hour under GitHub load. Fine
-  daily, useless for a race.
-- **60 days of repo inactivity disables scheduled workflows.** The ledger commit
-  resets that clock, but only on days something is added. If Alamo goes two
-  months without a new title, GitHub emails a warning before disabling; any
-  commit re-arms it.
-- **Verify it works before trusting it:** run the workflow by hand from the
-  Actions tab (`workflow_dispatch`) and read the job summary. The first manual
-  run also confirms the runner can reach `drafthouse.com` — if Alamo's CDN blocks
-  datacenter IPs, the `--verify` step fails loudly rather than reporting nothing.
+**Reference**
+- [GitHub scheduled workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) — cron syntax and the delay/inactivity rules
+- [AlamoShowtimes.spoon](https://github.com/jamtur01/AlamoShowtimes.spoon) — where the endpoint shape was originally confirmed
+- [spikegrobstein/alamo-drafthouse-movie-list](https://github.com/spikegrobstein/alamo-drafthouse-movie-list) — older `feeds.drafthouse.com` API
+- [jroyal/drafthouse-api](https://github.com/jroyal/drafthouse-api)
