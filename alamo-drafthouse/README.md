@@ -86,23 +86,37 @@ New films are grouped into three tiers, best first:
 Tier beats showtime, so a Film Club screening two months out still ranks above a
 regular release tomorrow. `--events-only` drops tiers 2 and 3 entirely.
 
-Classification matches markers against the slug, the title, and Alamo's
-structured fields (`superTitle`, `eventType`, `event`,
-`presentationAttributeSlugs`) folded into one haystack. In practice the **slug is
-the load-bearing signal**: on the live slate `eventType` is null and `superTitle`
-is usually null, so `film-club-rear-window` and `mean-girls-movie-party` are what
-actually classify. The structured fields are read where populated —
-`superTitle` is an object, `{superTitle, type, slug}`, not a string.
+Classification is decided by Alamo's own fields, in this order:
 
-An event that is *also* a preview stays an event: a one-off Anime Night sneak
-peek is not made redundant by a later regular run.
+1. **`eventType`** — a rich object on every special event (`{slug:
+   "special-event", title: "Special Event", …}`) and `null` on every ordinary
+   release. A declared field beats any inference from naming, so this decides
+   first, and a series Alamo invents tomorrow is picked up with no code change.
+2. **`superTitle.superTitle`** supplies the display label — "EPIC Sunday",
+   "Film Club", "Terror Tuesday" — but only for something already established as
+   an event. On a regular film it is a merchandising shelf, not a series:
+   *Teenage Sex and Death at Camp Miasma* carries `superTitle: "Drafthouse
+   Recommends"` with `eventType: null` and is correctly left as a regular
+   release.
+3. **Slug markers** (`film-club-…`, `mean-girls-movie-party`) are the fallback
+   for a feed where `eventType` is missing. On the live slate they classify all
+   67 films identically to the `eventType` path.
+4. **Advance markers** run last, so a one-off Anime Night sneak peek stays an
+   event rather than being written off as a preview whose regular run will never
+   come.
+
+Only the slug and title are matched against markers. `eventType.description` is
+boilerplate shared by every event — it reads "a movie-inspired feast, an
+interactive party" — so folding it into the haystack would let words from that
+one sentence decide a film's label.
 
 **Merch cannot be detected.** The feed's entire attribute vocabulary is
 `first-run`, `alamo-exclusive`, `advance-sales`, `family-friendly` — nothing
 about giveaways or posters. A merch screening is prioritized only if it is also a
-named series. Note that `advance-sales` sits on ordinary first-run films
-(Avengers: Doomsday, Dune: Part Three) and deliberately does *not* count as an
-advance screening.
+named series, which in practice covers most of them. Note that `advance-sales`
+sits on ordinary first-run films (Avengers: Doomsday, Dune: Part Three) and
+deliberately does *not* count as an advance screening, and `alamo-exclusive`
+marks all specialty programming.
 
 On the live slate this splits 32 special events / 32 regular / 3 advance.
 `--verify` prints the same breakdown so you can sanity-check it.
@@ -262,7 +276,7 @@ piece of the schema.
 python3 -m unittest discover -s . -t . -v
 ```
 
-60 tests, no network. Covers the diff logic (new / seen / removed / returning /
+64 tests, no network. Covers the diff logic (new / seen / removed / returning /
 gap in runs), bookability (`SOLDOUT`, `PAST`, and announced-but-not-on-sale
 excluded, hidden sessions and presentations excluded, a film reported on the day
 it flips to `ONSALE`, and a sold-out film reported when seats reopen),

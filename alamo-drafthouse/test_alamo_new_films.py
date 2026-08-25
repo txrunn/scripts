@@ -310,24 +310,99 @@ class TestClassification(unittest.TestCase):
         tier, label = self.tier("crunchyroll-anime-night-sneak-peek-9-21-2026")
         self.assertEqual((tier, label), (anf.TIER_EVENT, "Anime Night"))
 
-    def test_super_title_object_is_read(self):
+    def test_real_event_objects_from_the_live_feed(self):
+        """Verbatim shapes observed on dc-metro-area, including the prose blob."""
+        event_type = {
+            "id": "1869",
+            "slug": "special-event",
+            "title": "Special Event",
+            "headline": "For movie lovers, by movie lovers",
+            "description": (
+                "<p>Whether it's a movie-inspired feast, an interactive party, or a "
+                "screening paired with a live performance, we love sharing the movies "
+                "we love in new and exciting ways.</p>"
+            ),
+            "collectionSlug": "special-event",
+        }
+        for slug, series in [
+            ("terror-tuesday-the-faculty", "Terror Tuesday"),
+            ("epic-sunday-inception", "EPIC Sunday"),
+            ("film-club-network", "Film Club"),
+        ]:
+            with self.subTest(slug=slug):
+                tier, label = anf.classify(
+                    {
+                        "slug": slug,
+                        "show": {"title": "X"},
+                        "superTitle": {
+                            "superTitle": series,
+                            "type": "COLLECTION",
+                            "slug": series.lower().replace(" ", "-"),
+                        },
+                        "eventType": event_type,
+                        "presentationAttributeSlugs": ["advance-sales", "alamo-exclusive"],
+                    }
+                )
+                self.assertEqual((tier, label), (anf.TIER_EVENT, series))
+
+    def test_event_description_prose_never_supplies_the_label(self):
+        """The shared blurb mentions "feast" and "party" -- neither may leak in."""
+        tier, label = anf.classify(
+            {
+                "slug": "some-new-series",
+                "show": {"title": "Mystery Film"},
+                "eventType": {
+                    "slug": "special-event",
+                    "title": "Special Event",
+                    "description": "a movie-inspired feast, an interactive party",
+                },
+            }
+        )
+        self.assertEqual(tier, anf.TIER_EVENT)
+        self.assertEqual(label, "Special Event", "label came from prose, not eventType.title")
+
+    def test_event_type_alone_promotes_an_unknown_series(self):
+        """A series we have never heard of still ranks as an event."""
+        tier, _ = anf.classify(
+            {"slug": "brand-new-thing", "show": {"title": "X"},
+             "eventType": {"slug": "special-event", "title": "Special Event"}}
+        )
+        self.assertEqual(tier, anf.TIER_EVENT)
+
+    def test_super_title_object_supplies_the_label_for_a_real_event(self):
         """superTitle is an object in the live feed, not a string."""
         self.assertEqual(
             self.tier(
                 "plain-slug",
                 superTitle={"superTitle": "FILM CLUB", "type": "COLLECTION", "slug": "film-club"},
+                eventType={"slug": "special-event", "title": "Special Event"},
             ),
-            (anf.TIER_EVENT, "Film Club"),
+            (anf.TIER_EVENT, "FILM CLUB"),
         )
 
-    def test_structured_fields_classify_when_the_slug_is_plain(self):
-        """Alamo's own event fields are used, not just slug substrings."""
+    def test_a_collection_shelf_alone_is_not_an_event(self):
+        """Camp Miasma carries superTitle "Drafthouse Recommends" with eventType null.
+
+        It is an ordinary first-run film on a curated shelf, so superTitle must
+        not promote it on its own.
+        """
+        self.assertEqual(
+            self.tier(
+                "teenage-sex-and-death-at-camp-miasma",
+                superTitle={
+                    "superTitle": "Drafthouse Recommends",
+                    "type": "COLLECTION",
+                    "slug": "drafthouse-recommends",
+                },
+                eventType=None,
+                presentationAttributeSlugs=["first-run"],
+            ),
+            (anf.TIER_REGULAR, None),
+        )
+
+    def test_event_type_as_a_bare_string_still_classifies(self):
         self.assertEqual(
             self.tier("plain-slug", eventType="Movie Party"), (anf.TIER_EVENT, "Movie Party")
-        )
-        self.assertEqual(
-            self.tier("plain-slug", event={"name": "Terror Tuesday"}),
-            (anf.TIER_EVENT, "Terror Tuesday"),
         )
 
     def test_live_attribute_vocabulary_does_not_misclassify(self):

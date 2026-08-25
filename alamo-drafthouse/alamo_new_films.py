@@ -266,44 +266,93 @@ def _text_values(value):
     return []
 
 
-def classification_text(presentation):
-    """Everything about a presentation worth matching event markers against.
+def _slug_text(*values):
+    """Lowercase hyphenated haystack built from the given strings."""
+    return re.sub(r"[^a-z0-9]+", "-", " ".join(v for v in values if v).lower())
 
-    Folds the structured fields and the slug into one lowercase haystack.
-    Punctuation becomes hyphens so a superTitle of "FILM CLUB" matches the same
-    marker as a slug of "film-club-rear-window".
+
+def classification_text(presentation):
+    """Identity text for a presentation: just its slug and title.
+
+    Deliberately narrow. eventType's prose is boilerplate shared by every
+    special event -- its description reads "a movie-inspired feast, an
+    interactive party" -- so folding it in would let words from that one
+    sentence decide a film's label. superTitle is excluded too: it doubles as a
+    merchandising shelf ("Drafthouse Recommends"), which is not a series.
     """
-    parts = [presentation.get("slug", ""), presentation_title(presentation)]
-    for key in (
-        "superTitle",
-        "eventType",
-        "event",
-        "primaryCollectionSlug",
-        "presentationAttributeSlugs",
-        "formatSlugs",
-    ):
-        parts.extend(_text_values(presentation.get(key)))
-    text = " ".join(parts).lower()
-    return re.sub(r"[^a-z0-9]+", "-", text)
+    return _slug_text(presentation.get("slug", ""), presentation_title(presentation))
+
+
+def event_type_of(presentation):
+    """Alamo's declared event category, or None for an ordinary showing.
+
+    Non-null on every special event in the live feed and null on every regular
+    release, which makes it the primary signal -- the slug markers below only
+    have to supply a nicer label and cover anything this field misses.
+    """
+    event_type = presentation.get("eventType")
+    if isinstance(event_type, dict) and (event_type.get("slug") or event_type.get("title")):
+        return event_type
+    if isinstance(event_type, str) and event_type.strip():
+        return {"title": event_type, "slug": event_type}
+    return None
+
+
+def super_title_name(presentation):
+    """Alamo's display name for the collection a presentation sits in.
+
+    Only meaningful as a series name when the presentation is actually an event
+    -- for an ordinary film this is a shelf like "Drafthouse Recommends".
+    """
+    super_title = presentation.get("superTitle")
+    if isinstance(super_title, dict):
+        name = super_title.get("superTitle")
+    else:
+        name = super_title
+    return name.strip() if isinstance(name, str) and name.strip() else None
+
+
+def marker_label(presentation):
+    """Series name inferred from the slug, for feeds where eventType is absent."""
+    haystack = classification_text(presentation)
+    for marker, label in PRIORITY_MARKERS:
+        if marker in haystack:
+            return label
+    return None
 
 
 def classify(presentation):
     """Sort a presentation into a priority tier. Returns (tier, label).
 
-    Special events -- Film Club, Movie Party, anniversaries, Q&As, anything with
-    merch -- are the ones worth acting on quickly: they run once, and a Season
-    Pass seat at one is gone early. Advance screenings go last on the assumption
-    that a new release with a preview will get a regular run anyway, so missing
-    the preview costs little.
-    """
-    haystack = classification_text(presentation)
+    Special events run once and their Season Pass seats go early, so they lead.
+    Advance screenings trail: a new release with a preview gets a regular run
+    anyway, so missing the preview costs little.
 
-    for marker, label in PRIORITY_MARKERS:
-        if marker in haystack:
-            return TIER_EVENT, label
+    eventType decides first because Alamo populates it on every special event
+    and leaves it null on every ordinary release -- a declared field beats any
+    inference from naming. superTitle then supplies the nicer label ("EPIC
+    Sunday" over "Special Event"), but only for something already established as
+    an event: on a regular film it is a merchandising shelf, not a series.
+
+    The slug markers run next so that a feed with eventType missing still sorts
+    correctly, and they sit above the advance check on purpose -- a one-off
+    Anime Night sneak peek is an event, not a preview made redundant by a
+    regular run that will never come.
+    """
+    event_type = event_type_of(presentation)
+    if event_type:
+        label = super_title_name(presentation) or marker_label(presentation)
+        return TIER_EVENT, label or event_type.get("title") or "Special event"
+
+    series = marker_label(presentation)
+    if series:
+        return TIER_EVENT, series
+
+    haystack = classification_text(presentation)
     for marker in ADVANCE_MARKERS:
         if marker in haystack:
             return TIER_ADVANCE, "Advance screening"
+
     return TIER_REGULAR, None
 
 
