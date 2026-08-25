@@ -35,7 +35,7 @@ Typical output on a day something was added:
     first showtime  Sun Nov 02, 1:00 PM   (11 upcoming)
     https://drafthouse.com/dc-metro-area/show/paddington-in-peru
 
-JSON report: ~/.local/state/alamo-drafthouse/reports/new-films-2026-08-25.json
+JSON report: C:\...\alamo-drafthouse\state\reports\new-films-2026-08-25.json
 ```
 
 ## Scheduling
@@ -72,9 +72,9 @@ status entirely.
 
 ## How "new" is decided
 
-State is a **cumulative ledger** of every film ever seen bookable at Bryant
-(`~/.local/state/alamo-drafthouse/dc-bryant-street.json`), not a
-yesterday-vs-today snapshot. That matters in three cases a naive diff gets wrong:
+State is a **cumulative ledger** of every film ever seen bookable at Bryant, not
+a yesterday-vs-today snapshot. That matters in three cases a naive diff gets
+wrong:
 
 - **You skip days.** Laptop off, travel, cron failure — the addition is still
   caught on the next run instead of being silently swallowed by the gap.
@@ -84,7 +84,39 @@ yesterday-vs-today snapshot. That matters in three cases a naive diff gets wrong
 A film is reported exactly once: the first time it has at least one *future*
 showtime at Bryant.
 
-Delete the state file to start over (the next run re-seeds a baseline).
+### Where state lives
+
+Everything the tracker writes goes in `state/`, next to the script:
+
+```
+alamo-drafthouse/
+  alamo_new_films.py
+  state/                          # gitignored
+    dc-bryant-street.json         # the ledger
+    reports/
+      new-films-2026-08-25.json   # one per day something was added
+```
+
+The paths are absolute and derived from the script's own location, so a
+scheduled task running from an arbitrary working directory still writes here.
+Override with `--state` / `--report-dir` if you want them elsewhere.
+
+**To start over**, delete `state/` — the next run seeds a fresh baseline:
+
+```powershell
+Remove-Item -Recurse -Force alamo-drafthouse\state
+```
+
+```bash
+rm -rf alamo-drafthouse/state
+```
+
+Earlier versions wrote to `~/.local/state/alamo-drafthouse/`. If you ran one of
+those, that directory is now orphaned and safe to delete:
+
+```powershell
+Remove-Item -Recurse -Force "$env:USERPROFILE\.local\state\alamo-drafthouse"
+```
 
 ## Verifying the API
 
@@ -161,8 +193,8 @@ curl.exe -s 'https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area' |
 | `--force-report` | On a cold start, list the whole current slate instead of seeding quietly. |
 | `--status STATUS` | Session status counted as bookable, repeatable (default `ONSALE`; `ALL` ignores status). |
 | `--json-always` | Write the JSON report even when nothing is new. |
-| `--state PATH` | Ledger location. |
-| `--report-dir PATH` | JSON report directory. |
+| `--state PATH` | Ledger location (default `state/` next to the script). |
+| `--report-dir PATH` | JSON report directory (default `state/reports/`). |
 
 Exit `0` on a successful run (new films or not), `1` on a network, schema, or
 config error — with a message on stderr, so a broken cron job reaches you instead
@@ -187,14 +219,15 @@ piece of the schema.
 python3 -m unittest discover -s . -t . -v
 ```
 
-43 tests, no network. Covers the diff logic (new / seen / removed / returning /
+46 tests, no network. Covers the diff logic (new / seen / removed / returning /
 gap in runs), bookability (`SOLDOUT`, `PAST`, and announced-but-not-on-sale
 excluded, hidden sessions and presentations excluded, a film reported on the day
 it flips to `ONSALE`, and a sold-out film reported when seats reopen),
 filtering (other cinemas, past showtimes, unparseable timestamps), outputs (JSON
 written only when non-empty, `--dry-run` writes nothing), and robustness (unknown
 schema fails loudly rather than looking like a quiet day, corrupt state,
-ambiguous cinema match, the several shapes `market` can take).
+ambiguous cinema match, the several shapes `market` can take), and that the
+default state paths are absolute and land beside the script.
 
 `testdata/sample_schedule.json` mirrors the field names observed on the live
 `dc-metro-area` feed, and one test asserts those fields are still present in the

@@ -45,8 +45,12 @@ BOOKABLE_STATUSES = frozenset({"ONSALE"})
 SCHEDULE_URL = "https://drafthouse.com/s/mother/v2/schedule/market/{market}"
 SHOW_URL = "https://drafthouse.com/{market}/show/{slug}"
 
-DEFAULT_STATE = "~/.local/state/alamo-drafthouse/dc-bryant-street.json"
-DEFAULT_REPORT_DIR = "~/.local/state/alamo-drafthouse/reports"
+# State lives next to the script, not in a per-user config dir, so everything the
+# tracker owns sits in one directory you can see, back up, or delete. `state/` is
+# gitignored. Both are overridable with --state / --report-dir.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_STATE = os.path.join(SCRIPT_DIR, "state", "dc-bryant-street.json")
+DEFAULT_REPORT_DIR = os.path.join(SCRIPT_DIR, "state", "reports")
 
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -660,9 +664,13 @@ def build_parser():
         "--match", default=CINEMA_MATCH, help=f"cinema name/slug substring (default: {CINEMA_MATCH})"
     )
     parser.add_argument("--cinema-id", default=CINEMA_ID, help="pin the cinema id, skipping the lookup")
-    parser.add_argument("--state", default=DEFAULT_STATE, help=f"ledger path (default: {DEFAULT_STATE})")
     parser.add_argument(
-        "--report-dir", default=DEFAULT_REPORT_DIR, help=f"JSON report dir (default: {DEFAULT_REPORT_DIR})"
+        "--state", default=DEFAULT_STATE, help="ledger path (default: state/ next to this script)"
+    )
+    parser.add_argument(
+        "--report-dir",
+        default=DEFAULT_REPORT_DIR,
+        help="JSON report dir (default: state/reports/ next to this script)",
     )
     parser.add_argument("--verify", action="store_true", help="check the API contract and exit")
     parser.add_argument("--list-cinemas", action="store_true", help="list cinemas in this market and exit")
@@ -734,6 +742,7 @@ def main(argv=None):
             f"Baseline established: {len(films)} film(s) now tracked at {label}. "
             f"Future runs report only additions."
         )
+        print(f"State: {state_path}")
         return 0
 
     if new_films:

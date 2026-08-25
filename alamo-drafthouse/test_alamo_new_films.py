@@ -435,6 +435,25 @@ class TestUnits(unittest.TestCase):
             anf.resolve_cinema(cinemas, [], None, "bryant")
 
 
+class TestDefaultPaths(unittest.TestCase):
+    """State belongs next to the script, in a gitignored directory."""
+
+    def test_defaults_live_beside_the_script(self):
+        script_dir = os.path.dirname(os.path.abspath(anf.__file__))
+        self.assertTrue(anf.DEFAULT_STATE.startswith(script_dir))
+        self.assertTrue(anf.DEFAULT_REPORT_DIR.startswith(script_dir))
+
+    def test_defaults_are_absolute_so_cron_cwd_does_not_matter(self):
+        """A scheduled task runs from an arbitrary cwd; relative paths would scatter state."""
+        self.assertTrue(os.path.isabs(anf.DEFAULT_STATE))
+        self.assertTrue(os.path.isabs(anf.DEFAULT_REPORT_DIR))
+
+    def test_state_dir_is_gitignored(self):
+        script_dir = os.path.dirname(os.path.abspath(anf.__file__))
+        with open(os.path.join(script_dir, ".gitignore"), encoding="utf-8") as handle:
+            self.assertIn("state/", handle.read().split())
+
+
 class TestFixture(unittest.TestCase):
     """The shipped sample must stay loadable and correctly shaped."""
 

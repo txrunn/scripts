@@ -1,0 +1,4 @@
+# Runtime state: the seen-ledger and the daily JSON reports. Machine-local,
+# regenerable (delete it and the next run seeds a fresh baseline), and not
+# something anyone else's checkout wants.
+state/
