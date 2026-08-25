@@ -267,6 +267,126 @@ class TestBookability(ScriptTestCase):
         self.assertIn("(1 upcoming)", out)
 
 
+class TestClassification(unittest.TestCase):
+    """Special events lead; advance screenings trail. Slugs are real ones."""
+
+    def tier(self, slug, title="X", **extra):
+        return anf.classify({"slug": slug, "show": {"title": title}, **extra})
+
+    def test_event_series_are_prioritized(self):
+        for slug, expected in [
+            ("film-club-rear-window", "Film Club"),
+            ("mean-girls-movie-party", "Movie Party"),
+            ("movie-party-the-outsiders-the-complete-novel", "Movie Party"),
+            ("epic-sunday-tenet", "Epic Sunday"),
+            ("terror-tuesday-the-faculty", "Terror Tuesday"),
+            ("quote-along-monty-python-and-the-holy-grail", "Quote-Along"),
+            ("special-event-star-trek-ii-the-wrath-of-khan-space-seed", "Special event"),
+            ("queer-film-theory-101-the-birdcage", "Queer Film Theory 101"),
+            ("sad-girl-cinema-club-my-sassy-girl", "Sad Girl Cinema Club"),
+            ("live-q-a-ernie-emma", "Live Q&A"),
+            ("the-twilight-saga-twilight-2008-fan-event", "Fan event"),
+            ("terminator-2-judgment-day-35th-anniversary", "Anniversary"),
+        ]:
+            with self.subTest(slug=slug):
+                self.assertEqual(self.tier(slug), (anf.TIER_EVENT, expected))
+
+    def test_advance_screenings_are_deprioritized(self):
+        for slug in [
+            "advance-screening-the-dog-stars",
+            "advance-screening-hope-2026-the-big-show-early-access",
+            "advance-screening-dune-part-three-the-big-show-insider-screening",
+        ]:
+            with self.subTest(slug=slug):
+                self.assertEqual(self.tier(slug), (anf.TIER_ADVANCE, "Advance screening"))
+
+    def test_plain_releases_are_regular(self):
+        for slug in ["dune-part-three", "avengers-doomsday", "nacho-libre", "rear-window"]:
+            with self.subTest(slug=slug):
+                self.assertEqual(self.tier(slug), (anf.TIER_REGULAR, None))
+
+    def test_an_event_that_is_also_a_sneak_peek_ranks_as_an_event(self):
+        """A one-off Anime Night is not made redundant by a later regular run."""
+        tier, label = self.tier("crunchyroll-anime-night-sneak-peek-9-21-2026")
+        self.assertEqual((tier, label), (anf.TIER_EVENT, "Anime Night"))
+
+    def test_merch_outranks_everything(self):
+        tier, label = self.tier("some-film", presentationAttributeSlugs=["free-merch"])
+        self.assertEqual((tier, label), (anf.TIER_EVENT, "Free merch"))
+
+    def test_structured_fields_classify_when_the_slug_is_plain(self):
+        """Alamo's own event fields are used, not just slug substrings."""
+        self.assertEqual(
+            self.tier("plain-slug", superTitle="FILM CLUB"), (anf.TIER_EVENT, "Film Club")
+        )
+        self.assertEqual(
+            self.tier("plain-slug", eventType="Movie Party"), (anf.TIER_EVENT, "Movie Party")
+        )
+        self.assertEqual(
+            self.tier("plain-slug", event={"name": "Terror Tuesday"}),
+            (anf.TIER_EVENT, "Terror Tuesday"),
+        )
+
+
+class TestReportOrdering(ScriptTestCase):
+    def test_events_lead_advance_screenings_trail(self):
+        data = payload(
+            {
+                "advance-screening-x": "Preview Film",
+                "plain-film": "Regular Film",
+                "film-club-y": "Club Film",
+            },
+            [
+                session("advance-screening-x", when=SOON),
+                session("plain-film", when=SOON),
+                session("film-club-y", when=LATER),
+            ],
+        )
+        code, out = self.run_script(data, "--force-report")
+        self.assertLess(out.index("Club Film"), out.index("Regular Film"))
+        self.assertLess(out.index("Regular Film"), out.index("Preview Film"))
+        self.assertIn("SPECIAL EVENTS", out)
+        self.assertIn("ADVANCE SCREENINGS", out)
+        self.assertIn("[Film Club]", out)
+
+    def test_tier_beats_showtime(self):
+        """A special event months out still leads a regular release tomorrow."""
+        data = payload(
+            {"film-club-y": "Club Film", "plain-film": "Regular Film"},
+            [session("film-club-y", when=LATER), session("plain-film", when=SOON)],
+        )
+        code, out = self.run_script(data, "--force-report")
+        self.assertLess(out.index("Club Film"), out.index("Regular Film"))
+
+    def test_events_only_drops_the_rest(self):
+        data = payload(
+            {"film-club-y": "Club Film", "plain-film": "Regular Film"},
+            [session("film-club-y"), session("plain-film")],
+        )
+        code, out = self.run_script(data, "--force-report", "--events-only")
+        self.assertIn("Club Film", out)
+        self.assertNotIn("Regular Film", out)
+
+    def test_events_only_still_ledgers_everything(self):
+        """Toggling the flag must not resurface a title a previous run showed."""
+        data = payload(
+            {"film-club-y": "Club Film", "plain-film": "Regular Film"},
+            [session("film-club-y"), session("plain-film")],
+        )
+        self.run_script(data, "--force-report", "--events-only")
+        code, out = self.run_script(data)
+        self.assertEqual(out, "", "the regular film was already recorded, not new")
+
+    def test_json_report_carries_the_tier(self):
+        data = payload({"film-club-y": "Club Film"}, [session("film-club-y")])
+        self.run_script(data, "--force-report")
+        written = os.listdir(self.reports)
+        with open(os.path.join(self.reports, written[0]), encoding="utf-8") as handle:
+            report = json.load(handle)
+        self.assertEqual(report["films"][0]["tier"], "event")
+        self.assertEqual(report["films"][0]["event_label"], "Film Club")
+
+
 class TestOutputs(ScriptTestCase):
     def test_json_report_written_only_when_something_is_new(self):
         before = payload({"a": "Film A"}, [session("a")])

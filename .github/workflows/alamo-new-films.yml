@@ -103,13 +103,23 @@ jobs:
             echo
             echo "_Opened by the \`alamo-new-films\` workflow_"
           } > "$RUNNER_TEMP/issue.md"
-          gh issue create \
-            --title "New at Bryant Street — $(date -u +%Y-%m-%d)" \
-            --body-file "$RUNNER_TEMP/issue.md" \
-            --label "alamo" || \
-          gh issue create \
-            --title "New at Bryant Street — $(date -u +%Y-%m-%d)" \
-            --body-file "$RUNNER_TEMP/issue.md"
+          # Lead the title with the special-event count -- that is the part
+          # worth opening the email for.
+          TITLE=$(python - "$RUNNER_TEMP"/reports/*.json <<'PY'
+          import json, sys
+          films = json.load(open(sys.argv[1]))["films"]
+          events = sum(1 for f in films if f["tier"] == "event")
+          bits = []
+          if events:
+              bits.append(f"{events} special event" + ("s" if events != 1 else ""))
+          rest = len(films) - events
+          if rest:
+              bits.append(f"{rest} other" + ("s" if rest != 1 else ""))
+          print(("New at Bryant Street: " + ", ".join(bits)))
+          PY
+          )
+          gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md" --label alamo \
+            || gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md"
 
       # Only on days something was added: the ledger's `seen` map is unchanged
       # otherwise, and a daily no-op commit would bury real history.

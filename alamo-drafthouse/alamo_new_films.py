@@ -14,6 +14,7 @@ Stdlib only. Python 3.9+.
 """
 
 import argparse
+import collections
 import datetime as dt
 import gzip
 import io
@@ -41,6 +42,61 @@ CINEMA_ID = None
 # show is no use to a Season Pass -- so the other two stay out. --verify prints
 # the live distribution, and --status widens the set without a code change.
 BOOKABLE_STATUSES = frozenset({"ONSALE"})
+
+# Report tiers, best first. Special events run once and their Season Pass seats
+# go early, so they lead. Advance screenings trail: a new release with a preview
+# almost always gets a regular run, so missing the preview costs little.
+TIER_EVENT = 0
+TIER_REGULAR = 1
+TIER_ADVANCE = 2
+
+TIER_HEADINGS = {
+    TIER_EVENT: "SPECIAL EVENTS — one-offs, book early",
+    TIER_REGULAR: "REGULAR RELEASES",
+    TIER_ADVANCE: "ADVANCE SCREENINGS — a regular run usually follows",
+}
+
+# Matched as substrings against slug + title + Alamo's structured event fields.
+# Order matters: the first hit wins, so put merch and specific series above the
+# generic words they contain. Every marker below "free merch" was observed in
+# the live DC Bryant Street slate.
+PRIORITY_MARKERS = (
+    ("free-merch", "Free merch"),
+    ("merch", "Merch"),
+    ("giveaway", "Giveaway"),
+    ("collectible", "Collectible"),
+    ("exclusive-poster", "Exclusive poster"),
+    ("film-club", "Film Club"),
+    ("movie-party", "Movie Party"),
+    ("quote-along", "Quote-Along"),
+    ("sing-along", "Sing-Along"),
+    ("terror-tuesday", "Terror Tuesday"),
+    ("weird-wednesday", "Weird Wednesday"),
+    ("epic-sunday", "Epic Sunday"),
+    ("special-event", "Special event"),
+    ("queer-film-theory", "Queer Film Theory 101"),
+    ("sad-girl-cinema-club", "Sad Girl Cinema Club"),
+    ("cinema-club", "Cinema Club"),
+    ("anime-night", "Anime Night"),
+    ("live-q-a", "Live Q&A"),
+    ("q-and-a", "Live Q&A"),
+    ("fan-screening", "Fan screening"),
+    ("fan-event", "Fan event"),
+    ("anniversary", "Anniversary"),
+    ("catvideofest", "Special event"),
+    ("feast", "Feast"),
+    ("brunch", "Brunch"),
+)
+
+# Checked only when nothing above matched, so an Anime Night sneak peek still
+# ranks as an event rather than a preview.
+ADVANCE_MARKERS = (
+    "advance-screening",
+    "early-access",
+    "sneak-peek",
+    "insider-screening",
+    "preview-screening",
+)
 
 SCHEDULE_URL = "https://drafthouse.com/s/mother/v2/schedule/market/{market}"
 SHOW_URL = "https://drafthouse.com/{market}/show/{slug}"
@@ -190,6 +246,59 @@ def hidden_presentation_slugs(presentations):
     return frozenset(
         p["slug"] for p in presentations if p.get("slug") and p.get("isHidden") is True
     )
+
+
+def classification_text(presentation):
+    """Everything about a presentation worth matching event markers against.
+
+    Alamo carries structured fields -- eventType, superTitle,
+    presentationAttributeSlugs -- alongside a slug that encodes the same thing
+    (film-club-rear-window, mean-girls-movie-party). All of them are folded into
+    one lowercase haystack: the structured fields are the better signal where
+    they are populated, and the slug is a reliable backstop where they are not.
+    """
+    parts = [presentation.get("slug", ""), presentation_title(presentation)]
+    for key in ("superTitle", "eventType", "primaryCollectionSlug"):
+        value = presentation.get(key)
+        if isinstance(value, str):
+            parts.append(value)
+    event = presentation.get("event")
+    if isinstance(event, str):
+        parts.append(event)
+    elif isinstance(event, dict):
+        parts.extend(str(v) for v in event.values() if isinstance(v, (str, int)))
+    for key in ("presentationAttributeSlugs", "formatSlugs"):
+        value = presentation.get(key)
+        if isinstance(value, list):
+            parts.extend(str(item) for item in value)
+    return " ".join(parts).lower().replace("_", "-").replace(" ", "-")
+
+
+def classify(presentation):
+    """Sort a presentation into a priority tier. Returns (tier, label).
+
+    Special events -- Film Club, Movie Party, anniversaries, Q&As, anything with
+    merch -- are the ones worth acting on quickly: they run once, and a Season
+    Pass seat at one is gone early. Advance screenings go last on the assumption
+    that a new release with a preview will get a regular run anyway, so missing
+    the preview costs little.
+    """
+    haystack = classification_text(presentation)
+
+    for marker, label in PRIORITY_MARKERS:
+        if marker in haystack:
+            return TIER_EVENT, label
+    for marker in ADVANCE_MARKERS:
+        if marker in haystack:
+            return TIER_ADVANCE, "Advance screening"
+    return TIER_REGULAR, None
+
+
+def index_classifications(presentations):
+    """Map presentation slug -> (tier, label)."""
+    return {
+        p["slug"]: classify(p) for p in presentations if p.get("slug")
+    }
 
 
 def session_cinema_key(session):
@@ -363,11 +472,20 @@ def is_bookable(session, statuses=None):
     return str(status).upper() in allowed
 
 
-def upcoming_films(sessions, titles, cinema_key, now=None, statuses=None, hidden_slugs=frozenset()):
+def upcoming_films(
+    sessions,
+    titles,
+    cinema_key,
+    now=None,
+    statuses=None,
+    hidden_slugs=frozenset(),
+    classifications=None,
+):
     """Films with at least one future, bookable session at `cinema_key`.
 
-    Returns slug -> {"title", "first_showtime", "session_count"}.
+    Returns slug -> {"title", "first_showtime", "session_count", "tier", "label"}.
     """
+    classifications = classifications or {}
     now = now or dt.datetime.now()
     films = {}
     unparseable = 0
@@ -388,9 +506,16 @@ def upcoming_films(sessions, titles, cinema_key, now=None, statuses=None, hidden
         if showtime < now:
             continue
 
+        tier, label = classifications.get(slug, (TIER_REGULAR, None))
         film = films.setdefault(
             slug,
-            {"title": titles.get(slug, slug), "first_showtime": showtime, "session_count": 0},
+            {
+                "title": titles.get(slug, slug),
+                "first_showtime": showtime,
+                "session_count": 0,
+                "tier": tier,
+                "label": label,
+            },
         )
         film["session_count"] += 1
         if showtime < film["first_showtime"]:
@@ -462,18 +587,35 @@ def format_showtime(showtime):
     return f"{showtime.strftime('%a %b')} {showtime.day}, {hour}:{showtime:%M} {meridiem}"
 
 
+def sort_key(item):
+    """Best tier first, then soonest showtime -- the order you should act in."""
+    slug, film = item
+    return (film.get("tier", TIER_REGULAR), film["first_showtime"], slug)
+
+
 def format_report(new_films, market, label):
-    """Human-readable report. Only called when there is something to say."""
+    """Human-readable report, grouped by tier. Only called when there is news."""
     lines = [
         f"{len(new_films)} new film{'s' if len(new_films) != 1 else ''} "
         f"bookable at {label} ({dt.date.today().isoformat()})",
-        "",
     ]
-    for slug, film in sorted(new_films.items(), key=lambda kv: kv[1]["first_showtime"]):
-        showtime = film["first_showtime"]
-        lines.append(f"  {film['title']}")
+
+    current_tier = None
+    for slug, film in sorted(new_films.items(), key=sort_key):
+        tier = film.get("tier", TIER_REGULAR)
+        if tier != current_tier:
+            current_tier = tier
+            count = sum(1 for f in new_films.values() if f.get("tier", TIER_REGULAR) == tier)
+            lines.append("")
+            lines.append(f"{TIER_HEADINGS[tier]}  ({count})")
+            lines.append("")
+
+        heading = film["title"]
+        if film.get("label"):
+            heading += f"  [{film['label']}]"
+        lines.append(f"  {heading}")
         lines.append(
-            f"    first showtime  {format_showtime(showtime)}"
+            f"    first showtime  {format_showtime(film['first_showtime'])}"
             f"   ({film['session_count']} upcoming)"
         )
         lines.append(f"    {SHOW_URL.format(market=market, slug=slug)}")
@@ -497,9 +639,13 @@ def write_report_json(directory, new_films, market, label):
                 "title": film["title"],
                 "first_showtime": film["first_showtime"].isoformat(),
                 "upcoming_sessions": film["session_count"],
+                "tier": {TIER_EVENT: "event", TIER_REGULAR: "regular", TIER_ADVANCE: "advance"}[
+                    film.get("tier", TIER_REGULAR)
+                ],
+                "event_label": film.get("label"),
                 "url": SHOW_URL.format(market=market, slug=slug),
             }
-            for slug, film in sorted(new_films.items(), key=lambda kv: kv[1]["first_showtime"])
+            for slug, film in sorted(new_films.items(), key=sort_key)
         ],
     }
     with open(path, "w", encoding="utf-8") as handle:
@@ -611,6 +757,16 @@ def mode_verify(payload, presentations, sessions, args):
             cinema_key,
             statuses=args.status,
             hidden_slugs=hidden_films,
+            classifications=index_classifications(presentations),
+        )
+        tiers = collections.Counter(f["tier"] for f in films.values())
+        results.append(
+            (
+                "event classification",
+                "INFO",
+                f"{tiers[TIER_EVENT]} special event(s), {tiers[TIER_REGULAR]} regular, "
+                f"{tiers[TIER_ADVANCE]} advance screening(s)",
+            )
         )
         total = sum(f["session_count"] for f in films.values())
         check(
@@ -682,6 +838,11 @@ def build_parser():
         "--force-report", action="store_true", help="on the first run, list the whole slate instead of seeding quietly"
     )
     parser.add_argument(
+        "--events-only",
+        action="store_true",
+        help="report only special events, dropping regular releases and advance screenings",
+    )
+    parser.add_argument(
         "--status",
         action="append",
         metavar="STATUS",
@@ -715,6 +876,7 @@ def main(argv=None):
             cinema_key,
             statuses=args.status,
             hidden_slugs=hidden_presentation_slugs(presentations),
+            classifications=index_classifications(presentations),
         )
         seen = load_ledger(state_path)
     except (FetchError, SchemaError) as exc:
@@ -727,7 +889,11 @@ def main(argv=None):
     baseline = seen is None
     seen = seen or {}
     new_films = {slug: film for slug, film in films.items() if slug not in seen}
+    if args.events_only:
+        new_films = {s: f for s, f in new_films.items() if f["tier"] == TIER_EVENT}
 
+    # The ledger records every new film regardless of --events-only, so toggling
+    # the flag never resurfaces a title the previous run already showed you.
     today = dt.date.today().isoformat()
     for slug, film in films.items():
         if slug not in seen:
