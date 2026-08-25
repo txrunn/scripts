@@ -58,12 +58,14 @@ schtasks /create /tn "Alamo new films" /tr "python C:\path\to\alamo_new_films.py
 A film is reported when it first has at least one session at Bryant that is:
 
 - in the **future**, and
-- **on sale** (`status == "ONSALE"`), not merely announced, and
+- **on sale** (`status == "ONSALE"`) — not `SOLDOUT`, not `PAST`, and
 - **not hidden** (neither the session nor the presentation has `isHidden: true`).
 
 The on-sale check is the point of the whole thing: Alamo lists sessions before
 tickets go live, and you want to hear about a film the day you can *buy*, not the
-day it appears. `--verify` prints the full status distribution for the market so
+day it appears. A sold-out show is no use to a Season Pass either, so `SOLDOUT`
+does not make a film count as newly bookable — if that film later opens more
+seats, the new `ONSALE` session brings it in then. `--verify` prints the full status distribution for the market so
 you can see whether any status other than `ONSALE` is also purchasable; widen the
 set with `--status ONSALE --status SOMETHING_ELSE`, or `--status ALL` to ignore
 status entirely.
@@ -93,20 +95,22 @@ script ships with a mode that checks every field it depends on:
 ./alamo_new_films.py --verify
 ```
 
+Real output from the live `dc-metro-area` feed on 2026-08-25:
+
 ```
-data.presentations present             PASS  63 items
-data.sessions present                  PASS  2914 items
-presentation has slug                  PASS  63/63
-presentation has show.title            PASS  63/63
-session has presentationSlug           PASS  2914/2914
-session has cinema identifier          PASS  cinemaId, 2914/2914
-session has parseable showtime         PASS  2914/2914
-target cinema resolvable               PASS  key=1102 "DC Bryant Street"
-session statuses at target             INFO  ANNOUNCED=41, ONSALE=571 (counted as bookable: ['ONSALE'])
-hidden entries excluded                INFO  3 session(s), 1 presentation(s)
-upcoming bookable sessions at target   PASS  571 sessions, 38 distinct films
-every session slug resolves to a film  PASS  38/38
-schedule window                        INFO  2026-08-25 .. 2026-12-15 (112 days out)
+data.presentations present             PASS  72 items
+data.sessions present                  PASS  662 items
+presentation has slug                  PASS  72/72
+presentation has show.title            PASS  72/72
+session has presentationSlug           PASS  662/662
+session has cinema identifier          PASS  cinemaId, 662/662
+session has parseable showtime         PASS  662/662
+target cinema resolvable               PASS  key=1101 "DC Bryant Street"
+session statuses at target             INFO  ONSALE=220, PAST=1, SOLDOUT=1 (counted as bookable: ['ONSALE'])
+hidden entries excluded                INFO  1 session(s), 0 presentation(s)
+upcoming bookable sessions at target   PASS  218 sessions, 67 distinct films
+every session slug resolves to a film  PASS  67/67
+schedule window                        INFO  2026-08-25 .. 2026-12-24 (121 days out)
 ```
 
 Three lines are worth reading closely:
@@ -115,8 +119,9 @@ Three lines are worth reading closely:
   count against what <https://drafthouse.com/dc-metro-area?showCalendar=true>
   shows for Bryant. If they agree, the cinema filter and the session→film join
   are right.
-- **`session statuses at target`** — if a status other than `ONSALE` turns out to
-  be purchasable, widen the set with `--status`.
+- **`session statuses at target`** — the observed statuses at Bryant are
+  `ONSALE`, `SOLDOUT`, and `PAST`; only `ONSALE` is counted. If a new status
+  turns out to be purchasable, widen the set with `--status`.
 - **`schedule window`** — how far ahead Alamo publishes, i.e. the maximum lead
   time this tracker can ever give you.
 
@@ -182,9 +187,10 @@ piece of the schema.
 python3 -m unittest discover -s . -t . -v
 ```
 
-40 tests, no network. Covers the diff logic (new / seen / removed / returning /
-gap in runs), bookability (announced-but-not-on-sale excluded, hidden sessions
-and presentations excluded, a film reported on the day it flips to `ONSALE`),
+43 tests, no network. Covers the diff logic (new / seen / removed / returning /
+gap in runs), bookability (`SOLDOUT`, `PAST`, and announced-but-not-on-sale
+excluded, hidden sessions and presentations excluded, a film reported on the day
+it flips to `ONSALE`, and a sold-out film reported when seats reopen),
 filtering (other cinemas, past showtimes, unparseable timestamps), outputs (JSON
 written only when non-empty, `--dry-run` writes nothing), and robustness (unknown
 schema fails loudly rather than looking like a quiet day, corrupt state,

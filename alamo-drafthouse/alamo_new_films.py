@@ -36,10 +36,10 @@ MARKET_SLUG = "dc-metro-area"
 CINEMA_MATCH = "bryant"
 CINEMA_ID = None
 
-# A session counts as bookable only in these statuses. The live feed uses
-# "ONSALE"; --verify prints the full distribution so you can see whether any
-# other status in this market is also purchasable, and --status widens the set
-# without a code change.
+# A session counts as bookable only in these statuses. Observed at DC Bryant
+# Street: ONSALE, SOLDOUT, and PAST. Only ONSALE is purchasable -- a sold-out
+# show is no use to a Season Pass -- so the other two stay out. --verify prints
+# the live distribution, and --status widens the set without a code change.
 BOOKABLE_STATUSES = frozenset({"ONSALE"})
 
 SCHEDULE_URL = "https://drafthouse.com/s/mother/v2/schedule/market/{market}"

@@ -205,6 +205,29 @@ class TestBookability(ScriptTestCase):
         code, out = self.run_script(onsale)
         self.assertIn("Dune Part Three", out)
 
+    def test_sold_out_is_not_bookable(self):
+        """Observed live at Bryant. A sold-out show is no use to a Season Pass."""
+        data = payload({"a": "Sold Out Film"}, [session("a", status="SOLDOUT")])
+        code, out = self.run_script(data, "--force-report")
+        self.assertEqual(code, 0)
+        self.assertNotIn("Sold Out Film", out)
+
+    def test_film_appears_when_a_sold_out_show_reopens(self):
+        sold_out = payload({"a": "Popular Film"}, [session("a", status="SOLDOUT")])
+        reopened = payload(
+            {"a": "Popular Film"},
+            [session("a", when=SOON, status="SOLDOUT"), session("a", when=LATER, status="ONSALE")],
+        )
+        self.run_script(sold_out)
+        code, out = self.run_script(reopened)
+        self.assertIn("Popular Film", out)
+        self.assertIn("(1 upcoming)", out, "only the on-sale session counts")
+
+    def test_past_status_is_not_bookable(self):
+        data = payload({"a": "Finished Film"}, [session("a", status="PAST")])
+        code, out = self.run_script(data, "--force-report")
+        self.assertNotIn("Finished Film", out)
+
     def test_hidden_session_is_not_bookable(self):
         data = payload({"a": "Hidden Show"}, [session("a", hidden=True)])
         code, out = self.run_script(data, "--force-report")
