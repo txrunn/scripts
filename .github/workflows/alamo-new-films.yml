@@ -16,6 +16,11 @@ on:
     # follow DST, so this drifts by an hour in winter.
     - cron: "0 13 * * *"
   workflow_dispatch:
+    inputs:
+      test_alert:
+        description: "Open a test issue from the current slate (ledger untouched)"
+        type: boolean
+        default: false
 
 concurrency:
   group: alamo-new-films
@@ -55,9 +60,21 @@ jobs:
       - name: Find newly bookable films
         run: |
           set -o pipefail
+          # test_alert reports the whole current slate against a throwaway
+          # ledger, so the alert path can be exercised on demand without
+          # waiting for Alamo to add something. The real ledger is not read
+          # or written, so a test cannot cause a genuine addition to be missed.
+          if [ "${{ inputs.test_alert }}" = "true" ]; then
+            STATE="$RUNNER_TEMP/test-ledger.json"
+            FORCE="--force-report"
+            echo "TEST ALERT: reporting the current slate; the real ledger is untouched."
+          else
+            STATE="alamo-drafthouse/ci-state/dc-bryant-street.json"
+            FORCE=""
+          fi
           python alamo-drafthouse/alamo_new_films.py \
             --from-file "$RUNNER_TEMP/raw.json" \
-            --state alamo-drafthouse/ci-state/dc-bryant-street.json \
+            --state "$STATE" $FORCE \
             --report-dir "$RUNNER_TEMP/reports" \
             --format markdown | tee "$RUNNER_TEMP/report.md"
           # The report is empty on a quiet day, which would leave this step
@@ -140,13 +157,18 @@ jobs:
           print(("New at Bryant Street: " + ", ".join(bits)))
           PY
           )
+          if [ "${{ inputs.test_alert }}" = "true" ]; then
+            TITLE="[test] $TITLE"
+            sed -i '1i > **This is a test alert.** It lists the whole current slate rather than\n> anything newly added, and the tracker'"'"'s ledger was not touched. Safe to close.\n' \
+              "$RUNNER_TEMP/issue.md"
+          fi
           gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md" --label alamo \
             || gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md"
 
       # Only on days something was added: the ledger's `seen` map is unchanged
       # otherwise, and a daily no-op commit would bury real history.
       - name: Commit the updated ledger
-        if: steps.detect.outputs.new == 'true'
+        if: steps.detect.outputs.new == 'true' && inputs.test_alert != true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
