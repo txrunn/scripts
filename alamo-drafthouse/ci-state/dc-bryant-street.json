@@ -24,6 +24,10 @@
       "first_seen": "2026-08-25",
       "title": "Basic Instinct"
     },
+    "buddy-2026": {
+      "first_seen": "2026-08-27",
+      "title": "Buddy (2026)"
+    },
     "butthole-surfers-the-hole-truth-and-nothing-butt": {
       "first_seen": "2026-08-26",
       "title": "Butthole Surfers: The Hole Truth and Nothing Butt"
@@ -91,6 +95,10 @@
     "fallen-angels-by-noel-coward": {
       "first_seen": "2026-08-25",
       "title": "Fallen Angels by No\u00ebl Coward"
+    },
+    "film-club-amadeus": {
+      "first_seen": "2026-08-27",
+      "title": "Amadeus"
     },
     "film-club-network": {
       "first_seen": "2026-08-25",
@@ -163,6 +171,10 @@
     "nacho-libre": {
       "first_seen": "2026-08-25",
       "title": "Nacho Libre"
+    },
+    "onslaught": {
+      "first_seen": "2026-08-27",
+      "title": "Onslaught"
     },
     "paw-patrol-the-dino-movie": {
       "first_seen": "2026-08-25",
@@ -277,6 +289,6 @@
       "title": "Toxic: A Fairy Tale for Grown-Ups"
     }
   },
-  "updated": "2026-08-26T13:53:35",
+  "updated": "2026-08-27T22:48:52",
   "version": 1
 }
