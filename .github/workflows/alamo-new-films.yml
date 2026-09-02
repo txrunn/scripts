@@ -213,23 +213,50 @@ jobs:
             echo "No NTFY_URL secret set -- skipping the push. The issue was still opened."
             exit 0
           fi
-          # A lock screen wants the titles, not the issue's markdown tables.
+          # Writes the notification body and the buttons, prints the priority.
           PRIORITY=$(python - "$RUNNER_TEMP"/reports/*.json <<'PY'
-          import json, os, sys
+          import json, os, re, sys, unicodedata
+
           films = json.load(open(sys.argv[1]))["films"]
-          # Capped for two reasons: nobody reads a 60-line notification, and
-          # ntfy rejects a body over 4KB -- which a --force-report run over the
-          # whole slate will produce, failing the push on the one path you are
-          # most likely to be testing with. Tap through to the issue for the
-          # full list. Already sorted by tier upstream, so events make the cut.
+          tmp = os.environ["RUNNER_TEMP"]
+
+          # The titles are the whole point of the notification: they are what
+          # lets you decide from the lock screen whether this is worth acting
+          # on. Capped at ten because nobody reads a 60-line notification and
+          # ntfy turns a body over 4KB into an attachment -- which a
+          # --force-report run over the whole slate would trip. Films arrive
+          # sorted by tier, so special events survive the cut.
           LIMIT = 10
-          path = os.path.join(os.environ["RUNNER_TEMP"], "push.txt")
-          with open(path, "w", encoding="utf-8", newline="\n") as out:
+          with open(os.path.join(tmp, "push.txt"), "w", encoding="utf-8", newline="\n") as out:
               for film in films[:LIMIT]:
                   label = film["event_label"]
                   out.write(f"- {film['title']}" + (f"  ({label})" if label else "") + "\n")
               if len(films) > LIMIT:
                   out.write(f"...and {len(films) - LIMIT} more\n")
+
+          def button_label(title):
+              # Header values are ASCII, ntfy splits actions on , and ;, and the
+              # button is only a few characters wide -- so fold, strip, clip.
+              flat = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode()
+              flat = re.sub(r'["\\,;]', "", flat)
+              flat = re.sub(r"\s+", " ", flat).strip()  # folding a dash leaves a gap
+              if len(flat) > 27:
+                  flat = flat[:24].rstrip() + "..."
+              return flat or "Showtimes"
+
+          # ntfy allows three. Tapping the notification itself opens the issue;
+          # these skip that hop and go straight to booking. One new film needs
+          # no disambiguating, so it gets the plainer label.
+          picks = films[:3]
+          with open(os.path.join(tmp, "actions.txt"), "w", encoding="utf-8", newline="\n") as out:
+              out.write("; ".join(
+                  'view, "%s", %s' % (
+                      "Showtimes" if len(films) == 1 else button_label(film["title"]),
+                      film["url"],
+                  )
+                  for film in picks
+              ))
+
           # Special events are the ones that sell out. The rest can wait for a
           # badge instead of interrupting whatever you are doing.
           print("high" if any(f["tier"] == "event" for f in films) else "default")
@@ -240,5 +267,6 @@ jobs:
             -H "Priority: $PRIORITY" \
             -H "Tags: clapper" \
             -H "Click: $ISSUE_URL" \
+            -H "Actions: $(cat "$RUNNER_TEMP/actions.txt")" \
             --data-binary @"$RUNNER_TEMP/push.txt" \
             "$NTFY_URL"

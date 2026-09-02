@@ -259,14 +259,27 @@ on your phone instead of an email you have to go and read, add
 Test it: **Actions → "Alamo new films" → Run workflow** with **test_alert**
 ticked. The push should arrive in a second or two.
 
-What arrives is the issue title, the new film titles, and a tap that opens the
-issue. Days with a special event are sent at high priority, since those are the
-ones that sell out; everything else arrives at normal priority.
+What arrives:
+
+- **The title** — the counts, led by special events.
+- **The new film titles**, so you can tell from the lock screen whether this is
+  worth getting up for without opening anything.
+- **Tapping the notification** opens the issue.
+- **Up to three buttons** going straight to those films' showtimes on
+  drafthouse.com, skipping the issue entirely. ntfy allows three; a day that
+  adds one film gets a single button labelled "Showtimes".
+
+Days with a special event go out at high priority, since those are the ones that
+sell out. Everything else arrives at normal priority.
 
 The list is capped at 10 titles with an "...and N more" line, because nobody
-reads a 60-line notification and ntfy rejects a body over 4KB. A normal day adds
-a handful of films and is never truncated; a `test_alert` run reports the whole
-slate and always is. The issue behind the tap has the full list either way.
+reads a 60-line notification and ntfy turns a body over 4KB into an attachment.
+A normal day adds a handful of films and is never truncated; a `test_alert` run
+reports the whole slate and always is. The issue has the full list either way.
+
+Button labels are ASCII-folded and clipped to ~27 characters, because ntfy
+splits the `Actions` header on commas and semicolons and film titles are full of
+both. The notification body keeps the real title — only the button is folded.
 
 Two deliberate choices in how it fails:
 
