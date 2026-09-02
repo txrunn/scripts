@@ -304,11 +304,23 @@ entire notification path is one step, one secret, and no forge-specific API:
 - **Moving to Forgejo or GitLab** — copy the step and the secret. Forgejo Actions
   reads the same YAML; on GitLab it's the same `curl` in a `script:`.
 - **Moving to a cron box** — pipe the report into the same `curl`.
-- **Self-hosting ntfy** — change the secret to your own URL, change nothing else.
-  One caveat for iOS: a self-hosted server needs
-  [`upstream-base-url`](https://docs.ntfy.sh/config/#ios-instant-notifications)
-  set to `https://ntfy.sh` to get instant pushes, because APNs delivery has to be
-  relayed. Without it notifications still arrive, just late.
+- **Self-hosting ntfy** — point `NTFY_URL` at your own server. If you turn auth
+  on, which is most of the reason to self-host, add an `NTFY_TOKEN` secret
+  holding an access token (`ntfy token add <user>`) and it goes out as a bearer
+  header. No token, no header — so ntfy.sh keeps working untouched.
+
+  Two things to know before you move:
+
+  - **iOS needs an upstream relay.** A self-hosted server has no APNs
+    credentials, so set
+    [`upstream-base-url`](https://docs.ntfy.sh/config/#ios-instant-notifications)
+    to `https://ntfy.sh`. It forwards a poll request carrying only the message
+    ID; the phone then fetches the real message from your server, so the content
+    never touches ntfy.sh. Without it notifications still arrive, just late —
+    sometimes hours late.
+  - **Auth makes the topic name stop mattering.** On ntfy.sh the topic name is
+    the only thing between your phone and anyone who guesses it. Behind a server
+    with `auth-default-access: deny-all`, it is just a name.
 
 ---
 

@@ -200,12 +200,17 @@ jobs:
       # silent failure the rest of this workflow is built to avoid.
       #
       # NTFY_URL is the whole topic URL, e.g. https://ntfy.sh/<your-topic>.
+      # NTFY_TOKEN is optional and only matters against a self-hosted server
+      # with auth on, so that moving off ntfy.sh stays a change to secrets
+      # rather than a change to this file.
+      #
       # Nothing below is GitHub-specific past the two step outputs: on another
-      # forge this is the same curl against the same secret.
+      # forge this is the same curl against the same secrets.
       - name: Push a phone notification
         if: steps.detect.outputs.new == 'true'
         env:
           NTFY_URL: ${{ secrets.NTFY_URL }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
           ISSUE_TITLE: ${{ steps.issue.outputs.title }}
           ISSUE_URL: ${{ steps.issue.outputs.url }}
         run: |
@@ -268,7 +273,15 @@ jobs:
           print("high" if any(f["tier"] == "event" for f in films) else "default")
           PY
           )
+          # Only needed once you self-host with auth turned on -- ntfy.sh
+          # public topics take an unauthenticated publish, so the secret is
+          # absent until the day it isn't and this stays an empty array.
+          AUTH=()
+          if [ -n "$NTFY_TOKEN" ]; then
+            AUTH=(-H "Authorization: Bearer $NTFY_TOKEN")
+          fi
           curl --fail --silent --show-error \
+            "${AUTH[@]}" \
             -H "Title: $ISSUE_TITLE" \
             -H "Priority: $PRIORITY" \
             -H "Tags: clapper" \
