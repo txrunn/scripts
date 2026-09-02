@@ -24,9 +24,25 @@
       "first_seen": "2026-08-25",
       "title": "Basic Instinct"
     },
+    "buddy-2026": {
+      "first_seen": "2026-08-27",
+      "title": "Buddy (2026)"
+    },
+    "butthole-surfers-the-hole-truth-and-nothing-butt": {
+      "first_seen": "2026-08-26",
+      "title": "Butthole Surfers: The Hole Truth and Nothing Butt"
+    },
+    "by-any-means": {
+      "first_seen": "2026-09-01",
+      "title": "By Any Means"
+    },
     "catvideofest-2026": {
       "first_seen": "2026-08-25",
       "title": "CatVideoFest 2026"
+    },
+    "coyote-vs-acme": {
+      "first_seen": "2026-08-26",
+      "title": "Coyote Vs. ACME"
     },
     "crunchyroll-anime-night-sneak-peek-9-21-2026": {
       "first_seen": "2026-08-25",
@@ -39,6 +55,10 @@
     "dire-duplicity": {
       "first_seen": "2026-08-25",
       "title": "Dire Duplicity"
+    },
+    "dismember-the-alamo-2026-dc-area": {
+      "first_seen": "2026-09-01",
+      "title": "Dismember the Alamo 2026 - DC Area"
     },
     "dune-part-three": {
       "first_seen": "2026-08-25",
@@ -80,9 +100,17 @@
       "first_seen": "2026-08-25",
       "title": "The Thing (1982)"
     },
+    "everything-everywhere-all-at-once": {
+      "first_seen": "2026-09-01",
+      "title": "EVERYTHING EVERYWHERE ALL AT ONCE"
+    },
     "fallen-angels-by-noel-coward": {
       "first_seen": "2026-08-25",
       "title": "Fallen Angels by No\u00ebl Coward"
+    },
+    "film-club-amadeus": {
+      "first_seen": "2026-08-27",
+      "title": "Amadeus"
     },
     "film-club-network": {
       "first_seen": "2026-08-25",
@@ -136,6 +164,14 @@
       "first_seen": "2026-08-25",
       "title": "Ernie & Emma"
     },
+    "live-score-nosferatu-1922-w-invincibles-czars": {
+      "first_seen": "2026-09-02",
+      "title": "Nosferatu (1922)"
+    },
+    "livestream-q-a-the-weight": {
+      "first_seen": "2026-09-01",
+      "title": "The Weight"
+    },
     "mean-girls-movie-party": {
       "first_seen": "2026-08-25",
       "title": "Mean Girls (2004)"
@@ -155,6 +191,10 @@
     "nacho-libre": {
       "first_seen": "2026-08-25",
       "title": "Nacho Libre"
+    },
+    "onslaught": {
+      "first_seen": "2026-08-27",
+      "title": "Onslaught"
     },
     "paw-patrol-the-dino-movie": {
       "first_seen": "2026-08-25",
@@ -179,6 +219,10 @@
     "rear-window": {
       "first_seen": "2026-08-25",
       "title": "Rear Window"
+    },
+    "resident-evil-2026": {
+      "first_seen": "2026-09-01",
+      "title": "Resident Evil (2026)"
     },
     "sad-girl-cinema-club-my-sassy-girl": {
       "first_seen": "2026-08-25",
@@ -269,6 +313,6 @@
       "title": "Toxic: A Fairy Tale for Grown-Ups"
     }
   },
-  "updated": "2026-08-25T11:42:25",
+  "updated": "2026-09-02T17:00:25",
   "version": 1
 }

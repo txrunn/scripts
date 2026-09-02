@@ -16,6 +16,11 @@ on:
     # follow DST, so this drifts by an hour in winter.
     - cron: "0 13 * * *"
   workflow_dispatch:
+    inputs:
+      test_alert:
+        description: "Open a test issue from the current slate (ledger untouched)"
+        type: boolean
+        default: false
 
 concurrency:
   group: alamo-new-films
@@ -26,59 +31,96 @@ permissions:
   issues: write
 
 jobs:
-  check:
+  bryant-street:
+    name: DC Bryant Street
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Run the test suite
+      # Guards against a bad commit reaching a scheduled run, where a silent
+      # mis-report looks exactly like a quiet day.
+      - name: Run tests
         run: python -m unittest discover -s alamo-drafthouse -t alamo-drafthouse
 
       # One fetch, reused below. --verify fails the job if Alamo changes the
       # API, which is the early warning that the parser needs attention -- far
       # better than a run that quietly reports nothing forever.
-      - name: Fetch and verify the feed
+      - name: Fetch schedule and check the API contract
         run: |
           set -o pipefail
           python alamo-drafthouse/alamo_new_films.py \
             --verify --dump "$RUNNER_TEMP/raw.json" | tee "$RUNNER_TEMP/verify.txt"
 
-      - name: Check for new films
+      - name: Find newly bookable films
         run: |
           set -o pipefail
+          # test_alert reports the whole current slate against a throwaway
+          # ledger, so the alert path can be exercised on demand without
+          # waiting for Alamo to add something. The real ledger is not read
+          # or written, so a test cannot cause a genuine addition to be missed.
+          if [ "${{ inputs.test_alert }}" = "true" ]; then
+            STATE="$RUNNER_TEMP/test-ledger.json"
+            FORCE="--force-report"
+            echo "TEST ALERT: reporting the current slate; the real ledger is untouched."
+          else
+            STATE="alamo-drafthouse/ci-state/dc-bryant-street.json"
+            FORCE=""
+          fi
           python alamo-drafthouse/alamo_new_films.py \
             --from-file "$RUNNER_TEMP/raw.json" \
-            --state alamo-drafthouse/ci-state/dc-bryant-street.json \
-            --report-dir "$RUNNER_TEMP/reports" | tee "$RUNNER_TEMP/report.txt"
+            --state "$STATE" $FORCE \
+            --report-dir "$RUNNER_TEMP/reports" \
+            --format markdown | tee "$RUNNER_TEMP/report.md"
+          # The report is empty on a quiet day, which would leave this step
+          # blank in the log -- indistinguishable from a step that did nothing.
+          [ -s "$RUNNER_TEMP/report.md" ] || echo "No new films since the last run."
 
-      - name: Did anything get added?
+      - name: Decide whether to alert
         id: detect
         run: |
           if compgen -G "$RUNNER_TEMP/reports/*.json" > /dev/null; then
             echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "New films found -- will open an issue and commit the ledger."
           else
             echo "new=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing new -- no issue, no commit."
           fi
 
-      - name: Job summary
+      - name: Write the run summary
         if: always()
         run: |
+          # A quiet run should still say what it saw. "Nothing new" alone
+          # cannot be told apart from a run that silently stopped working.
+          STATS=$(sed -n 's/^upcoming bookable sessions at target *PASS *//p' "$RUNNER_TEMP/verify.txt" 2>/dev/null)
+          WINDOW=$(sed -n 's/^schedule window *INFO *//p' "$RUNNER_TEMP/verify.txt" 2>/dev/null)
+          TIERS=$(sed -n 's/^event classification *INFO *//p' "$RUNNER_TEMP/verify.txt" 2>/dev/null)
           {
             if [ "${{ steps.detect.outputs.new }}" = "true" ]; then
               echo "## New films at DC Bryant Street"
               echo
-              echo '```'
-              cat "$RUNNER_TEMP/report.txt"
-              echo '```'
+              cat "$RUNNER_TEMP/report.md"
+              echo
+              echo "---"
             else
               echo "## Nothing new today"
+              echo
+            fi
+            if [ -n "$STATS" ]; then
+              echo "Currently tracking **${STATS}** at DC Bryant Street."
+              echo
+              echo "- Schedule window: ${WINDOW:-unknown}"
+              echo "- Mix: ${TIERS:-unknown}"
+            else
+              echo "> The API check did not complete, so no counts are available."
             fi
             echo
-            echo "<details><summary>API contract check</summary>"
+            echo "<details><summary>Full API contract check</summary>"
             echo
             echo '```'
             cat "$RUNNER_TEMP/verify.txt" 2>/dev/null || echo "(verify did not run)"
@@ -87,21 +129,18 @@ jobs:
             echo "</details>"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Open an issue
+      - name: Open an issue for the new films
         if: steps.detect.outputs.new == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           {
-            echo "New films are now bookable at Alamo DC Bryant Street."
+            cat "$RUNNER_TEMP/report.md"
             echo
-            echo '```'
-            cat "$RUNNER_TEMP/report.txt"
-            echo '```'
+            echo "---"
             echo
-            echo "[Browse the calendar](https://drafthouse.com/dc-metro-area?showCalendar=true)"
-            echo
-            echo "_Opened by the \`alamo-new-films\` workflow_"
+            echo "<sub>Opened by the <a href=\"https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\">alamo-new-films</a> workflow."
+            echo "Close this whenever — the tracker uses its own ledger, so nothing here is re-reported either way.</sub>"
           } > "$RUNNER_TEMP/issue.md"
           # Lead the title with the special-event count -- that is the part
           # worth opening the email for.
@@ -118,13 +157,18 @@ jobs:
           print(("New at Bryant Street: " + ", ".join(bits)))
           PY
           )
+          if [ "${{ inputs.test_alert }}" = "true" ]; then
+            TITLE="[test] $TITLE"
+            sed -i '1i > **This is a test alert.** It lists the whole current slate rather than\n> anything newly added, and the tracker'"'"'s ledger was not touched. Safe to close.\n' \
+              "$RUNNER_TEMP/issue.md"
+          fi
           gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md" --label alamo \
             || gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md"
 
       # Only on days something was added: the ledger's `seen` map is unchanged
       # otherwise, and a daily no-op commit would bury real history.
-      - name: Persist the ledger
-        if: steps.detect.outputs.new == 'true'
+      - name: Commit the updated ledger
+        if: steps.detect.outputs.new == 'true' && inputs.test_alert != true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

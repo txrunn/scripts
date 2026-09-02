@@ -104,6 +104,8 @@ ADVANCE_MARKERS = (
 )
 
 SCHEDULE_URL = "https://drafthouse.com/s/mother/v2/schedule/market/{market}"
+# Confirmed against a live slug. Alamo also serves the market-less
+# drafthouse.com/show/<slug>; either resolves to the film's showtimes page.
 SHOW_URL = "https://drafthouse.com/{market}/show/{slug}"
 
 # State lives next to the script, not in a per-user config dir, so everything the
@@ -581,11 +583,16 @@ def upcoming_films(
                 "session_count": 0,
                 "tier": tier,
                 "label": label,
+                "showtimes": [],
             },
         )
         film["session_count"] += 1
+        film["showtimes"].append(showtime)
         if showtime < film["first_showtime"]:
             film["first_showtime"] = showtime
+
+    for film in films.values():
+        film["showtimes"].sort()
 
     if unparseable:
         print(
@@ -687,6 +694,71 @@ def format_report(new_films, market, label):
         lines.append(f"    {SHOW_URL.format(market=market, slug=slug)}")
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"
+
+
+def format_when(film):
+    """When you can see it.
+
+    A single date gets its clock time, because that is the whole offer. A run
+    gets its span and no time -- quoting one showtime's time next to a date
+    range implies every screening is at that hour.
+    """
+    days = sorted({s.date() for s in film.get("showtimes") or [film["first_showtime"]]})
+    if len(days) == 1:
+        return format_showtime(film["first_showtime"])
+    first, last = days[0], days[-1]
+    return f"{first:%a %b} {first.day} – {last:%a %b} {last.day}"
+
+
+def format_report_markdown(new_films, market, label):
+    """Rich markdown for a GitHub issue: real headings, tables, clickable links.
+
+    The plain-text report is built for a terminal, and pasting it into a fenced
+    block gives you monospace text with dead links -- the opposite of useful in
+    something you are meant to act on.
+    """
+    count = len(new_films)
+    lines = [
+        f"**{count} new film{'s' if count != 1 else ''}** newly bookable at "
+        f"{label} — {dt.date.today():%a %d %b %Y}",
+        "",
+    ]
+
+    headings = {
+        TIER_EVENT: "### ⭐ Special events\n\nOne-offs — seats go early.",
+        TIER_REGULAR: "### Regular releases",
+        TIER_ADVANCE: (
+            "### Advance screenings\n\n"
+            "The film returns in a regular run, but merch does not — worth a look."
+        ),
+    }
+
+    for tier in (TIER_EVENT, TIER_REGULAR, TIER_ADVANCE):
+        tier_films = {s: f for s, f in new_films.items() if f.get("tier", TIER_REGULAR) == tier}
+        if not tier_films:
+            continue
+        lines += [headings[tier], ""]
+        show_series = any(f.get("label") for f in tier_films.values())
+        header = "| Film | Series | When | Shows |" if show_series else "| Film | When | Shows |"
+        lines.append(header)
+        lines.append("|---|---|---|---|" if show_series else "|---|---|---|")
+        for slug, film in sorted(tier_films.items(), key=sort_key):
+            url = SHOW_URL.format(market=market, slug=slug)
+            title = film["title"].replace("|", "\\|")
+            cells = [f"**[{title}]({url})**"]
+            if show_series:
+                cells.append((film.get("label") or "—").replace("|", "\\|"))
+            cells += [format_when(film), str(film["session_count"])]
+            lines.append("| " + " | ".join(cells) + " |")
+        lines.append("")
+
+    # Nothing issue-specific here: this same markdown is also used for the
+    # Actions run summary, where a line about closing an issue makes no sense.
+    lines += [
+        f"Titles link to all showtimes for that film."
+        f" · [Full DC Metro calendar](https://drafthouse.com/{market}?showCalendar=true)",
+    ]
+    return "\n".join(lines) + "\n"
 
 
 def write_report_json(directory, new_films, market, label):
@@ -904,6 +976,13 @@ def build_parser():
         "--force-report", action="store_true", help="on the first run, list the whole slate instead of seeding quietly"
     )
     parser.add_argument(
+        "--format",
+        choices=("text", "markdown"),
+        default="text",
+        help="report style: plain text for a terminal (default), or markdown with "
+        "tables and links for a GitHub issue",
+    )
+    parser.add_argument(
         "--skip-regular",
         "--events-only",
         dest="skip_regular",
@@ -981,12 +1060,16 @@ def main(argv=None):
         return 0
 
     if new_films:
-        sys.stdout.write(format_report(new_films, args.market, label))
+        render = format_report_markdown if args.format == "markdown" else format_report
+        sys.stdout.write(render(new_films, args.market, label))
 
     if not args.dry_run:
         if new_films or args.json_always:
             path = write_report_json(args.report_dir, new_films, args.market, label)
-            if new_films:
+            # A local convenience only. In markdown the output is a document
+            # destined for an issue body, and a filesystem path from a
+            # throwaway runner has no meaning to whoever reads it.
+            if new_films and args.format == "text":
                 print(f"JSON report: {path}")
         save_ledger(state_path, seen)
 

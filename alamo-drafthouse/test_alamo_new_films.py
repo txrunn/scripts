@@ -511,6 +511,65 @@ class TestReportOrdering(ScriptTestCase):
         self.assertEqual(report["films"][0]["event_label"], "Film Club")
 
 
+class TestMarkdownReport(ScriptTestCase):
+    """The GitHub issue needs clickable links and real tables, not a code fence."""
+
+    def markdown(self, data, *extra):
+        return self.run_script(data, "--force-report", "--format", "markdown", *extra)[1]
+
+    def test_titles_are_links_not_bare_text(self):
+        data = payload({"film-club-y": "Rear Window"}, [session("film-club-y")])
+        out = self.markdown(data)
+        self.assertIn(
+            "**[Rear Window](https://drafthouse.com/dc-metro-area/show/film-club-y)**", out
+        )
+        self.assertNotIn("```", out, "a code fence would kill the links")
+
+    def test_tiers_render_as_tables_with_headers(self):
+        data = payload(
+            {"film-club-y": "Club Film", "plain-film": "Regular Film"},
+            [session("film-club-y"), session("plain-film")],
+        )
+        out = self.markdown(data)
+        self.assertIn("### ⭐ Special events", out)
+        self.assertIn("### Regular releases", out)
+        self.assertIn("| Film | Series | When | Shows |", out)
+
+    def test_series_column_is_dropped_when_no_film_has_one(self):
+        data = payload({"plain-film": "Regular Film"}, [session("plain-film")])
+        out = self.markdown(data)
+        self.assertIn("| Film | When | Shows |", out)
+
+    def test_single_date_shows_a_clock_time(self):
+        data = payload({"a": "One Night Only"}, [session("a", when=SOON)])
+        out = self.markdown(data)
+        self.assertRegex(out, r"\| \w{3} \w{3} \d+, \d+:\d\d [AP]M \|")
+
+    def test_a_run_shows_a_span_and_no_clock_time(self):
+        """Quoting one showtime's time beside a range implies they're all at that hour."""
+        data = payload(
+            {"a": "Long Run"},
+            [session("a", when=SOON), session("a", when=LATER)],
+        )
+        out = self.markdown(data)
+        row = [l for l in out.splitlines() if "Long Run" in l][0]
+        self.assertIn("–", row)
+        self.assertNotIn("PM", row)
+        self.assertNotIn("AM", row)
+
+    def test_pipes_in_a_title_do_not_break_the_table(self):
+        data = payload({"a": "Kill Bill | Vol. 1"}, [session("a")])
+        out = self.markdown(data)
+        row = [l for l in out.splitlines() if "Kill Bill" in l][0]
+        self.assertEqual(row.count("|"), 5, "an unescaped pipe would add a column")
+
+    def test_text_format_is_still_the_default(self):
+        data = payload({"a": "Film A"}, [session("a")])
+        code, out = self.run_script(data, "--force-report")
+        self.assertNotIn("|---|", out)
+        self.assertIn("first showtime", out)
+
+
 class TestOutputs(ScriptTestCase):
     def test_json_report_written_only_when_something_is_new(self):
         before = payload({"a": "Film A"}, [session("a")])

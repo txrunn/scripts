@@ -174,8 +174,26 @@ task running from any working directory writes here. Override with `--state` /
 films are added. GitHub emails you about issues in your own repo, so there's no
 SMTP secret to manage.
 
-Each run: tests → fetch + `--verify` → check for new films → job summary → (only
-if something was added) open an issue and commit the ledger.
+Steps, in order — the names are what you see in the Actions UI:
+
+| Step | Does what | Skipped when |
+|---|---|---|
+| Run tests | Guards against a bad commit reaching a scheduled run | never |
+| Fetch schedule and check the API contract | One fetch, reused below; fails the run on schema drift | never |
+| Find newly bookable films | The actual diff | never |
+| Decide whether to alert | Sets the `new` output | never |
+| Write the run summary | Renders the summary you read | never (`if: always()`) |
+| Open an issue for the new films | The alert | nothing new |
+| Commit the updated ledger | Persists state | nothing new |
+
+A quiet run leaves the last two greyed out and the summary reads "Nothing new
+today" — followed by the counts, so a healthy quiet day is distinguishable from
+a run that silently stopped working.
+
+The issue body is real markdown (`--format markdown`): a table per tier, film
+titles linked to all showtimes for that film, and a date span rather than a
+single showtime for films with a run. Dumping the terminal report into a code
+fence would give monospace text and dead links.
 
 Try it by hand first: **[Actions tab](https://github.com/txrunn/scripts/actions)
 → "Alamo new films" → Run workflow**, then read the job summary. That first run
@@ -223,6 +241,7 @@ from it when there's something to book:
 | `--skip-regular` | Drop ordinary releases; keep events *and* advance screenings. (`--events-only` is an alias.) |
 | `--status STATUS` | Status counted as bookable, repeatable (default `ONSALE`; `ALL` ignores status). |
 | `--force-report` | On a cold start, list the whole slate instead of seeding quietly. |
+| `--format text\|markdown` | Report style. `text` (default) for a terminal; `markdown` for tables and clickable links in a GitHub issue. |
 | `--dry-run` | Report, but write no state and no JSON. |
 | `--from-file PATH` | Read a saved response instead of fetching. Offline testing. |
 | `--dump PATH` | Save the raw response for debugging. |
@@ -284,7 +303,7 @@ and `parse_showtime()`. A feed change should only ever need edits there.
 python -m unittest discover -s . -t . -v
 ```
 
-65 tests, no network — every one drives the script through `--from-file`.
+72 tests, no network — every one drives the script through `--from-file`.
 
 Coverage: diff logic (new / seen / removed / returning / gaps between runs);
 bookability (`SOLDOUT`, `PAST`, announced-but-not-on-sale and hidden entries all
@@ -295,7 +314,9 @@ slate, shelf labels not promoting, prose never supplying a label, tier beating
 showtime, `--skip-regular` keeping advance screenings); outputs; and robustness
 (an unknown schema fails loudly rather than looking like a quiet day, corrupt
 state, ambiguous cinema match, the several shapes `market` can take, absolute
-state paths).
+state paths), and markdown rendering (links not fences, the series column
+dropped when unused, a clock time only for single-date films, pipes in titles
+escaped).
 
 `testdata/sample_schedule.json` mirrors field names observed on the live feed,
 and a test asserts they stay present so the fixture can't drift into fiction.
@@ -356,12 +377,13 @@ $d.sessions | Group-Object status | Select-Object Name, Count
   are ranked last but never dropped.
 - **Showtimes are treated as cinema-local wall time**, correct for a DC-only
   tracker and avoids a timezone dependency.
-- **The retry/backoff path has never been exercised against a real network
-  failure** — only against fixtures.
-- **The show links in reports are unconfirmed.** They are built as
-  `drafthouse.com/<market>/show/<slug>`, the form a third-party client used;
-  Alamo also serves `drafthouse.com/show/<slug>`. If a link 404s, change
-  `SHOW_URL` in `alamo_new_films.py` to the shorter form.
+- **Report links go to a film's page, not a checkout.** `SHOW_URL` builds
+  `drafthouse.com/<market>/show/<slug>`, confirmed working against a live slug;
+  Alamo also serves the shorter `drafthouse.com/show/<slug>`. The page lists
+  every showtime for that film, so booking is one more click.
+- **The retry/backoff path has only been exercised by a blocked-egress failure**,
+  not a flaky or slow network. It retried three times with backoff and exited 1
+  cleanly, which is the behaviour that matters.
 
 ---
 
