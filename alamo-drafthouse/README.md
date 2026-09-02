@@ -272,10 +272,15 @@ What arrives:
 Days with a special event go out at high priority, since those are the ones that
 sell out. Everything else arrives at normal priority.
 
-The list is capped at 10 titles with an "...and N more" line, because nobody
-reads a 60-line notification and ntfy turns a body over 4KB into an attachment.
-A normal day adds a handful of films and is never truncated; a `test_alert` run
-reports the whole slate and always is. The issue has the full list either way.
+The list is capped at 10 titles with a `+N more` line, because nobody reads a
+60-line notification and ntfy turns a body over 4KB into an attachment. A normal
+day adds a handful of films and is never truncated; a `test_alert` run reports
+the whole slate and always is. The issue has the full list either way.
+
+It is one bare title per line — no bullets, no padding. **ntfy renders Markdown
+in the web app only**, so on a phone a `- ` prefix is a literal hyphen rather
+than a list, and iOS shows roughly four lines before truncating. Every character
+spent on decoration is a character of film title that wraps or disappears.
 
 Button labels are ASCII-folded and clipped to ~27 characters, because ntfy
 splits the `Actions` header on commas and semicolons and film titles are full of

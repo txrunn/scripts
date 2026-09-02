@@ -226,13 +226,19 @@ jobs:
           # ntfy turns a body over 4KB into an attachment -- which a
           # --force-report run over the whole slate would trip. Films arrive
           # sorted by tier, so special events survive the cut.
+          #
+          # One title per line, no bullet, no padding. ntfy renders Markdown in
+          # the web app only, so on a phone a "- " prefix is a literal hyphen
+          # rather than a list, and iOS shows about four lines before it
+          # truncates -- every character spent on decoration is a character of
+          # film title that wraps or vanishes.
           LIMIT = 10
           with open(os.path.join(tmp, "push.txt"), "w", encoding="utf-8", newline="\n") as out:
               for film in films[:LIMIT]:
                   label = film["event_label"]
-                  out.write(f"- {film['title']}" + (f"  ({label})" if label else "") + "\n")
+                  out.write(film["title"] + (f" ({label})" if label else "") + "\n")
               if len(films) > LIMIT:
-                  out.write(f"...and {len(films) - LIMIT} more\n")
+                  out.write(f"+{len(films) - LIMIT} more\n")
 
           def button_label(title):
               # Header values are ASCII, ntfy splits actions on , and ;, and the
