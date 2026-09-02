@@ -263,6 +263,11 @@ What arrives is the issue title, the new film titles, and a tap that opens the
 issue. Days with a special event are sent at high priority, since those are the
 ones that sell out; everything else arrives at normal priority.
 
+The list is capped at 10 titles with an "...and N more" line, because nobody
+reads a 60-line notification and ntfy rejects a body over 4KB. A normal day adds
+a handful of films and is never truncated; a `test_alert` run reports the whole
+slate and always is. The issue behind the tap has the full list either way.
+
 Two deliberate choices in how it fails:
 
 - **No secret, no problem.** The step prints that it skipped and the run stays
