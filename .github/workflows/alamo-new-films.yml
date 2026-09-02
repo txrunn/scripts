@@ -4,6 +4,11 @@ name: Alamo new films
 # opens an issue when there are any. GitHub emails you about issues in your own
 # repo, so no SMTP secrets are needed.
 #
+# For a push on your phone on top of that email, set an NTFY_URL repo secret
+# (see the README). The notification is sent by this job with a plain curl
+# rather than by GitHub, so it survives a move to Forgejo, GitLab, or a cron
+# box unchanged -- only the secret has to come with it.
+#
 # The ledger lives in the repo at alamo-drafthouse/ci-state/ and is committed
 # back on days something is added -- runners are ephemeral, so state has to
 # persist somewhere, and the repo doubles as an audit trail of what appeared
@@ -130,6 +135,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Open an issue for the new films
+        id: issue
         if: steps.detect.outputs.new == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -162,8 +168,15 @@ jobs:
             sed -i '1i > **This is a test alert.** It lists the whole current slate rather than\n> anything newly added, and the tracker'"'"'s ledger was not touched. Safe to close.\n' \
               "$RUNNER_TEMP/issue.md"
           fi
-          gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md" --label alamo \
-            || gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md"
+          # The URL and title feed the phone push below. tail -n1 because on
+          # the fallback path both invocations write to stdout.
+          URL=$({ gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md" --label alamo \
+            || gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/issue.md"; } | tail -n 1)
+          echo "$URL"
+          {
+            echo "url=$URL"
+            echo "title=$TITLE"
+          } >> "$GITHUB_OUTPUT"
 
       # Only on days something was added: the ledger's `seen` map is unchanged
       # otherwise, and a daily no-op commit would bury real history.
@@ -179,3 +192,46 @@ jobs:
             git commit -m "Record new Bryant Street films seen on $(date -u +%Y-%m-%d)"
             git push
           fi
+
+      # Last, deliberately. The issue is already open and the ledger has already
+      # advanced, so a notifier outage cannot strand state or make tomorrow
+      # re-report today's films. It turns the run red instead, and GitHub emails
+      # you about failed runs -- a push that quietly stops working is the exact
+      # silent failure the rest of this workflow is built to avoid.
+      #
+      # NTFY_URL is the whole topic URL, e.g. https://ntfy.sh/<your-topic>.
+      # Nothing below is GitHub-specific past the two step outputs: on another
+      # forge this is the same curl against the same secret.
+      - name: Push a phone notification
+        if: steps.detect.outputs.new == 'true'
+        env:
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+          ISSUE_TITLE: ${{ steps.issue.outputs.title }}
+          ISSUE_URL: ${{ steps.issue.outputs.url }}
+        run: |
+          if [ -z "$NTFY_URL" ]; then
+            echo "No NTFY_URL secret set -- skipping the push. The issue was still opened."
+            exit 0
+          fi
+          # A lock screen wants the titles, not the issue's markdown tables.
+          PRIORITY=$(python - "$RUNNER_TEMP"/reports/*.json <<'PY'
+          import json, os, sys
+          films = json.load(open(sys.argv[1]))["films"]
+          # Already sorted by tier upstream, so special events lead the list.
+          path = os.path.join(os.environ["RUNNER_TEMP"], "push.txt")
+          with open(path, "w", encoding="utf-8", newline="\n") as out:
+              for film in films:
+                  label = film["event_label"]
+                  out.write(f"- {film['title']}" + (f"  ({label})" if label else "") + "\n")
+          # Special events are the ones that sell out. The rest can wait for a
+          # badge instead of interrupting whatever you are doing.
+          print("high" if any(f["tier"] == "event" for f in films) else "default")
+          PY
+          )
+          curl --fail --silent --show-error \
+            -H "Title: $ISSUE_TITLE" \
+            -H "Priority: $PRIORITY" \
+            -H "Tags: clapper" \
+            -H "Click: $ISSUE_URL" \
+            --data-binary @"$RUNNER_TEMP/push.txt" \
+            "$NTFY_URL"

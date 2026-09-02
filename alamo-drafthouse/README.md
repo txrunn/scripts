@@ -185,8 +185,9 @@ Steps, in order — the names are what you see in the Actions UI:
 | Write the run summary | Renders the summary you read | never (`if: always()`) |
 | Open an issue for the new films | The alert | nothing new |
 | Commit the updated ledger | Persists state | nothing new |
+| Push a phone notification | Optional ntfy push, see below | nothing new; no `NTFY_URL` |
 
-A quiet run leaves the last two greyed out and the summary reads "Nothing new
+A quiet run leaves the last three greyed out and the summary reads "Nothing new
 today" — followed by the counts, so a healthy quiet day is distinguishable from
 a run that silently stopped working.
 
@@ -226,6 +227,65 @@ from it when there's something to book:
 ```
 0 9 * * * /full/path/to/alamo_new_films.py
 ```
+
+---
+
+## Phone notifications
+
+The workflow opens an issue and GitHub emails you about issues in your own repo,
+so out of the box you already get an alert with nothing to configure. For a push
+on your phone instead of an email you have to go and read, add
+[ntfy](https://ntfy.sh) — free, open source, no account, one `curl` from the job.
+
+1. Install ntfy on your phone
+   ([iOS](https://apps.apple.com/us/app/ntfy/id1625396347),
+   [Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy)).
+2. Invent a topic name. **The topic name is the whole password** — anyone who
+   guesses it can read your alerts and push things at you — so don't pick
+   `alamo`:
+
+   ```powershell
+   python -c "import secrets; print('alamo-' + secrets.token_hex(8))"
+   ```
+
+3. Subscribe to that topic in the app.
+4. Add the full URL as a repo secret named `NTFY_URL` — **Settings → Secrets and
+   variables → Actions → New repository secret**:
+
+   ```
+   https://ntfy.sh/alamo-<the-hex-from-step-2>
+   ```
+
+Test it: **Actions → "Alamo new films" → Run workflow** with **test_alert**
+ticked. The push should arrive in a second or two.
+
+What arrives is the issue title, the new film titles, and a tap that opens the
+issue. Days with a special event are sent at high priority, since those are the
+ones that sell out; everything else arrives at normal priority.
+
+Two deliberate choices in how it fails:
+
+- **No secret, no problem.** The step prints that it skipped and the run stays
+  green. The issue and its email are unaffected, so this is purely additive.
+- **A broken push fails the run,** which GitHub emails you about. It runs last,
+  after the ledger is committed, so a notifier outage can't strand state or make
+  tomorrow re-report today's films. A push that quietly stopped working would be
+  the same silent failure the rest of this workflow exists to prevent.
+
+### Why a curl and not a notification setting
+
+GitHub can push issue alerts through its own mobile app, and that is a fine
+zero-setup option — but it welds the alert to GitHub. The `curl` doesn't. The
+entire notification path is one step, one secret, and no forge-specific API:
+
+- **Moving to Forgejo or GitLab** — copy the step and the secret. Forgejo Actions
+  reads the same YAML; on GitLab it's the same `curl` in a `script:`.
+- **Moving to a cron box** — pipe the report into the same `curl`.
+- **Self-hosting ntfy** — change the secret to your own URL, change nothing else.
+  One caveat for iOS: a self-hosted server needs
+  [`upstream-base-url`](https://docs.ntfy.sh/config/#ios-instant-notifications)
+  set to `https://ntfy.sh` to get instant pushes, because APNs delivery has to be
+  relayed. Without it notifications still arrive, just late.
 
 ---
 
@@ -399,6 +459,10 @@ $d.sessions | Group-Object status | Select-Object Name, Count
 - [Actions runs](https://github.com/txrunn/scripts/actions) — history and job summaries
 - [Issues](https://github.com/txrunn/scripts/issues) — where new-film alerts land
 - `git log alamo-drafthouse/ci-state/` — when each film went on sale
+
+**Notifications**
+- [ntfy docs](https://docs.ntfy.sh/publish/) — the push service, if you set `NTFY_URL`
+- [ntfy for iOS](https://apps.apple.com/us/app/ntfy/id1625396347)
 
 **Reference**
 - [GitHub scheduled workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) — cron syntax and the delay/inactivity rules
