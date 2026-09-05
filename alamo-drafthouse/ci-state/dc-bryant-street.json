@@ -204,6 +204,10 @@
       "first_seen": "2026-08-25",
       "title": "Practical Magic 2"
     },
+    "primetime": {
+      "first_seen": "2026-09-05",
+      "title": "Primetime"
+    },
     "queen-budapest": {
       "first_seen": "2026-08-25",
       "title": "Queen Budapest"
@@ -227,6 +231,22 @@
     "sad-girl-cinema-club-my-sassy-girl": {
       "first_seen": "2026-08-25",
       "title": "My Sassy Girl"
+    },
+    "special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026": {
+      "first_seen": "2026-09-05",
+      "title": "Princess Mononoke (Dubbed)"
+    },
+    "special-event-princess-mononoke-subtitled-studio-ghibli-fest-2026": {
+      "first_seen": "2026-09-05",
+      "title": "Princess Mononoke (Subtitled)"
+    },
+    "special-event-spirited-away-dubbed-studio-ghibli-fest-2026": {
+      "first_seen": "2026-09-05",
+      "title": "Spirited Away (Dubbed)"
+    },
+    "special-event-spirited-away-subtitled-studio-ghibli-fest-2026": {
+      "first_seen": "2026-09-05",
+      "title": "Spirited Away (Subtitled)"
     },
     "special-event-star-trek-ii-the-wrath-of-khan-space-seed": {
       "first_seen": "2026-08-25",
@@ -317,6 +337,6 @@
       "title": "Verity"
     }
   },
-  "updated": "2026-09-04T16:44:07",
+  "updated": "2026-09-05T15:46:54",
   "version": 1
 }
