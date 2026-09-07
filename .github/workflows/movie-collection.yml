@@ -1,0 +1,160 @@
+name: Movie collection
+
+# Rebuilds the collection page when you add a disc.
+#
+# The trigger is a push touching the inventory, not a schedule: the shelf only
+# changes when you edit collection.txt, so a nightly cron would be 364 no-op
+# runs a year. Adding a title is one line in one file, and the page follows on
+# its own.
+#
+# Metadata is cached in movie-collection/cache/metadata.json and committed back,
+# because runners keep nothing between jobs -- without it every build would
+# re-look-up the entire shelf. Only titles missing from that cache touch the
+# network, so adding two films makes a handful of requests.
+#
+# Two secrets, both free:
+#   TMDB_API_KEY   required   https://www.themoviedb.org/settings/api
+#   OMDB_API_KEY   optional   https://www.omdbapi.com/apikey.aspx
+# Without OMDb the page still builds; it just carries no IMDb ratings and no
+# Tomatometer, and says so in Source_Notes.
+#
+# To publish to GitHub Pages: Settings -> Pages -> Source: GitHub Actions, then
+# add a repository variable PUBLISH_PAGES=true (Settings -> Secrets and
+# variables -> Actions -> Variables). Until then the page is still built and
+# committed to movie-collection/site/, so nothing depends on Pages being on.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "movie-collection/collection.txt"
+      - "movie-collection/overrides.toml"
+      - "movie-collection/build_collection.py"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rebuild even if nothing in the inventory changed"
+        type: boolean
+        default: false
+      refresh_all:
+        description: "Ignore the cache and re-look-up every title (slow)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: movie-collection
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build the collection page
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # Guards against a bad commit reaching the build. A shelf-ordering bug
+      # would produce a page that looks fine and is quietly wrong.
+      - name: Run tests
+        run: python -m unittest discover -s movie-collection -t movie-collection
+
+      # Fails the run if TMDB or OMDb changed shape, which is the early warning
+      # that the parser needs attention -- far better than a page that silently
+      # loses half its ratings.
+      - name: Check the inventory and both API contracts
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          OMDB_API_KEY: ${{ secrets.OMDB_API_KEY }}
+        run: |
+          set -o pipefail
+          python movie-collection/build_collection.py --verify | tee "$RUNNER_TEMP/verify.txt"
+
+      - name: Build the page
+        id: build
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          OMDB_API_KEY: ${{ secrets.OMDB_API_KEY }}
+        run: |
+          set -o pipefail
+          ARGS=""
+          [ "${{ inputs.force }}" = "true" ] && ARGS="$ARGS --force"
+          [ "${{ inputs.refresh_all }}" = "true" ] && ARGS="$ARGS --refresh-all"
+          python movie-collection/build_collection.py \
+            --title "4K Collection" --format markdown $ARGS \
+            | tee "$RUNNER_TEMP/report.md"
+          # Empty on a no-op build, which would otherwise leave this step blank
+          # in the log -- indistinguishable from a step that did nothing.
+          [ -s "$RUNNER_TEMP/report.md" ] || echo "Nothing added since the last build."
+
+      # The cache and the page are the state. Committing them is what makes the
+      # next run cheap and gives `git log movie-collection/cache/` as a record
+      # of when each disc was added.
+      - name: Commit the page and the cache
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add movie-collection/site movie-collection/cache
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing changed -- no commit."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git commit -m "Rebuild the collection page ($(date -u +%Y-%m-%d))"
+            git push
+          fi
+
+      - name: Write the run summary
+        if: always()
+        run: |
+          {
+            if [ -s "$RUNNER_TEMP/report.md" ]; then
+              cat "$RUNNER_TEMP/report.md"
+            else
+              echo "## Nothing added"
+              echo
+              echo "The inventory is unchanged since the last build, so the page was not rewritten."
+            fi
+            echo
+            echo "<details><summary>Inventory and API contract check</summary>"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/verify.txt" 2>/dev/null || echo "(verify did not run)"
+            echo '```'
+            echo
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the page as an artifact
+        if: vars.PUBLISH_PAGES == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: movie-collection/site
+
+  # Skipped entirely until you set the PUBLISH_PAGES variable, so the build
+  # above works from the first run without Pages being configured.
+  publish:
+    name: Publish to GitHub Pages
+    needs: build
+    if: vars.PUBLISH_PAGES == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v5

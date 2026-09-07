@@ -1,0 +1,2870 @@
+{
+  "records": {
+    "47 Ronin (2013)": {
+      "directors": [
+        "Carl Rinsch"
+      ],
+      "genres": [
+        "Drama",
+        "Action",
+        "Fantasy"
+      ],
+      "imdb_id": "tt1335975",
+      "imdb_rating": 6.2,
+      "key": "47 Ronin (2013)",
+      "letterboxd": "https://letterboxd.com/film/47-ronin-2013/",
+      "overview": "Kai—an outcast—joins Oishi, the leader of 47 outcast samurai.  Together they seek vengeance upon the treacherous overlord who killed their master and banished their kind.  To restore honour to their homeland, the warriors embark upon a quest that challenges them with a series of trials that would destroy ordinary warriors.",
+      "poster": "/xDHnmcroujCRG0ysYQaiswjbyHd.jpg",
+      "rt_audience": null,
+      "rt_critic": 16,
+      "runtime": 119,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "47 Ronin",
+      "tmdb_id": 64686,
+      "verified": "2026-09-07",
+      "year": 2013
+    },
+    "A Clockwork Orange": {
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Crime"
+      ],
+      "imdb_id": "tt0066921",
+      "imdb_rating": 8.2,
+      "key": "A Clockwork Orange",
+      "letterboxd": "https://letterboxd.com/film/a-clockwork-orange/",
+      "overview": "In a near-future Britain, young Alexander DeLarge and his pals get their kicks beating and raping anyone they please. When not destroying the lives of others, Alex swoons to the music of Beethoven. The state, eager to crack down on juvenile crime, gives an incarcerated Alex the option to undergo an invasive procedure that'll rob him of all personal agency. In a time when conscience is a commodity, can Alex change his tune?",
+      "poster": "/4sHeTAp65WrSSuc05nRBKddhBxO.jpg",
+      "rt_audience": null,
+      "rt_critic": 86,
+      "runtime": 137,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "A Clockwork Orange",
+      "tmdb_id": 185,
+      "verified": "2026-09-07",
+      "year": 1971
+    },
+    "A Nightmare on Elm Street 7-Film Collection": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "A Nightmare on Elm Street 7-Film Collection",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "collections",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "A Nightmare on Elm Street 7-Film Collection",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "A Quiet Place Part II": {
+      "directors": [
+        "John Krasinski"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Thriller",
+        "Horror"
+      ],
+      "imdb_id": "tt8332922",
+      "imdb_rating": 7.2,
+      "key": "A Quiet Place Part II",
+      "letterboxd": "https://letterboxd.com/film/a-quiet-place-part-ii/",
+      "overview": "Following the events at home, the Abbott family now face the terrors of the outside world. Forced to venture into the unknown, they realize that the creatures that hunt by sound are not the only threats that lurk beyond the sand path.",
+      "poster": "/4q2hz2m8hubgvijz8Ez0T2Os2Yv.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 97,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "A Quiet Place Part II",
+      "tmdb_id": 520763,
+      "verified": "2026-09-07",
+      "year": 2021
+    },
+    "Alfred Hitchcock Classic Collection": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "Alfred Hitchcock Classic Collection",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "collections",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "Alfred Hitchcock Classic Collection",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "Alien (1979)": {
+      "directors": [
+        "Ridley Scott"
+      ],
+      "genres": [
+        "Horror",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0078748",
+      "imdb_rating": 8.5,
+      "key": "Alien (1979)",
+      "letterboxd": "https://letterboxd.com/film/alien/",
+      "overview": "During its return to the earth, commercial spaceship Nostromo intercepts a distress signal from a distant planet. When a three-member team of the crew discovers a chamber containing thousands of eggs on the planet, a creature inside one of the eggs attacks an explorer. The entire crew is unaware of the impending nightmare set to descend upon them when the alien parasite planted inside its unfortunate host is birthed.",
+      "poster": "/vfrQk5IPloGg1v9Rzbh2Eg3VGyM.jpg",
+      "rt_audience": null,
+      "rt_critic": 93,
+      "runtime": 117,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Alien",
+      "tmdb_id": 348,
+      "verified": "2026-09-07",
+      "year": 1979
+    },
+    "Alita: Battle Angel": {
+      "directors": [
+        "Robert Rodriguez"
+      ],
+      "genres": [
+        "Action",
+        "Science Fiction",
+        "Adventure"
+      ],
+      "imdb_id": "tt0437086",
+      "imdb_rating": 7.3,
+      "key": "Alita: Battle Angel",
+      "letterboxd": "https://letterboxd.com/film/alita-battle-angel/",
+      "overview": "When Alita awakens with no memory of who she is in a future world she does not recognize, she is taken in by Ido, a compassionate doctor who realizes that somewhere in this abandoned cyborg shell is the heart and soul of a young woman with an extraordinary past.",
+      "poster": "/xRWht48C2V8XNfzvPehyClOvDni.jpg",
+      "rt_audience": null,
+      "rt_critic": 61,
+      "runtime": 122,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Alita: Battle Angel",
+      "tmdb_id": 399579,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Anna (2019)": {
+      "directors": [
+        "Luc Besson"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Thriller"
+      ],
+      "imdb_id": "tt7456310",
+      "imdb_rating": 6.7,
+      "key": "Anna (2019)",
+      "letterboxd": "https://letterboxd.com/film/anna-2019/",
+      "overview": "Beneath Anna Poliatova's striking beauty lies a secret that will unleash her indelible strength and skill to become one of the world's most feared government assassins.",
+      "poster": "/2U0oAVAE0lDRhNmJPPYhDW9kQ8t.jpg",
+      "rt_audience": null,
+      "rt_critic": 33,
+      "runtime": 119,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Anna",
+      "tmdb_id": 484641,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Apocalypse Now": {
+      "directors": [
+        "Francis Ford Coppola"
+      ],
+      "genres": [
+        "Drama",
+        "War"
+      ],
+      "imdb_id": "tt0078788",
+      "imdb_rating": 8.4,
+      "key": "Apocalypse Now",
+      "letterboxd": "https://letterboxd.com/film/apocalypse-now/",
+      "overview": "At the height of the Vietnam war, Captain Benjamin Willard is sent on a dangerous mission that, officially, \"does not exist, nor will it ever exist.\" His goal is to locate - and eliminate - a mysterious Green Beret Colonel named Walter Kurtz, who has been leading his personal army on illegal guerrilla missions into enemy territory.",
+      "poster": "/gQB8Y5RCMkv2zwzFHbUJX3kAhvA.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 147,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Apocalypse Now",
+      "tmdb_id": 28,
+      "verified": "2026-09-07",
+      "year": 1979
+    },
+    "Batman (1989)": {
+      "directors": [
+        "Tim Burton"
+      ],
+      "genres": [
+        "Fantasy",
+        "Action",
+        "Crime"
+      ],
+      "imdb_id": "tt0096895",
+      "imdb_rating": 7.5,
+      "key": "Batman (1989)",
+      "letterboxd": "https://letterboxd.com/film/batman-1989/",
+      "overview": "Having witnessed his parents' brutal murder as a child, millionaire philanthropist Bruce Wayne fights crime in Gotham City disguised as Batman, a costumed hero who strikes fear into the hearts of villains. But when a deformed madman known as 'The Joker' seizes control of Gotham's criminal underworld, Batman must face his most ruthless nemesis ever while protecting both his identity and his love interest, reporter Vicki Vale.",
+      "poster": "/cij4dd21v2Rk2YtUQbV5kW69WB2.jpg",
+      "rt_audience": null,
+      "rt_critic": 77,
+      "runtime": 126,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Batman",
+      "tmdb_id": 268,
+      "verified": "2026-09-07",
+      "year": 1989
+    },
+    "Blue Velvet": {
+      "directors": [
+        "David Lynch"
+      ],
+      "genres": [
+        "Mystery",
+        "Thriller",
+        "Crime"
+      ],
+      "imdb_id": "tt0090756",
+      "imdb_rating": 7.7,
+      "key": "Blue Velvet",
+      "letterboxd": "https://letterboxd.com/film/blue-velvet/",
+      "overview": "The discovery of a severed human ear found in a field leads a young man on an investigation related to a beautiful, mysterious nightclub singer and a group of psychopathic criminals who have kidnapped her child.",
+      "poster": "/6v1zYh2FKOYVddY5pCQhd4PO9uX.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 120,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Blue Velvet",
+      "tmdb_id": 793,
+      "verified": "2026-09-07",
+      "year": 1986
+    },
+    "Bohemian Rhapsody": {
+      "directors": [
+        "Bryan Singer"
+      ],
+      "genres": [
+        "Music",
+        "Drama"
+      ],
+      "imdb_id": "tt1727824",
+      "imdb_rating": 7.9,
+      "key": "Bohemian Rhapsody",
+      "letterboxd": "https://letterboxd.com/film/bohemian-rhapsody/",
+      "overview": "Singer Freddie Mercury, guitarist Brian May, drummer Roger Taylor and bass guitarist John Deacon take the music world by storm when they form the rock 'n' roll band Queen in 1970. Hit songs become instant classics. When Mercury's increasingly wild lifestyle starts to spiral out of control, Queen soon faces its greatest challenge yet – finding a way to keep the band together amid the success and excess.",
+      "poster": "/lHu1wtNaczFPGFDTrjCSzeLPTKN.jpg",
+      "rt_audience": null,
+      "rt_critic": 60,
+      "runtime": 135,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Bohemian Rhapsody",
+      "tmdb_id": 424694,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "Bourne: The Ultimate Collection": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "Bourne: The Ultimate Collection",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "collections",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "Bourne: The Ultimate Collection",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "Close Encounters of the Third Kind": {
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Drama"
+      ],
+      "imdb_id": "tt0075860",
+      "imdb_rating": 7.6,
+      "key": "Close Encounters of the Third Kind",
+      "letterboxd": "https://letterboxd.com/film/close-encounters-of-the-third-kind/",
+      "overview": "After an encounter with UFOs, an electricity linesman feels undeniably drawn to an isolated area in the wilderness where something spectacular is about to happen.",
+      "poster": "/yaPx3cK9zGFX3SbcKwxWM1QIbUh.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 137,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Close Encounters of the Third Kind",
+      "tmdb_id": 840,
+      "verified": "2026-09-07",
+      "year": 1977
+    },
+    "Cold Pursuit": {
+      "directors": [
+        "Hans Petter Moland"
+      ],
+      "genres": [
+        "Crime",
+        "Action",
+        "Drama"
+      ],
+      "imdb_id": "tt5719748",
+      "imdb_rating": 6.2,
+      "key": "Cold Pursuit",
+      "letterboxd": "https://letterboxd.com/film/cold-pursuit/",
+      "overview": "The quiet family life of Nels Coxman, a snowplow driver, is upended after his son's murder. Nels begins a vengeful hunt for Viking, the drug lord he holds responsible for the killing, eliminating Viking's associates one by one. As Nels draws closer to Viking, his actions bring even more unexpected and violent consequences, as he proves that revenge is all in the execution.",
+      "poster": "/5RILVnOchQyL1LbcVzmabipdJfc.jpg",
+      "rt_audience": null,
+      "rt_critic": 68,
+      "runtime": 119,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Cold Pursuit",
+      "tmdb_id": 438650,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Companion (2025)": {
+      "directors": [
+        "Drew Hancock"
+      ],
+      "genres": [
+        "Horror",
+        "Science Fiction",
+        "Thriller"
+      ],
+      "imdb_id": "tt26584495",
+      "imdb_rating": 6.9,
+      "key": "Companion (2025)",
+      "letterboxd": "https://letterboxd.com/film/companion-2025/",
+      "overview": "During a weekend getaway at a secluded lakeside estate, a group of friends finds themselves entangled in a web of secrets, deception, and advanced technology. As tensions rise and loyalties are tested, they uncover unsettling truths about themselves and the world around them.",
+      "poster": "/oCoTgC3UyWGfyQ9thE10ulWR7bn.jpg",
+      "rt_audience": null,
+      "rt_critic": 93,
+      "runtime": 97,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Companion",
+      "tmdb_id": 1084199,
+      "verified": "2026-09-07",
+      "year": 2025
+    },
+    "Daniel Craig Collection": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "Daniel Craig Collection",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "collections",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "Daniel Craig Collection",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "Deadpool": {
+      "directors": [
+        "Tim Miller"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Comedy"
+      ],
+      "imdb_id": "tt1431045",
+      "imdb_rating": 8.0,
+      "key": "Deadpool",
+      "letterboxd": "https://letterboxd.com/film/deadpool/",
+      "overview": "The origin story of former Special Forces operative turned mercenary Wade Wilson, who, after being subjected to a rogue experiment that leaves him with accelerated healing powers, adopts the alter ego Deadpool. Armed with his new abilities and a dark, twisted sense of humor, Deadpool hunts down the man who nearly destroyed his life.",
+      "poster": "/3E53WEZJqP6aM84D8CckXx4pIHw.jpg",
+      "rt_audience": null,
+      "rt_critic": 85,
+      "runtime": 108,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Deadpool",
+      "tmdb_id": 293660,
+      "verified": "2026-09-07",
+      "year": 2016
+    },
+    "Deadpool 2": {
+      "directors": [
+        "David Leitch"
+      ],
+      "genres": [
+        "Action",
+        "Comedy",
+        "Adventure"
+      ],
+      "imdb_id": "tt5463162",
+      "imdb_rating": 7.6,
+      "key": "Deadpool 2",
+      "letterboxd": "https://letterboxd.com/film/deadpool-2/",
+      "overview": "Wisecracking mercenary Deadpool battles the evil and powerful Cable and other bad guys to save a boy's life.",
+      "poster": "/to0spRl1CMDvyUbOnbb4fTk3VAd.jpg",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 120,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Deadpool 2",
+      "tmdb_id": 383498,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "Deep Red (1975)": {
+      "directors": [
+        "Dario Argento"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "imdb_id": "tt0073582",
+      "imdb_rating": 7.5,
+      "key": "Deep Red (1975)",
+      "letterboxd": "https://letterboxd.com/film/deep-red/",
+      "overview": "An English pianist living in Rome witnesses the brutal murder of his psychic neighbor. With the help of a tenacious young reporter, he tries to discover the killer using very unconventional methods. The two are soon drawn into a shocking web of dementia and violence.",
+      "poster": "/wq7RxV5gMvgO0EKeWpNhegnpJBh.jpg",
+      "rt_audience": null,
+      "rt_critic": 94,
+      "runtime": 127,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Deep Red",
+      "tmdb_id": 20126,
+      "verified": "2026-09-07",
+      "year": 1975
+    },
+    "Die Hard": {
+      "directors": [
+        "John McTiernan"
+      ],
+      "genres": [
+        "Action",
+        "Thriller"
+      ],
+      "imdb_id": "tt0095016",
+      "imdb_rating": 8.2,
+      "key": "Die Hard",
+      "letterboxd": "https://letterboxd.com/film/die-hard/",
+      "overview": "High above the city of L.A. a team of terrorists has seized a building, taken hostages, and declared war. One man has manages to escape... An off-duty cop hiding somewhere inside. He's alone, tired... and the only chance anyone has got.",
+      "poster": "/7Bjd8kfmDSOzpmhySpEhkUyK2oH.jpg",
+      "rt_audience": null,
+      "rt_critic": 94,
+      "runtime": 132,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Die Hard",
+      "tmdb_id": 562,
+      "verified": "2026-09-07",
+      "year": 1988
+    },
+    "Doctor Sleep": {
+      "directors": [
+        "Mike Flanagan"
+      ],
+      "genres": [
+        "Horror",
+        "Fantasy"
+      ],
+      "imdb_id": "tt5606664",
+      "imdb_rating": 7.3,
+      "key": "Doctor Sleep",
+      "letterboxd": "https://letterboxd.com/film/doctor-sleep/",
+      "overview": "Still scarred by the trauma he endured as a child at the Overlook Hotel, Dan Torrance faces the ghosts of the past when he meets Abra, a courageous teen who desperately needs his help -- and who possesses a powerful extrasensory ability called the \"shine\".",
+      "poster": "/p69QzIBbN06aTYqRRiCOY1emNBh.jpg",
+      "rt_audience": null,
+      "rt_critic": 79,
+      "runtime": 152,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Doctor Sleep",
+      "tmdb_id": 501170,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Dracula Untold": {
+      "directors": [
+        "Gary Shore"
+      ],
+      "genres": [
+        "Horror",
+        "Action",
+        "Fantasy"
+      ],
+      "imdb_id": "tt0829150",
+      "imdb_rating": 6.2,
+      "key": "Dracula Untold",
+      "letterboxd": "https://letterboxd.com/film/dracula-untold/",
+      "overview": "Vlad Tepes is a great hero, but when he learns the Sultan is preparing for battle and needs to form an army of 1,000 boys, he vows to find a way to protect his family. Vlad turns to dark forces in order to get the power to destroy his enemies and agrees to go from hero to monster as he's turned into the mythological vampire, Dracula.",
+      "poster": "/m5h3NtZ2ZfryIHl1MvatmANvIqQ.jpg",
+      "rt_audience": null,
+      "rt_critic": 26,
+      "runtime": 92,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Dracula Untold",
+      "tmdb_id": 49017,
+      "verified": "2026-09-07",
+      "year": 2014
+    },
+    "Dune (2021)": {
+      "directors": [
+        "Denis Villeneuve"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Adventure"
+      ],
+      "imdb_id": "tt1160419",
+      "imdb_rating": 8.0,
+      "key": "Dune (2021)",
+      "letterboxd": "https://letterboxd.com/film/dune-2021/",
+      "overview": "Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, must travel to the most dangerous planet in the universe to ensure the future of his family and his people. As malevolent forces explode into conflict over the planet's exclusive supply of the most precious resource in existence - a commodity capable of unlocking humanity's greatest potential - only those who can conquer their fear will survive.",
+      "poster": "/v1tRXZ4JtD2Iv6fjkPvT4GiwslV.jpg",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 155,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Dune",
+      "tmdb_id": 438631,
+      "verified": "2026-09-07",
+      "year": 2021
+    },
+    "Dune: Part Two": {
+      "directors": [
+        "Denis Villeneuve"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Adventure"
+      ],
+      "imdb_id": "tt15239678",
+      "imdb_rating": 8.4,
+      "key": "Dune: Part Two",
+      "letterboxd": "https://letterboxd.com/film/dune-part-two/",
+      "overview": "Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a path of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, Paul endeavors to prevent a terrible future only he can foresee.",
+      "poster": "/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg",
+      "rt_audience": null,
+      "rt_critic": 92,
+      "runtime": 167,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Dune: Part Two",
+      "tmdb_id": 693134,
+      "verified": "2026-09-07",
+      "year": 2024
+    },
+    "E.T. the Extra-Terrestrial": {
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "genres": [
+        "Adventure",
+        "Science Fiction",
+        "Family"
+      ],
+      "imdb_id": "tt0083866",
+      "imdb_rating": 7.9,
+      "key": "E.T. the Extra-Terrestrial",
+      "letterboxd": "https://letterboxd.com/film/et-the-extra-terrestrial/",
+      "overview": "An alien is left behind on Earth and saved by the 10-year-old Elliott who decides to keep him hidden in his home. While a task force hunts for the extra-terrestrial, Elliott, his brother, and his little sister Gertie form an emotional bond with their new friend, and try to help him find his way home.",
+      "poster": "/an0nD6uq6byfxXCfk6lQBzdL2J1.jpg",
+      "rt_audience": null,
+      "rt_critic": 99,
+      "runtime": 115,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "E.T. the Extra-Terrestrial",
+      "tmdb_id": 601,
+      "verified": "2026-09-07",
+      "year": 1982
+    },
+    "Evil Dead Rise": {
+      "directors": [
+        "Lee Cronin"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt13345606",
+      "imdb_rating": 6.5,
+      "key": "Evil Dead Rise",
+      "letterboxd": "https://letterboxd.com/film/evil-dead-rise/",
+      "overview": "A reunion between two estranged sisters gets cut short by the rise of flesh-possessing demons, thrusting them into a primal battle for survival as they face the most nightmarish version of family imaginable.",
+      "poster": "/5ik4ATKmNtmJU6AYD0bLm56BCVM.jpg",
+      "rt_audience": null,
+      "rt_critic": 85,
+      "runtime": 96,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Evil Dead Rise",
+      "tmdb_id": 713704,
+      "verified": "2026-09-07",
+      "year": 2023
+    },
+    "Ex Machina": {
+      "directors": [
+        "Alex Garland"
+      ],
+      "genres": [
+        "Drama",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0470752",
+      "imdb_rating": 7.7,
+      "key": "Ex Machina",
+      "letterboxd": "https://letterboxd.com/film/ex-machina-2015/",
+      "overview": "Caleb, a coder at the world's largest internet company, wins a competition to spend a week at a private mountain retreat belonging to Nathan, the reclusive CEO of the company. But when Caleb arrives at the remote location he finds that he will have to participate in a strange and fascinating experiment in which he must interact with the world's first true artificial intelligence, housed in the body of a beautiful robot girl.",
+      "poster": "/dmJW8IAKHKxFNiUnoDR7JfsK7Rp.jpg",
+      "rt_audience": null,
+      "rt_critic": 92,
+      "runtime": 108,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Ex Machina",
+      "tmdb_id": 264660,
+      "verified": "2026-09-07",
+      "year": 2015
+    },
+    "Exodus: Gods and Kings": {
+      "directors": [
+        "Ridley Scott"
+      ],
+      "genres": [
+        "Adventure",
+        "Drama",
+        "Action"
+      ],
+      "imdb_id": "tt1528100",
+      "imdb_rating": 6.0,
+      "key": "Exodus: Gods and Kings",
+      "letterboxd": "https://letterboxd.com/film/exodus-gods-and-kings/",
+      "overview": "The defiant leader Moses rises up against the Egyptian Pharaoh Ramses, setting 400,000 slaves on a monumental journey of escape from Egypt and its terrifying cycle of deadly plagues.",
+      "poster": "/uaDj37JtvLan9tihxZ18e6qL33b.jpg",
+      "rt_audience": null,
+      "rt_critic": 29,
+      "runtime": 150,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Exodus: Gods and Kings",
+      "tmdb_id": 147441,
+      "verified": "2026-09-07",
+      "year": 2014
+    },
+    "Fifty Shades Darker": {
+      "directors": [
+        "James Foley"
+      ],
+      "genres": [
+        "Drama",
+        "Romance"
+      ],
+      "imdb_id": "tt4465564",
+      "imdb_rating": 4.6,
+      "key": "Fifty Shades Darker",
+      "letterboxd": "https://letterboxd.com/film/fifty-shades-darker/",
+      "overview": "When a wounded Christian Grey tries to entice a cautious Ana Steele back into his life, she demands a new arrangement before she will give him another chance. As the two begin to build trust and find stability, shadowy figures from Christian’s past start to circle the couple, determined to destroy their hopes for a future together.",
+      "poster": "/w3qa274gvca9t8pkUoG8nfQgTU3.jpg",
+      "rt_audience": null,
+      "rt_critic": 11,
+      "runtime": 118,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Fifty Shades Darker",
+      "tmdb_id": 341174,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "Fifty Shades Freed": {
+      "directors": [
+        "James Foley"
+      ],
+      "genres": [
+        "Drama",
+        "Romance"
+      ],
+      "imdb_id": "tt4477536",
+      "imdb_rating": 4.6,
+      "key": "Fifty Shades Freed",
+      "letterboxd": "https://letterboxd.com/film/fifty-shades-freed/",
+      "overview": "Believing they have left behind shadowy figures from their past, newlyweds Christian and Ana fully embrace an inextricable connection and shared life of luxury. But just as she steps into her role as Mrs. Grey and he relaxes into an unfamiliar stability, new threats could jeopardize their happy ending before it even begins.",
+      "poster": "/jjPJ4s3DWZZvI4vw8Xfi4Vqa1Q8.jpg",
+      "rt_audience": null,
+      "rt_critic": 11,
+      "runtime": 105,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Fifty Shades Freed",
+      "tmdb_id": 337167,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "Fifty Shades of Grey": {
+      "directors": [
+        "Sam Taylor-Johnson"
+      ],
+      "genres": [
+        "Drama",
+        "Romance",
+        "Thriller"
+      ],
+      "imdb_id": "tt2322441",
+      "imdb_rating": 4.2,
+      "key": "Fifty Shades of Grey",
+      "letterboxd": "https://letterboxd.com/film/fifty-shades-of-grey/",
+      "overview": "When college senior Anastasia Steele steps in for her sick roommate to interview prominent businessman Christian Grey for their campus paper, little does she realize the path her life will take. Christian, as enigmatic as he is rich and powerful, finds himself strangely drawn to Ana, and she to him. Though sexually inexperienced, Ana plunges headlong into an affair -- and learns that Christian's true sexual proclivities push the boundaries of pain and pleasure.",
+      "poster": "/63kGofUkt1Mx0SIL4XI4Z5AoSgt.jpg",
+      "rt_audience": null,
+      "rt_critic": 25,
+      "runtime": 125,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Fifty Shades of Grey",
+      "tmdb_id": 216015,
+      "verified": "2026-09-07",
+      "year": 2015
+    },
+    "Get Out": {
+      "directors": [
+        "Jordan Peele"
+      ],
+      "genres": [
+        "Mystery",
+        "Thriller",
+        "Horror"
+      ],
+      "imdb_id": "tt5052448",
+      "imdb_rating": 7.8,
+      "key": "Get Out",
+      "letterboxd": "https://letterboxd.com/film/get-out-2017/",
+      "overview": "Chris and his girlfriend Rose go upstate to visit her parents for the weekend. At first, Chris reads the family's overly accommodating behavior as nervous attempts to deal with their daughter's interracial relationship, but as the weekend progresses, a series of increasingly disturbing discoveries lead him to a truth that he never could have imagined.",
+      "poster": "/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg",
+      "rt_audience": null,
+      "rt_critic": 98,
+      "runtime": 104,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Get Out",
+      "tmdb_id": 419430,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "Ghost in the Shell (2017)": {
+      "directors": [
+        "Rupert Sanders"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Drama",
+        "Action"
+      ],
+      "imdb_id": "tt1219827",
+      "imdb_rating": 6.3,
+      "key": "Ghost in the Shell (2017)",
+      "letterboxd": "https://letterboxd.com/film/ghost-in-the-shell-2017/",
+      "overview": "In the near future, Major is the first of her kind: a human saved from a terrible crash, then cyber-enhanced to be a perfect soldier devoted to stopping the world's most dangerous criminals.",
+      "poster": "/zCtL3UBgCoZzd7XTVGhvl6XY75E.jpg",
+      "rt_audience": null,
+      "rt_critic": 42,
+      "runtime": 107,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Ghost in the Shell",
+      "tmdb_id": 315837,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "Glass (2019)": {
+      "directors": [
+        "M. Night Shyamalan"
+      ],
+      "genres": [
+        "Thriller",
+        "Drama",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt6823368",
+      "imdb_rating": 6.6,
+      "key": "Glass (2019)",
+      "letterboxd": "https://letterboxd.com/film/glass-2019/",
+      "overview": "In a series of escalating encounters, former security guard David Dunn uses his supernatural abilities to track Kevin Wendell Crumb, a disturbed man who has twenty-four personalities. Meanwhile, the shadowy presence of Elijah Price emerges as an orchestrator who holds secrets critical to both men.",
+      "poster": "/svIDTNUoajS8dLEo7EosxvyAsgJ.jpg",
+      "rt_audience": null,
+      "rt_critic": 37,
+      "runtime": 129,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Glass",
+      "tmdb_id": 450465,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Gone Girl": {
+      "directors": [
+        "David Fincher"
+      ],
+      "genres": [
+        "Mystery",
+        "Thriller",
+        "Drama"
+      ],
+      "imdb_id": "tt2267998",
+      "imdb_rating": 8.1,
+      "key": "Gone Girl",
+      "letterboxd": "https://letterboxd.com/film/gone-girl/",
+      "overview": "With his wife's disappearance having become the focus of an intense media circus, a man sees the spotlight turned on him when it's suspected that he may not be innocent.",
+      "poster": "/ts996lKsxvjkO2yiYG0ht4qAicO.jpg",
+      "rt_audience": null,
+      "rt_critic": 88,
+      "runtime": 149,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Gone Girl",
+      "tmdb_id": 210577,
+      "verified": "2026-09-07",
+      "year": 2014
+    },
+    "Gremlins": {
+      "directors": [
+        "Joe Dante"
+      ],
+      "genres": [
+        "Fantasy",
+        "Horror",
+        "Comedy"
+      ],
+      "imdb_id": "tt0087363",
+      "imdb_rating": 7.3,
+      "key": "Gremlins",
+      "letterboxd": "https://letterboxd.com/film/gremlins/",
+      "overview": "After receiving an exotic small animal as a Christmas gift, a young man inadvertently breaks three important rules concerning his new pet, which unleashes a horde of malevolently mischievous creatures on a small town.",
+      "poster": "/6m0F7fsXjQvUbCZrPWcJNrjvIui.jpg",
+      "rt_audience": null,
+      "rt_critic": 86,
+      "runtime": 106,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Gremlins",
+      "tmdb_id": 927,
+      "verified": "2026-09-07",
+      "year": 1984
+    },
+    "Hacksaw Ridge": {
+      "directors": [
+        "Mel Gibson"
+      ],
+      "genres": [
+        "Drama",
+        "History",
+        "War"
+      ],
+      "imdb_id": "tt2119532",
+      "imdb_rating": 8.1,
+      "key": "Hacksaw Ridge",
+      "letterboxd": "https://letterboxd.com/film/hacksaw-ridge/",
+      "overview": "WWII American Army Medic Desmond T. Doss, who served during the Battle of Okinawa, refuses to kill people and becomes the first Conscientious Objector in American history to receive the Congressional Medal of Honor.",
+      "poster": "/fnOMP6mjmOmZwmlC1n0K7ivrzt1.jpg",
+      "rt_audience": null,
+      "rt_critic": 84,
+      "runtime": 139,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Hacksaw Ridge",
+      "tmdb_id": 324786,
+      "verified": "2026-09-07",
+      "year": 2016
+    },
+    "Halloween Kills": {
+      "directors": [
+        "David Gordon Green"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt10665338",
+      "imdb_rating": 5.5,
+      "key": "Halloween Kills",
+      "letterboxd": "https://letterboxd.com/film/halloween-kills/",
+      "overview": "Michael manages to free himself from Laurie Strode's trap to resume his ritual bloodbath. As she fights for her life from injuries from their last encounter, she inspires her daughter Karen, her granddaughter Allyson, and all of Haddonfield to rise up against the unstoppable monster.",
+      "poster": "/ir9eyz1mtgsohjvo7UYtqUfFuES.jpg",
+      "rt_audience": null,
+      "rt_critic": 38,
+      "runtime": 105,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Halloween Kills",
+      "tmdb_id": 610253,
+      "verified": "2026-09-07",
+      "year": 2021
+    },
+    "Hereditary": {
+      "directors": [
+        "Ari Aster"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "imdb_id": "tt7784604",
+      "imdb_rating": 7.3,
+      "key": "Hereditary",
+      "letterboxd": "https://letterboxd.com/film/hereditary/",
+      "overview": "Following the death of the Leigh family matriarch, Annie and her children uncover disturbing secrets about their heritage. Their daily lives are not only impacted, but they also become entangled in a chilling fate from which they cannot escape, driving them to the brink of madness.",
+      "poster": "/4GFPuL14eXi66V96xBWY73Y9PfR.jpg",
+      "rt_audience": null,
+      "rt_critic": 90,
+      "runtime": 128,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Hereditary",
+      "tmdb_id": 493922,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "Hot Fuzz": {
+      "directors": [
+        "Edgar Wright"
+      ],
+      "genres": [
+        "Crime",
+        "Action",
+        "Comedy"
+      ],
+      "imdb_id": "tt0425112",
+      "imdb_rating": 7.8,
+      "key": "Hot Fuzz",
+      "letterboxd": "https://letterboxd.com/film/hot-fuzz/",
+      "overview": "Former London constable Nicholas Angel finds it difficult to adapt to his new assignment in the sleepy British village of Sandford. Not only does he miss the excitement of the big city, but he also has a well-meaning oaf for a partner. However, when a series of grisly accidents rocks Sandford, Angel smells something rotten in the idyllic village.",
+      "poster": "/zPib4ukTSdXvHP9pxGkFCe34f3y.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 121,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Hot Fuzz",
+      "tmdb_id": 4638,
+      "verified": "2026-09-07",
+      "year": 2007
+    },
+    "Independence Day: Resurgence": {
+      "directors": [
+        "Roland Emmerich"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt1628841",
+      "imdb_rating": 5.2,
+      "key": "Independence Day: Resurgence",
+      "letterboxd": "https://letterboxd.com/film/independence-day-resurgence/",
+      "overview": "We always knew they were coming back. Using recovered alien technology, the nations of Earth have collaborated on an immense defense program to protect the planet. But nothing can prepare us for the aliens’ advanced and unprecedented force. Only the ingenuity of a few brave men and women can bring our world back from the brink of extinction.",
+      "poster": "/9S50foUIYGwiNPWOxi1WJF6IPwI.jpg",
+      "rt_audience": null,
+      "rt_critic": 29,
+      "runtime": 120,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Independence Day: Resurgence",
+      "tmdb_id": 47933,
+      "verified": "2026-09-07",
+      "year": 2016
+    },
+    "Interstellar": {
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "genres": [
+        "Adventure",
+        "Drama",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0816692",
+      "imdb_rating": 8.7,
+      "key": "Interstellar",
+      "letterboxd": "https://letterboxd.com/film/interstellar/",
+      "overview": "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
+      "poster": "/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg",
+      "rt_audience": null,
+      "rt_critic": 73,
+      "runtime": 169,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Interstellar",
+      "tmdb_id": 157336,
+      "verified": "2026-09-07",
+      "year": 2014
+    },
+    "It (2017)": {
+      "directors": [
+        "Andy Muschietti"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller",
+        "Drama"
+      ],
+      "imdb_id": "tt1396484",
+      "imdb_rating": 7.3,
+      "key": "It (2017)",
+      "letterboxd": "https://letterboxd.com/film/it-2017/",
+      "overview": "In a small town in Maine, seven children known as The Losers Club come face to face with life problems, bullies and a monster that takes the shape of a clown called Pennywise.",
+      "poster": "/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg",
+      "rt_audience": null,
+      "rt_critic": 85,
+      "runtime": 135,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "It",
+      "tmdb_id": 346364,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "It Chapter Two": {
+      "directors": [
+        "Andy Muschietti"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller",
+        "Drama"
+      ],
+      "imdb_id": "tt7349950",
+      "imdb_rating": 6.5,
+      "key": "It Chapter Two",
+      "letterboxd": "https://letterboxd.com/film/it-chapter-two/",
+      "overview": "27 years after overcoming the malevolent supernatural entity Pennywise, the former members of the Losers' Club, who have grown up and moved away from Derry, are brought back together by a devastating phone call.",
+      "poster": "/zfE0R94v1E8cuKAerbskfD3VfUt.jpg",
+      "rt_audience": null,
+      "rt_critic": 62,
+      "runtime": 169,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "It Chapter Two",
+      "tmdb_id": 474350,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Jaws": {
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller",
+        "Adventure"
+      ],
+      "imdb_id": "tt0073195",
+      "imdb_rating": 8.1,
+      "key": "Jaws",
+      "letterboxd": "https://letterboxd.com/film/jaws/",
+      "overview": "When the seaside community of Amity finds itself under attack by a dangerous great white shark, the town's chief of police, a young marine biologist, and a grizzled shark hunter embark on a desperate quest to kill the beast before it strikes again.",
+      "poster": "/lxM6kqilAdpdhqUl2biYp5frUxE.jpg",
+      "rt_audience": null,
+      "rt_critic": 97,
+      "runtime": 124,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Jaws",
+      "tmdb_id": 578,
+      "verified": "2026-09-07",
+      "year": 1975
+    },
+    "Jigsaw": {
+      "directors": [
+        "Michael Spierig",
+        "Peter Spierig"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "imdb_id": "tt3348730",
+      "imdb_rating": 5.7,
+      "key": "Jigsaw",
+      "letterboxd": "https://letterboxd.com/film/jigsaw-2017/",
+      "overview": "Law enforcement finds itself chasing the ghost of a man dead for over a decade, embroiled in a diabolical new game that's only just begun.",
+      "poster": "/7RwHxhdUNS996JPFNB9a7CJtlwR.jpg",
+      "rt_audience": null,
+      "rt_critic": 32,
+      "runtime": 91,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Jigsaw",
+      "tmdb_id": 298250,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "John Wick": {
+      "directors": [
+        "Chad Stahelski"
+      ],
+      "genres": [
+        "Action",
+        "Thriller"
+      ],
+      "imdb_id": "tt2911666",
+      "imdb_rating": 7.5,
+      "key": "John Wick",
+      "letterboxd": "https://letterboxd.com/film/john-wick/",
+      "overview": "Ex-hitman John Wick comes out of retirement to track down the gangsters that took everything from him.",
+      "poster": "/wXqWR7dHncNRbxoEGybEy7QTe9h.jpg",
+      "rt_audience": null,
+      "rt_critic": 87,
+      "runtime": 101,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "John Wick",
+      "tmdb_id": 245891,
+      "verified": "2026-09-07",
+      "year": 2014
+    },
+    "John Wick: Chapter 2": {
+      "directors": [
+        "Chad Stahelski"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Crime"
+      ],
+      "imdb_id": "tt4425200",
+      "imdb_rating": 7.4,
+      "key": "John Wick: Chapter 2",
+      "letterboxd": "https://letterboxd.com/film/john-wick-chapter-2/",
+      "overview": "John Wick is forced out of retirement by a former associate looking to seize control of a shadowy international assassins’ guild. Bound by a blood oath to aid him, Wick travels to Rome and does battle against some of the world’s most dangerous killers.",
+      "poster": "/hXWBc0ioZP3cN4zCu6SN3YHXZVO.jpg",
+      "rt_audience": null,
+      "rt_critic": 89,
+      "runtime": 122,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "John Wick: Chapter 2",
+      "tmdb_id": 324552,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "John Wick: Chapter 3 - Parabellum": {
+      "directors": [
+        "Chad Stahelski"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Crime"
+      ],
+      "imdb_id": "tt6146586",
+      "imdb_rating": 7.4,
+      "key": "John Wick: Chapter 3 - Parabellum",
+      "letterboxd": "https://letterboxd.com/film/john-wick-chapter-3-parabellum/",
+      "overview": "Super-assassin John Wick returns with a $14 million price tag on his head and an army of bounty-hunting killers on his trail. After killing a member of the shadowy international assassin’s guild, the High Table, John Wick is excommunicado, but the world’s most ruthless hit men and women await his every turn.",
+      "poster": "/ziEuG1essDuWuC5lpWUaw1uXY2O.jpg",
+      "rt_audience": null,
+      "rt_critic": 89,
+      "runtime": 131,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "John Wick: Chapter 3 - Parabellum",
+      "tmdb_id": 458156,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Joker": {
+      "directors": [
+        "Todd Phillips"
+      ],
+      "genres": [
+        "Crime",
+        "Thriller",
+        "Drama"
+      ],
+      "imdb_id": "tt7286456",
+      "imdb_rating": 8.3,
+      "key": "Joker",
+      "letterboxd": "https://letterboxd.com/film/joker-2019/",
+      "overview": "During the 1980s, a failed stand-up comedian is driven insane and turns to a life of crime and chaos in Gotham City while becoming an infamous psychopathic crime figure.",
+      "poster": "/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
+      "rt_audience": null,
+      "rt_critic": 68,
+      "runtime": 122,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Joker",
+      "tmdb_id": 475557,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Jurassic World 5-Movie Collection": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "Jurassic World 5-Movie Collection",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "collections",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "Jurassic World 5-Movie Collection",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "Logan": {
+      "directors": [
+        "James Mangold"
+      ],
+      "genres": [
+        "Action",
+        "Drama",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt3315342",
+      "imdb_rating": 8.1,
+      "key": "Logan",
+      "letterboxd": "https://letterboxd.com/film/logan-2017/",
+      "overview": "In the near future, a weary Logan cares for an ailing Professor X in a hideout on the Mexican border. But Logan's attempts to hide from the world and his legacy are upended when a young mutant arrives, pursued by dark forces.",
+      "poster": "/fnbjcRDYn6YviCcePDnGdyAkYsB.jpg",
+      "rt_audience": null,
+      "rt_critic": 93,
+      "runtime": 137,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Logan",
+      "tmdb_id": 263115,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "Lost Highway": {
+      "directors": [
+        "David Lynch"
+      ],
+      "genres": [
+        "Drama",
+        "Thriller",
+        "Mystery"
+      ],
+      "imdb_id": "tt0116922",
+      "imdb_rating": 7.6,
+      "key": "Lost Highway",
+      "letterboxd": "https://letterboxd.com/film/lost-highway/",
+      "overview": "A tormented jazz musician finds himself lost in an enigmatic story involving murder, surveillance, gangsters, doppelgängers, and an impossible transformation inside a prison cell.",
+      "poster": "/5POhfNeFPIi4VUNwCTaK85sh98r.jpg",
+      "rt_audience": null,
+      "rt_critic": 70,
+      "runtime": 134,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Lost Highway",
+      "tmdb_id": 638,
+      "verified": "2026-09-07",
+      "year": 1997
+    },
+    "Lucy": {
+      "directors": [
+        "Luc Besson"
+      ],
+      "genres": [
+        "Action",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt2872732",
+      "imdb_rating": 6.4,
+      "key": "Lucy",
+      "letterboxd": "https://letterboxd.com/film/lucy-2014/",
+      "overview": "A woman, accidentally caught in a dark deal, turns the tables on her captors and transforms into a merciless warrior evolved beyond human logic.",
+      "poster": "/kRbpUTRNm6QbLQFPFWUcNC4czEm.jpg",
+      "rt_audience": null,
+      "rt_critic": 67,
+      "runtime": 89,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Lucy",
+      "tmdb_id": 240832,
+      "verified": "2026-09-07",
+      "year": 2014
+    },
+    "Mad Max Anthology": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "Mad Max Anthology",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "collections",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "Mad Max Anthology",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "Mickey 17": {
+      "directors": [
+        "Bong Joon Ho"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Comedy",
+        "Adventure"
+      ],
+      "imdb_id": "tt12299608",
+      "imdb_rating": 6.7,
+      "key": "Mickey 17",
+      "letterboxd": "https://letterboxd.com/film/mickey-17/",
+      "overview": "Unlikely hero Mickey Barnes finds himself in the extraordinary circumstance of working for an employer who demands the ultimate commitment to the job… to die, for a living.",
+      "poster": "/edKpE9B5qN3e559OuMCLZdW1iBZ.jpg",
+      "rt_audience": null,
+      "rt_critic": 77,
+      "runtime": 137,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Mickey 17",
+      "tmdb_id": 696506,
+      "verified": "2026-09-07",
+      "year": 2025
+    },
+    "Midway (2019)": {
+      "directors": [
+        "Roland Emmerich"
+      ],
+      "genres": [
+        "War",
+        "History",
+        "Drama"
+      ],
+      "imdb_id": "tt6924650",
+      "imdb_rating": 6.7,
+      "key": "Midway (2019)",
+      "letterboxd": "https://letterboxd.com/film/midway-2019/",
+      "overview": "The story of the Battle of Midway, and the leaders and soldiers who used their instincts, fortitude and bravery to overcome massive odds.",
+      "poster": "/hj8pyoNnynGeJTAbl7jcLZO8Uhx.jpg",
+      "rt_audience": null,
+      "rt_critic": 42,
+      "runtime": 138,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Midway",
+      "tmdb_id": 522162,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Mission: Impossible - Fallout": {
+      "directors": [
+        "Christopher McQuarrie"
+      ],
+      "genres": [
+        "Action",
+        "Adventure"
+      ],
+      "imdb_id": "tt4912910",
+      "imdb_rating": 7.7,
+      "key": "Mission: Impossible - Fallout",
+      "letterboxd": "https://letterboxd.com/film/mission-impossible-fallout/",
+      "overview": "When an IMF mission ends badly, the world is faced with dire consequences. As Ethan Hunt takes it upon himself to fulfill his original briefing, the CIA begin to question his loyalty and his motives. The IMF team find themselves in a race against time, hunted by assassins while trying to prevent a global catastrophe.",
+      "poster": "/AkJQpZp9WoNdj7pLYSj1L0RcMMN.jpg",
+      "rt_audience": null,
+      "rt_critic": 98,
+      "runtime": 147,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Mission: Impossible - Fallout",
+      "tmdb_id": 353081,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "Mulholland Drive": {
+      "directors": [
+        "David Lynch"
+      ],
+      "genres": [
+        "Thriller",
+        "Drama",
+        "Mystery"
+      ],
+      "imdb_id": "tt0166924",
+      "imdb_rating": 7.9,
+      "key": "Mulholland Drive",
+      "letterboxd": "https://letterboxd.com/film/mulholland-drive/",
+      "overview": "Blonde Betty Elms has only just arrived in Hollywood to become a movie star when she meets an enigmatic brunette with amnesia. Meanwhile, as the two set off to solve the second woman's identity, filmmaker Adam Kesher runs into ominous trouble while casting his latest project.",
+      "poster": "/x7A59t6ySylr1L7aubOQEA480vM.jpg",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 147,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Mulholland Drive",
+      "tmdb_id": 1018,
+      "verified": "2026-09-07",
+      "year": 2001
+    },
+    "Nope": {
+      "directors": [
+        "Jordan Peele"
+      ],
+      "genres": [
+        "Horror",
+        "Science Fiction",
+        "Thriller"
+      ],
+      "imdb_id": "tt10954984",
+      "imdb_rating": 6.8,
+      "key": "Nope",
+      "letterboxd": "https://letterboxd.com/film/nope/",
+      "overview": "Residents in a lonely gulch of inland California bear witness to an uncanny, chilling discovery.",
+      "poster": "/AcKVlWaNVVVFQwro3nLXqPljcYA.jpg",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 130,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Nope",
+      "tmdb_id": 762504,
+      "verified": "2026-09-07",
+      "year": 2022
+    },
+    "Nosferatu (2024)": {
+      "directors": [
+        "Robert Eggers"
+      ],
+      "genres": [
+        "Horror",
+        "Fantasy"
+      ],
+      "imdb_id": "tt5040012",
+      "imdb_rating": 7.1,
+      "key": "Nosferatu (2024)",
+      "letterboxd": "https://letterboxd.com/film/nosferatu-2024/",
+      "overview": "A gothic tale of obsession between a haunted young woman and the terrifying vampire infatuated with her, causing untold horror in its wake.",
+      "poster": "/5qGIxdEO841C0tdY8vOdLoRVrr0.jpg",
+      "rt_audience": null,
+      "rt_critic": 85,
+      "runtime": 133,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Nosferatu",
+      "tmdb_id": 426063,
+      "verified": "2026-09-07",
+      "year": 2024
+    },
+    "Now You See Me": {
+      "directors": [
+        "Louis Leterrier"
+      ],
+      "genres": [
+        "Thriller",
+        "Crime"
+      ],
+      "imdb_id": "tt1670345",
+      "imdb_rating": 7.2,
+      "key": "Now You See Me",
+      "letterboxd": "https://letterboxd.com/film/now-you-see-me/",
+      "overview": "An FBI agent and an Interpol detective track a team of illusionists who pull off bank heists during their performances and reward their audiences with the money.",
+      "poster": "/tWsNYbrqy1p1w6K9zRk0mSchztT.jpg",
+      "rt_audience": null,
+      "rt_critic": 51,
+      "runtime": 116,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Now You See Me",
+      "tmdb_id": 75656,
+      "verified": "2026-09-07",
+      "year": 2013
+    },
+    "Oppenheimer": {
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "genres": [
+        "Drama",
+        "History"
+      ],
+      "imdb_id": "tt15398776",
+      "imdb_rating": 8.2,
+      "key": "Oppenheimer",
+      "letterboxd": "https://letterboxd.com/film/oppenheimer-2023/",
+      "overview": "The story of J. Robert Oppenheimer's role in the development of the atomic bomb during World War II.",
+      "poster": "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+      "rt_audience": null,
+      "rt_critic": 93,
+      "runtime": 181,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Oppenheimer",
+      "tmdb_id": 872585,
+      "verified": "2026-09-07",
+      "year": 2023
+    },
+    "Overlord (2018)": {
+      "directors": [
+        "Julius Avery"
+      ],
+      "genres": [
+        "Horror",
+        "War",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt4530422",
+      "imdb_rating": 6.6,
+      "key": "Overlord (2018)",
+      "letterboxd": "https://letterboxd.com/film/overlord-2018/",
+      "overview": "On the eve of D-Day, a team of American paratroopers crash behind enemy lines and come face-to-face with a Nazi threat unlike any the world has ever seen.",
+      "poster": "/l76Rgp32z2UxjULApxGXAPpYdAP.jpg",
+      "rt_audience": null,
+      "rt_critic": 82,
+      "runtime": 110,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Overlord",
+      "tmdb_id": 438799,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "Pan's Labyrinth": {
+      "directors": [
+        "Guillermo del Toro"
+      ],
+      "genres": [
+        "Fantasy",
+        "Drama",
+        "War"
+      ],
+      "imdb_id": "tt0457430",
+      "imdb_rating": 8.2,
+      "key": "Pan's Labyrinth",
+      "letterboxd": "https://letterboxd.com/film/pans-labyrinth/",
+      "overview": "In post–civil war Spain, 10-year-old Ofelia moves with her pregnant mother to live under the control of her cruel stepfather. Drawn into a mysterious labyrinth, she meets a faun who reveals that she may be a lost princess from an underground kingdom. To return to her true father, she must complete a series of surreal and perilous tasks that blur the line between reality and fantasy.",
+      "poster": "/z7xXihu5wHuSMWymq5VAulPVuvg.jpg",
+      "rt_audience": null,
+      "rt_critic": 95,
+      "runtime": 118,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Pan's Labyrinth",
+      "tmdb_id": 1417,
+      "verified": "2026-09-07",
+      "year": 2006
+    },
+    "Parasite": {
+      "directors": [
+        "Bong Joon Ho"
+      ],
+      "genres": [
+        "Comedy",
+        "Thriller",
+        "Drama"
+      ],
+      "imdb_id": "tt6751668",
+      "imdb_rating": 8.5,
+      "key": "Parasite",
+      "letterboxd": "https://letterboxd.com/film/parasite-2019/",
+      "overview": "All unemployed, Ki-taek's family takes peculiar interest in the wealthy and glamorous Parks for their livelihood until they get entangled in an unexpected incident.",
+      "poster": "/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+      "rt_audience": null,
+      "rt_critic": 99,
+      "runtime": 133,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Parasite",
+      "tmdb_id": 496243,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Perfect Days": {
+      "directors": [
+        "Wim Wenders"
+      ],
+      "genres": [
+        "Drama"
+      ],
+      "imdb_id": "tt27503384",
+      "imdb_rating": 7.9,
+      "key": "Perfect Days",
+      "letterboxd": "https://letterboxd.com/film/perfect-days-2023/",
+      "overview": "Hirayama is content with his life as a toilet cleaner in Tokyo. Outside of his structured routine, he cherishes music on cassette tapes, books, and taking photos of trees. Through unexpected encounters, he reflects on finding beauty in the world.",
+      "poster": "/tvUHVSTJV9ITON3oyHaWp7oaAc8.jpg",
+      "rt_audience": null,
+      "rt_critic": 96,
+      "runtime": 124,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Perfect Days",
+      "tmdb_id": 976893,
+      "verified": "2026-09-07",
+      "year": 2023
+    },
+    "Prometheus": {
+      "directors": [
+        "Ridley Scott"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Mystery",
+        "Horror"
+      ],
+      "imdb_id": "tt1446714",
+      "imdb_rating": 7.0,
+      "key": "Prometheus",
+      "letterboxd": "https://letterboxd.com/film/prometheus/",
+      "overview": "A team of explorers discover a clue to the origins of mankind on Earth, leading them on a journey to the darkest corners of the universe. There, they must fight a terrifying battle to save the future of the human race.",
+      "poster": "/qsYQflQhOuhDpQ0W2aOcwqgDAeI.jpg",
+      "rt_audience": null,
+      "rt_critic": 73,
+      "runtime": 124,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Prometheus",
+      "tmdb_id": 70981,
+      "verified": "2026-09-07",
+      "year": 2012
+    },
+    "Red Sparrow": {
+      "directors": [
+        "Francis Lawrence"
+      ],
+      "genres": [
+        "Thriller",
+        "Mystery"
+      ],
+      "imdb_id": "tt2873282",
+      "imdb_rating": 6.6,
+      "key": "Red Sparrow",
+      "letterboxd": "https://letterboxd.com/film/red-sparrow/",
+      "overview": "Prima ballerina Dominika Egorova faces a bleak and uncertain future after she suffers an injury that ends her career. She soon turns to Sparrow School, a secret intelligence service that trains exceptional young people to use their minds and bodies as weapons. Dominika emerges as the most dangerous Sparrow after completing the sadistic training process. As she comes to terms with her new abilities, she meets a CIA agent who tries to convince her that he is the only person she can trust.",
+      "poster": "/cdefNr6aS00IwVbSlxdFJnfmzKh.jpg",
+      "rt_audience": null,
+      "rt_critic": 45,
+      "runtime": 140,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Red Sparrow",
+      "tmdb_id": 401981,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "Requiem for a Dream": {
+      "directors": [
+        "Darren Aronofsky"
+      ],
+      "genres": [
+        "Crime",
+        "Drama"
+      ],
+      "imdb_id": "tt0180093",
+      "imdb_rating": 8.3,
+      "key": "Requiem for a Dream",
+      "letterboxd": "https://letterboxd.com/film/requiem-for-a-dream/",
+      "overview": "The drug-induced utopias of four Coney Island residents are shattered when their addictions run deep.",
+      "poster": "/9BTwsLaMVHOGFlmsSlx5QYCaXb.jpg",
+      "rt_audience": null,
+      "rt_critic": 80,
+      "runtime": 102,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Requiem for a Dream",
+      "tmdb_id": 641,
+      "verified": "2026-09-07",
+      "year": 2000
+    },
+    "Ringu": {
+      "directors": [
+        "Hideo Nakata"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt0178868",
+      "imdb_rating": 7.2,
+      "key": "Ringu",
+      "letterboxd": "https://letterboxd.com/film/ring-1998/",
+      "overview": "A mysterious video has been linked to a number of deaths, and when an inquisitive journalist finds the tape and views it herself, she sets in motion a chain of events that puts her own life in danger.",
+      "poster": "/1YINof6kN5yRdePEbcU5360ejoq.jpg",
+      "rt_audience": null,
+      "rt_critic": 98,
+      "runtime": 96,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Ring",
+      "tmdb_id": 2671,
+      "verified": "2026-09-07",
+      "year": 1998
+    },
+    "Scary Stories to Tell in the Dark": {
+      "directors": [
+        "André Øvredal"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "imdb_id": "tt3387520",
+      "imdb_rating": 6.2,
+      "key": "Scary Stories to Tell in the Dark",
+      "letterboxd": "https://letterboxd.com/film/scary-stories-to-tell-in-the-dark-2019/",
+      "overview": "Mill Valley, Pennsylvania, Halloween night, 1968. After playing a joke on a school bully, Stella and her friends decide to sneak into a supposedly haunted house that once belonged to the powerful Bellows family, unleashing dark forces that they will be unable to control.",
+      "poster": "/uy0dNFbhRhHBLwpOGpcTw9UEwdX.jpg",
+      "rt_audience": null,
+      "rt_critic": 78,
+      "runtime": 108,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Scary Stories to Tell in the Dark",
+      "tmdb_id": 417384,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Schindler's List": {
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "genres": [
+        "Drama",
+        "History",
+        "War"
+      ],
+      "imdb_id": "tt0108052",
+      "imdb_rating": 9.0,
+      "key": "Schindler's List",
+      "letterboxd": "https://letterboxd.com/film/schindlers-list/",
+      "overview": "The true story of how businessman Oskar Schindler saved over a thousand Jewish lives from the Nazis while they worked as slaves in his factory during World War II.",
+      "poster": "/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg",
+      "rt_audience": null,
+      "rt_critic": 98,
+      "runtime": 195,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Schindler's List",
+      "tmdb_id": 424,
+      "verified": "2026-09-07",
+      "year": 1993
+    },
+    "Scott Pilgrim vs. the World": {
+      "directors": [
+        "Edgar Wright"
+      ],
+      "genres": [
+        "Action",
+        "Comedy",
+        "Romance"
+      ],
+      "imdb_id": "tt0446029",
+      "imdb_rating": 7.5,
+      "key": "Scott Pilgrim vs. the World",
+      "letterboxd": "https://letterboxd.com/film/scott-pilgrim-vs-the-world/",
+      "overview": "As bass guitarist for a garage-rock band, Scott Pilgrim has never had trouble getting a girlfriend; usually, the problem is getting rid of them. But when Ramona Flowers skates into his heart, he finds she has the most troublesome baggage of all: an army of ex-boyfriends who will stop at nothing to eliminate him from her list of suitors.",
+      "poster": "/g5IoYeudx9XBEfwNL0fHvSckLBz.jpg",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 113,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Scott Pilgrim vs. the World",
+      "tmdb_id": 22538,
+      "verified": "2026-09-07",
+      "year": 2010
+    },
+    "Seven Worlds, One Planet": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "Seven Worlds, One Planet",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "documentaries",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "Seven Worlds, One Planet",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "Shaun of the Dead": {
+      "directors": [
+        "Edgar Wright"
+      ],
+      "genres": [
+        "Horror",
+        "Comedy"
+      ],
+      "imdb_id": "tt0365748",
+      "imdb_rating": 7.8,
+      "key": "Shaun of the Dead",
+      "letterboxd": "https://letterboxd.com/film/shaun-of-the-dead/",
+      "overview": "Shaun lives a supremely uneventful life, which revolves around his girlfriend, his mother, and, above all, his local pub. This gentle routine is threatened when the dead return to life and make strenuous attempts to snack on ordinary Londoners.",
+      "poster": "/dgXPhzNJH8HFTBjXPB177yNx6RI.jpg",
+      "rt_audience": null,
+      "rt_critic": 92,
+      "runtime": 99,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Shaun of the Dead",
+      "tmdb_id": 747,
+      "verified": "2026-09-07",
+      "year": 2004
+    },
+    "Sicario": {
+      "directors": [
+        "Denis Villeneuve"
+      ],
+      "genres": [
+        "Action",
+        "Crime",
+        "Thriller"
+      ],
+      "imdb_id": "tt3397884",
+      "imdb_rating": 7.7,
+      "key": "Sicario",
+      "letterboxd": "https://letterboxd.com/film/sicario-2015/",
+      "overview": "An idealistic FBI agent is enlisted by a government task force to aid in the escalating war against drugs at the border area between the U.S. and Mexico.",
+      "poster": "/lz8vNyXeidqqOdJW9ZjnDAMb5Vr.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 122,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Sicario",
+      "tmdb_id": 273481,
+      "verified": "2026-09-07",
+      "year": 2015
+    },
+    "Spider-Man: Far From Home": {
+      "directors": [
+        "Jon Watts"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt6320628",
+      "imdb_rating": 7.3,
+      "key": "Spider-Man: Far From Home",
+      "letterboxd": "https://letterboxd.com/film/spider-man-far-from-home/",
+      "overview": "Peter Parker and his friends go on a summer trip to Europe. However, they will hardly be able to rest - Peter will have to agree to help Nick Fury uncover the mystery of creatures that cause natural disasters and destruction throughout the continent.",
+      "poster": "/4q2NNj4S5dG2RLF9CpXsej7yXl.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 129,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Spider-Man: Far From Home",
+      "tmdb_id": 429617,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "Spider-Man: Homecoming": {
+      "directors": [
+        "Jon Watts"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt2250912",
+      "imdb_rating": 7.4,
+      "key": "Spider-Man: Homecoming",
+      "letterboxd": "https://letterboxd.com/film/spider-man-homecoming/",
+      "overview": "Following the events of Captain America: Civil War, Peter Parker, with the help of his mentor Tony Stark, tries to balance his life as an ordinary high school student in Queens, New York City, with fighting crime as his superhero alter ego Spider-Man as a new threat, the Vulture, emerges.",
+      "poster": "/c24sv2weTHPsmDa7jEMN0m2P3RT.jpg",
+      "rt_audience": null,
+      "rt_critic": 92,
+      "runtime": 133,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Spider-Man: Homecoming",
+      "tmdb_id": 315635,
+      "verified": "2026-09-07",
+      "year": 2017
+    },
+    "Spiral (2021)": {
+      "directors": [
+        "Sofiene Mamdi"
+      ],
+      "genres": [
+        "Drama"
+      ],
+      "imdb_id": "tt9278312",
+      "imdb_rating": null,
+      "key": "Spiral (2021)",
+      "letterboxd": "https://letterboxd.com/film/spiral-2021/",
+      "overview": "Alexander, a young actor, has been falling for a few months in a spiral of self-destruction, becoming strongly addicted to alcohol and drugs. One night, he is stabbed by drug dealers and almost dies. To get out of his addictions he wrote the scenario of a film \"Spiral\" close to autofiction where he would play the main role of Daniel. Olivier Rainer, a director whom he admires, agrees to direct the movie and make Alexander pass screen tests while rewriting the script by incorporating elements of the personal life of the actor. Alexander wishing to exorcise his demons and reach his catharsis will follow Olivier unconditionally in a blistering adventure where reality and fiction merge.",
+      "poster": "/kiZCD78g637GOxSn9IcJRPr9PH6.jpg",
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": 92,
+      "section": "films",
+      "source_notes": [
+        "Rotten Tomatoes has no Tomatometer for this title on OMDb",
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Spiral",
+      "tmdb_id": 766922,
+      "verified": "2026-09-07",
+      "year": 2021
+    },
+    "Superman (2025)": {
+      "directors": [
+        "James Gunn"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Adventure",
+        "Action"
+      ],
+      "imdb_id": "tt5950044",
+      "imdb_rating": 7.0,
+      "key": "Superman (2025)",
+      "letterboxd": "https://letterboxd.com/film/superman-2025/",
+      "overview": "Superman, a journalist in Metropolis, embarks on a journey to reconcile his Kryptonian heritage with his human upbringing as Clark Kent.",
+      "poster": "/ldyfo0BKmz5rWtJJKCvwaNS4cJT.jpg",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 130,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Superman",
+      "tmdb_id": 1061474,
+      "verified": "2026-09-07",
+      "year": 2025
+    },
+    "Talk to Me (2023)": {
+      "directors": [
+        "Michael Philippou",
+        "Danny Philippou"
+      ],
+      "genres": [
+        "Horror"
+      ],
+      "imdb_id": "tt10638522",
+      "imdb_rating": 7.1,
+      "key": "Talk to Me (2023)",
+      "letterboxd": "https://letterboxd.com/film/talk-to-me-2022/",
+      "overview": "When a group of friends discover how to conjure spirits using an embalmed hand, they become hooked on the new thrill, until one of them goes too far and unleashes terrifying supernatural forces.",
+      "poster": "/kdPMUMJzyYAc4roD52qavX0nLIC.jpg",
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": 95,
+      "section": "films",
+      "source_notes": [
+        "Rotten Tomatoes has no Tomatometer for this title on OMDb",
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Talk to Me",
+      "tmdb_id": 1008042,
+      "verified": "2026-09-07",
+      "year": 2023
+    },
+    "Tenet": {
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt6723592",
+      "imdb_rating": 7.3,
+      "key": "Tenet",
+      "letterboxd": "https://letterboxd.com/film/tenet/",
+      "overview": "Armed with only one word - Tenet - and fighting for the survival of the entire world, the Protagonist journeys through a twilight world of international espionage on a mission that will unfold in something beyond real time.",
+      "poster": "/aCIFMriQh8rvhxpN1IWGgvH0Tlg.jpg",
+      "rt_audience": null,
+      "rt_critic": 70,
+      "runtime": 150,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Tenet",
+      "tmdb_id": 577922,
+      "verified": "2026-09-07",
+      "year": 2020
+    },
+    "Terminator 2: Judgment Day": {
+      "directors": [
+        "James Cameron"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0103064",
+      "imdb_rating": 8.6,
+      "key": "Terminator 2: Judgment Day",
+      "letterboxd": "https://letterboxd.com/film/terminator-2-judgment-day/",
+      "overview": "Ten years after the events of the original, a reprogrammed T-800 is sent back in time to protect young John Connor from the shape-shifting T-1000. Together with his mother Sarah, he fights to stop Skynet from triggering a nuclear apocalypse.",
+      "poster": "/jFTVD4XoWQTcg7wdyJKa8PEds5q.jpg",
+      "rt_audience": null,
+      "rt_critic": 90,
+      "runtime": 137,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Terminator 2: Judgment Day",
+      "tmdb_id": 280,
+      "verified": "2026-09-07",
+      "year": 1991
+    },
+    "Terminator: Dark Fate": {
+      "directors": [
+        "Tim Miller"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Action",
+        "Adventure",
+        "Thriller"
+      ],
+      "imdb_id": "tt6450804",
+      "imdb_rating": 6.2,
+      "key": "Terminator: Dark Fate",
+      "letterboxd": "https://letterboxd.com/film/terminator-dark-fate/",
+      "overview": "Decades after Sarah Connor prevented Judgment Day, a lethal new Terminator is sent to eliminate the future leader of the resistance. In a fight to save mankind, battle-hardened Sarah Connor teams up with an unexpected ally and an enhanced super soldier to stop the deadliest Terminator yet.",
+      "poster": "/vqzNJRH4YyquRiWxCCOH0aXggHI.jpg",
+      "rt_audience": null,
+      "rt_critic": 70,
+      "runtime": 128,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Terminator: Dark Fate",
+      "tmdb_id": 290859,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "The Big Lebowski": {
+      "directors": [
+        "Joel Coen",
+        "Ethan Coen"
+      ],
+      "genres": [
+        "Comedy",
+        "Crime"
+      ],
+      "imdb_id": "tt0118715",
+      "imdb_rating": 8.1,
+      "key": "The Big Lebowski",
+      "letterboxd": "https://letterboxd.com/film/the-big-lebowski/",
+      "overview": "Jeffrey 'The Dude' Lebowski, a Los Angeles slacker who only wants to bowl and drink White Russians, is mistaken for another Jeffrey Lebowski, a wheelchair-bound millionaire, and finds himself dragged into a strange series of events involving nihilists, adult film producers, ferrets, errant toes, and large sums of money.",
+      "poster": "/3bv6WAp6BSxxYvB5ozKFUYuRA8C.jpg",
+      "rt_audience": null,
+      "rt_critic": 79,
+      "runtime": 117,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Big Lebowski",
+      "tmdb_id": 115,
+      "verified": "2026-09-07",
+      "year": 1998
+    },
+    "The Cabin in the Woods": {
+      "directors": [
+        "Drew Goddard"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Comedy"
+      ],
+      "imdb_id": "tt1259521",
+      "imdb_rating": 7.0,
+      "key": "The Cabin in the Woods",
+      "letterboxd": "https://letterboxd.com/film/the-cabin-in-the-woods/",
+      "overview": "Five friends set out for a weekend at a remote cabin in the woods, expecting nothing more than fun and relaxation. As night falls, they discover that something far more unsettling is at work and that nothing about their getaway is what it seems.",
+      "poster": "/zZZe5wn0udlhMtdlDjN4NB72R6e.jpg",
+      "rt_audience": null,
+      "rt_critic": 92,
+      "runtime": 95,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Cabin in the Woods",
+      "tmdb_id": 22970,
+      "verified": "2026-09-07",
+      "year": 2012
+    },
+    "The Conjuring (2013)": {
+      "directors": [
+        "James Wan"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt1457767",
+      "imdb_rating": 7.5,
+      "key": "The Conjuring (2013)",
+      "letterboxd": "https://letterboxd.com/film/the-conjuring/",
+      "overview": "Paranormal investigators Ed and Lorraine Warren work to help a family terrorized by a dark presence in their farmhouse. Forced to confront a powerful entity, the Warrens find themselves caught in the most terrifying case of their lives.",
+      "poster": "/wVYREutTvI2tmxr6ujrHT704wGF.jpg",
+      "rt_audience": null,
+      "rt_critic": 86,
+      "runtime": 112,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Conjuring",
+      "tmdb_id": 138843,
+      "verified": "2026-09-07",
+      "year": 2013
+    },
+    "The Dark Knight": {
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "genres": [
+        "Action",
+        "Crime",
+        "Thriller"
+      ],
+      "imdb_id": "tt0468569",
+      "imdb_rating": 9.1,
+      "key": "The Dark Knight",
+      "letterboxd": "https://letterboxd.com/film/the-dark-knight/",
+      "overview": "Batman raises the stakes in his war on crime. With the help of Lt. Jim Gordon and District Attorney Harvey Dent, Batman sets out to dismantle the remaining criminal organizations that plague the streets. The partnership proves to be effective, but they soon find themselves prey to a reign of chaos unleashed by a rising criminal mastermind known to the terrified citizens of Gotham as the Joker.",
+      "poster": "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      "rt_audience": null,
+      "rt_critic": 94,
+      "runtime": 152,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Dark Knight",
+      "tmdb_id": 155,
+      "verified": "2026-09-07",
+      "year": 2008
+    },
+    "The Fifth Element": {
+      "directors": [
+        "Luc Besson"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Action",
+        "Adventure"
+      ],
+      "imdb_id": "tt0119116",
+      "imdb_rating": 7.6,
+      "key": "The Fifth Element",
+      "letterboxd": "https://letterboxd.com/film/the-fifth-element/",
+      "overview": "In 2257, a taxi driver is unintentionally given the task of saving a young girl who is part of the key that will ensure the survival of humanity.",
+      "poster": "/fPtlCO1yQtnoLHOwKtWz7db6RGU.jpg",
+      "rt_audience": null,
+      "rt_critic": 70,
+      "runtime": 126,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Fifth Element",
+      "tmdb_id": 18,
+      "verified": "2026-09-07",
+      "year": 1997
+    },
+    "The Great Wall": {
+      "directors": [
+        "Zhang Yimou"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Fantasy"
+      ],
+      "imdb_id": "tt2034800",
+      "imdb_rating": 5.9,
+      "key": "The Great Wall",
+      "letterboxd": "https://letterboxd.com/film/the-great-wall-2016/",
+      "overview": "European mercenaries searching for black powder become embroiled in the defense of the Great Wall of China against a horde of monstrous creatures.",
+      "poster": "/p70dq1YxabemdZDm5K6Q8G10wSn.jpg",
+      "rt_audience": null,
+      "rt_critic": 36,
+      "runtime": 103,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Great Wall",
+      "tmdb_id": 311324,
+      "verified": "2026-09-07",
+      "year": 2016
+    },
+    "The Green Knight": {
+      "directors": [
+        "David Lowery"
+      ],
+      "genres": [
+        "Adventure",
+        "Drama",
+        "Fantasy"
+      ],
+      "imdb_id": "tt9243804",
+      "imdb_rating": 6.6,
+      "key": "The Green Knight",
+      "letterboxd": "https://letterboxd.com/film/the-green-knight/",
+      "overview": "An epic fantasy adventure based on the timeless Arthurian legend, The Green Knight tells the story of Sir Gawain, King Arthur's reckless and headstrong nephew, who embarks on a daring quest to confront the eponymous Green Knight, a gigantic emerald-skinned stranger and tester of men.",
+      "poster": "/if4hw3Ou5Sav9Em7WWHj66mnywp.jpg",
+      "rt_audience": null,
+      "rt_critic": 88,
+      "runtime": 130,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Green Knight",
+      "tmdb_id": 559907,
+      "verified": "2026-09-07",
+      "year": 2021
+    },
+    "The Howling (1981)": {
+      "directors": [
+        "Joe Dante"
+      ],
+      "genres": [
+        "Horror"
+      ],
+      "imdb_id": "tt0082533",
+      "imdb_rating": 6.5,
+      "key": "The Howling (1981)",
+      "letterboxd": "https://letterboxd.com/film/the-howling/",
+      "overview": "After a bizarre and near fatal encounter with a serial killer, a newswoman is sent to a rehabilitation center whose inhabitants may not be what they seem.",
+      "poster": "/nRTonikdpMUYr3y3RXESLBhRUov.jpg",
+      "rt_audience": null,
+      "rt_critic": 76,
+      "runtime": 91,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Howling",
+      "tmdb_id": 11298,
+      "verified": "2026-09-07",
+      "year": 1981
+    },
+    "The Invisible Man (2020)": {
+      "directors": [
+        "Leigh Whannell"
+      ],
+      "genres": [
+        "Thriller",
+        "Science Fiction",
+        "Horror"
+      ],
+      "imdb_id": "tt1051906",
+      "imdb_rating": 7.1,
+      "key": "The Invisible Man (2020)",
+      "letterboxd": "https://letterboxd.com/film/the-invisible-man-2020/",
+      "overview": "When Cecilia's abusive ex takes his own life and leaves her his fortune, she suspects his death was a hoax. As a series of coincidences turn lethal, Cecilia works to prove that she is being hunted by someone nobody can see.",
+      "poster": "/5EufsDwXdY2CVttYOk2WtYhgKpa.jpg",
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": 124,
+      "section": "films",
+      "source_notes": [
+        "Rotten Tomatoes has no Tomatometer for this title on OMDb",
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Invisible Man",
+      "tmdb_id": 570670,
+      "verified": "2026-09-07",
+      "year": 2020
+    },
+    "The Matrix": {
+      "directors": [
+        "Lana Wachowski",
+        "Lilly Wachowski"
+      ],
+      "genres": [
+        "Action",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0133093",
+      "imdb_rating": 8.7,
+      "key": "The Matrix",
+      "letterboxd": "https://letterboxd.com/film/the-matrix/",
+      "overview": "Set in the 22nd century, The Matrix tells the story of a computer hacker who joins a group of underground insurgents fighting the vast and powerful computers who now rule the earth.",
+      "poster": "/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 136,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Matrix",
+      "tmdb_id": 603,
+      "verified": "2026-09-07",
+      "year": 1999
+    },
+    "The Mummy (1999)": {
+      "directors": [
+        "Stephen Sommers"
+      ],
+      "genres": [
+        "Adventure",
+        "Action",
+        "Fantasy"
+      ],
+      "imdb_id": "tt0120616",
+      "imdb_rating": 7.1,
+      "key": "The Mummy (1999)",
+      "letterboxd": "https://letterboxd.com/film/the-mummy-1999/",
+      "overview": "Dashing legionnaire Rick O'Connell stumbles upon the hidden ruins of Hamunaptra while in the midst of a battle to claim the area in 1920s Egypt. It has been over three thousand years since former High Priest Imhotep suffered a fate worse than death as a punishment for a forbidden love—along with a curse that guarantees eternal doom upon the world if he is ever awoken.",
+      "poster": "/yhIsVvcUm7QxzLfT6HW2wLf5ajY.jpg",
+      "rt_audience": null,
+      "rt_critic": 64,
+      "runtime": 124,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Mummy",
+      "tmdb_id": 564,
+      "verified": "2026-09-07",
+      "year": 1999
+    },
+    "The Predator (2018)": {
+      "directors": [
+        "Shane Black"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Action",
+        "Thriller"
+      ],
+      "imdb_id": "tt3829266",
+      "imdb_rating": 5.3,
+      "key": "The Predator (2018)",
+      "letterboxd": "https://letterboxd.com/film/the-predator/",
+      "overview": "When a young boy accidentally triggers the universe's most lethal hunters' return to Earth, only a ragtag crew of ex-soldiers and a disgruntled scientist can prevent the end of the human race.",
+      "poster": "/a3eWGF6YPF7No5Rbtjc8QpDvz7l.jpg",
+      "rt_audience": null,
+      "rt_critic": 34,
+      "runtime": 107,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Predator",
+      "tmdb_id": 346910,
+      "verified": "2026-09-07",
+      "year": 2018
+    },
+    "The Purge 3-Movie Collection": {
+      "directors": [],
+      "genres": [],
+      "imdb_id": null,
+      "imdb_rating": null,
+      "key": "The Purge 3-Movie Collection",
+      "letterboxd": null,
+      "overview": "",
+      "poster": null,
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": null,
+      "section": "collections",
+      "source_notes": [
+        "box set / non-film entry: not looked up against TMDB"
+      ],
+      "title": "The Purge 3-Movie Collection",
+      "tmdb_id": null,
+      "verified": "2026-09-07",
+      "year": null
+    },
+    "The Shining": {
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt0081505",
+      "imdb_rating": 8.4,
+      "key": "The Shining",
+      "letterboxd": "https://letterboxd.com/film/the-shining/",
+      "overview": "Jack Torrance accepts a caretaker job at the Overlook Hotel, where he, along with his wife Wendy and their son Danny, must live isolated from the rest of the world for the winter. But they aren't prepared for the madness that lurks within.",
+      "poster": "/uAR0AWqhQL1hQa69UDEbb2rE5Wx.jpg",
+      "rt_audience": null,
+      "rt_critic": 84,
+      "runtime": 144,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Shining",
+      "tmdb_id": 694,
+      "verified": "2026-09-07",
+      "year": 1980
+    },
+    "The Sugarland Express": {
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "genres": [
+        "Crime",
+        "Drama"
+      ],
+      "imdb_id": "tt0072226",
+      "imdb_rating": 6.7,
+      "key": "The Sugarland Express",
+      "letterboxd": "https://letterboxd.com/film/the-sugarland-express/",
+      "overview": "Married small-time crooks Lou-Jean and Clovis Poplin lose their baby to the state of Texas and resolve to do whatever it takes to get him back. Lou-Jean gets Clovis out of jail, and the two steal their son from his foster home, in addition to taking a highway patrolman hostage. As a massive dragnet starts to pursue them across Texas, the couple become unlikely folk heroes and even start to bond with the captive policeman.",
+      "poster": "/csahjHhtJ9NzFKcxVcw7S4Pyfj.jpg",
+      "rt_audience": null,
+      "rt_critic": 87,
+      "runtime": 110,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Sugarland Express",
+      "tmdb_id": 5121,
+      "verified": "2026-09-07",
+      "year": 1974
+    },
+    "The Witch (2015)": {
+      "directors": [
+        "Robert Eggers"
+      ],
+      "genres": [
+        "Horror",
+        "Drama",
+        "Mystery",
+        "Fantasy",
+        "Thriller"
+      ],
+      "imdb_id": "tt4263482",
+      "imdb_rating": 7.0,
+      "key": "The Witch (2015)",
+      "letterboxd": "https://letterboxd.com/film/the-witch-2015/",
+      "overview": "In 1630, a farmer relocates his family to a remote plot of land on the edge of a forest where strange, unsettling things happen. With suspicion and paranoia mounting, each family member's faith, loyalty and love are tested in shocking ways.",
+      "poster": "/zap5hpFCWSvdWSuPGAQyjUv2wAC.jpg",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 92,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Witch",
+      "tmdb_id": 310131,
+      "verified": "2026-09-07",
+      "year": 2016
+    },
+    "The World's End": {
+      "directors": [
+        "Edgar Wright"
+      ],
+      "genres": [
+        "Comedy",
+        "Action",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt1213663",
+      "imdb_rating": 6.9,
+      "key": "The World's End",
+      "letterboxd": "https://letterboxd.com/film/the-worlds-end/",
+      "overview": "Five friends who reunite in an attempt to top their epic pub crawl from 20 years earlier unwittingly become humankind's only hope for survival.",
+      "poster": "/kpglnOBYmKn0AkkWDzGxzKHDbds.jpg",
+      "rt_audience": null,
+      "rt_critic": 89,
+      "runtime": 109,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The World's End",
+      "tmdb_id": 107985,
+      "verified": "2026-09-07",
+      "year": 2013
+    },
+    "Twin Peaks: Fire Walk with Me": {
+      "directors": [
+        "David Lynch"
+      ],
+      "genres": [
+        "Drama",
+        "Mystery",
+        "Horror"
+      ],
+      "imdb_id": "tt0105665",
+      "imdb_rating": 7.3,
+      "key": "Twin Peaks: Fire Walk with Me",
+      "letterboxd": "https://letterboxd.com/film/twin-peaks-fire-walk-with-me/",
+      "overview": "In the questionable town of Deer Meadow, Washington, FBI Agent Desmond inexplicably disappears while hunting for the man who murdered a teen girl. The killer is never apprehended, and, after experiencing dark visions and supernatural encounters, Agent Dale Cooper chillingly predicts that the culprit will claim another life. Meanwhile, in the more cozy town of Twin Peaks, hedonistic beauty Laura Palmer hangs with lowlifes and seems destined for a grisly fate.",
+      "poster": "/mxsGXqetGnirf99qapYd5MMY1VL.jpg",
+      "rt_audience": null,
+      "rt_critic": 67,
+      "runtime": 135,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Twin Peaks: Fire Walk with Me",
+      "tmdb_id": 1923,
+      "verified": "2026-09-07",
+      "year": 1992
+    },
+    "Twisters": {
+      "directors": [
+        "Lee Isaac Chung"
+      ],
+      "genres": [
+        "Action",
+        "Thriller"
+      ],
+      "imdb_id": "tt12584954",
+      "imdb_rating": 6.5,
+      "key": "Twisters",
+      "letterboxd": "https://letterboxd.com/film/twisters/",
+      "overview": "As storm season intensifies, the paths of former storm chaser Kate Carter and reckless social-media superstar Tyler Owens collide when terrifying phenomena never seen before are unleashed. The pair and their competing teams find themselves squarely in the paths of multiple storm systems converging over central Oklahoma in the fight of their lives.",
+      "poster": "/pjnD08FlMAIXsfOLKQbvmO0f0MD.jpg",
+      "rt_audience": null,
+      "rt_critic": 75,
+      "runtime": 123,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Twisters",
+      "tmdb_id": 718821,
+      "verified": "2026-09-07",
+      "year": 2024
+    },
+    "Us (2019)": {
+      "directors": [
+        "Jordan Peele"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "imdb_id": "tt6857112",
+      "imdb_rating": 6.8,
+      "key": "Us (2019)",
+      "letterboxd": "https://letterboxd.com/film/us-2019/",
+      "overview": "Husband and wife Gabe and Adelaide Wilson take their kids to their beach house expecting to unplug and unwind with friends. But as night descends, their serenity turns to tension and chaos when some shocking visitors arrive uninvited.",
+      "poster": "/ux2dU1jQ2ACIMShzB3yP93Udpzc.jpg",
+      "rt_audience": null,
+      "rt_critic": 93,
+      "runtime": 116,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Us",
+      "tmdb_id": 458723,
+      "verified": "2026-09-07",
+      "year": 2019
+    },
+    "V for Vendetta": {
+      "directors": [
+        "James McTeigue"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0434409",
+      "imdb_rating": 8.1,
+      "key": "V for Vendetta",
+      "letterboxd": "https://letterboxd.com/film/v-for-vendetta/",
+      "overview": "In a world in which Great Britain has become a fascist state, a masked vigilante known only as “V” conducts guerrilla warfare against the oppressive British government. When V rescues a young woman from the secret police, he finds in her an ally with whom he can continue his fight to free the people of Britain.",
+      "poster": "/1avD1JeaRiJX5M4ahPdZPypGoGN.jpg",
+      "rt_audience": null,
+      "rt_critic": 73,
+      "runtime": 132,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "V for Vendetta",
+      "tmdb_id": 752,
+      "verified": "2026-09-07",
+      "year": 2006
+    },
+    "Van Helsing (2004)": {
+      "directors": [
+        "Stephen Sommers"
+      ],
+      "genres": [
+        "Horror",
+        "Adventure",
+        "Action"
+      ],
+      "imdb_id": "tt0338526",
+      "imdb_rating": 6.1,
+      "key": "Van Helsing (2004)",
+      "letterboxd": "https://letterboxd.com/film/van-helsing/",
+      "overview": "Famed monster slayer Gabriel Van Helsing is dispatched to Transylvania to assist the last of the Valerious bloodline in defeating Count Dracula. Anna Valerious reveals that Dracula has formed an unholy alliance with Dr. Frankenstein's monster and is hell-bent on exacting a centuries-old curse on her family.",
+      "poster": "/gsFun8nATm52aGHeT8ueAel98nE.jpg",
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": 132,
+      "section": "films",
+      "source_notes": [
+        "Rotten Tomatoes has no Tomatometer for this title on OMDb",
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Van Helsing",
+      "tmdb_id": 7131,
+      "verified": "2026-09-07",
+      "year": 2004
+    },
+    "Waterworld": {
+      "directors": [
+        "Kevin Reynolds"
+      ],
+      "genres": [
+        "Adventure",
+        "Action",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0114898",
+      "imdb_rating": 6.3,
+      "key": "Waterworld",
+      "letterboxd": "https://letterboxd.com/film/waterworld/",
+      "overview": "In a futuristic world where the polar ice caps have melted and made Earth a liquid planet, a beautiful barmaid rescues a mutant seafarer from a floating island prison. They escape, along with her young charge, Enola, and sail off aboard his ship. But the trio soon becomes the target of a menacing pirate who covets the map to 'Dryland'—which is tattooed on Enola's back.",
+      "poster": "/X4UyUO5jgzs3c5YafnmYKLKKYw.jpg",
+      "rt_audience": null,
+      "rt_critic": 61,
+      "runtime": 135,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Waterworld",
+      "tmdb_id": 9804,
+      "verified": "2026-09-07",
+      "year": 1995
+    }
+  },
+  "version": 1
+}

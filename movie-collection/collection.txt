@@ -1,0 +1,133 @@
+# 4K / Blu-ray collection inventory.
+#
+# THIS IS THE ONLY FILE YOU EDIT WHEN YOU BUY A DISC.
+# Add the title on its own line under the right section. That's the whole job:
+# everything else -- year, director, runtime, genre, ratings, poster, the
+# Letterboxd link, the shelf order, the director blocks -- is looked up and
+# cached the next time the build runs.
+#
+# Blank lines and #-comments are ignored. Order within a section does not
+# matter; the build sorts the shelf itself.
+#
+# Ambiguous title? Put the theatrical year in parentheses:
+#     It (2017)          <- not the 1990 miniseries
+#     Superman (2025)    <- Gunn, not Donner
+# The year is a preference, not a filter, so being a year off still matches.
+
+[films]
+
+47 Ronin (2013)
+A Clockwork Orange
+Alien (1979)
+Alita: Battle Angel
+Anna (2019)
+Apocalypse Now
+Batman (1989)
+The Big Lebowski
+Blue Velvet
+Bohemian Rhapsody
+The Cabin in the Woods
+Close Encounters of the Third Kind
+Cold Pursuit
+Companion (2025)
+The Conjuring (2013)
+The Dark Knight
+Deadpool
+Deadpool 2
+Deep Red (1975)
+Die Hard
+Doctor Sleep
+Dracula Untold
+Dune (2021)
+Dune: Part Two
+E.T. the Extra-Terrestrial
+Evil Dead Rise
+Ex Machina
+Exodus: Gods and Kings
+The Fifth Element
+Fifty Shades of Grey
+Fifty Shades Darker
+Fifty Shades Freed
+Get Out
+Ghost in the Shell (2017)
+Glass (2019)
+Gone Girl
+The Great Wall
+The Green Knight
+Gremlins
+Hacksaw Ridge
+Halloween Kills
+Hereditary
+Hot Fuzz
+The Howling (1981)
+Independence Day: Resurgence
+Interstellar
+The Invisible Man (2020)
+It (2017)
+It Chapter Two
+Jaws
+Jigsaw
+John Wick
+John Wick: Chapter 2
+John Wick: Chapter 3 - Parabellum
+Joker
+Logan
+Lost Highway
+Lucy
+The Matrix
+Mickey 17
+Midway (2019)
+Mission: Impossible - Fallout
+Mulholland Drive
+The Mummy (1999)
+Nope
+Nosferatu (2024)
+Now You See Me
+Oppenheimer
+Overlord (2018)
+Pan's Labyrinth
+Parasite
+Perfect Days
+The Predator (2018)
+Prometheus
+A Quiet Place Part II
+Red Sparrow
+Requiem for a Dream
+Ringu
+Scary Stories to Tell in the Dark
+Schindler's List
+Scott Pilgrim vs. the World
+Shaun of the Dead
+The Shining
+Sicario
+Spider-Man: Far From Home
+Spider-Man: Homecoming
+Spiral (2021)
+The Sugarland Express
+Superman (2025)
+Talk to Me (2023)
+Tenet
+Terminator 2: Judgment Day
+Terminator: Dark Fate
+Twin Peaks: Fire Walk with Me
+Twisters
+Us (2019)
+V for Vendetta
+Van Helsing (2004)
+Waterworld
+The Witch (2015)
+The World's End
+
+[collections]
+
+Alfred Hitchcock Classic Collection
+Bourne: The Ultimate Collection
+Daniel Craig Collection
+Jurassic World 5-Movie Collection
+Mad Max Anthology
+A Nightmare on Elm Street 7-Film Collection
+The Purge 3-Movie Collection
+
+[documentaries]
+
+Seven Worlds, One Planet

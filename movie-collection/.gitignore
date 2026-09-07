@@ -1,0 +1,4 @@
+# Local scratch. The committed cache/ and site/ are the shared state -- see the
+# README. Nothing else here should end up in the repo.
+*.local.json
+raw-*.json

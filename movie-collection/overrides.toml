@@ -1,0 +1,31 @@
+# Manual fields, keyed by the exact line you wrote in collection.txt.
+#
+# Everything here wins over the looked-up metadata and is never overwritten by a
+# rebuild, so this is where anything the APIs cannot tell us lives:
+#
+#   rt_audience   Rotten Tomatoes audience score. No free API exposes this --
+#                 OMDb's Ratings array carries the Tomatometer only -- so it
+#                 stays blank unless you put it here. Worth filling in for the
+#                 films where it disagrees with the critics, which on this shelf
+#                 is most of the horror (Hereditary is 91/56).
+#   rt_critic     Override the OMDb Tomatometer, if it is missing or wrong.
+#   theatrical_score  Deliberately unsourced. Yours to define; blank otherwise.
+#   hdr           "HDR10", "Dolby Vision", "HDR10+", "HDR10 / Dolby Vision"
+#   uhd           true if you own it on 4K UHD, false for a 1080p Blu-ray.
+#   uhd_year      Year of the disc release, kept separate from the film's year.
+#   disc_notes    Steelbook, slipcover, region, commentary -- free text.
+#   title         Force the display title if TMDB's differs from the packaging.
+#   tmdb_id       Pin the match if the search picks the wrong film.
+#
+# Example -- delete or edit freely:
+#
+# ["Hereditary"]
+# rt_audience = 56
+# hdr = "HDR10"
+# disc_notes = "A24 slipcover"
+
+["The Witch (2015)"]
+rt_audience = 60
+
+["Hereditary"]
+rt_audience = 56
