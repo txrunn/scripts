@@ -24,10 +24,14 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# Package family name -> Microsoft Store product ID
+# Package name -> Store product ID, plus whether to keep its per-user data
+# folder on Remove. Xbox Identity Provider's folder is kept so a cached Xbox
+# sign-in survives the session (note: the durable sign-in most likely lives
+# in the Windows token broker at the OS level, which this script never
+# touches - keeping this folder is cheap insurance, not the mechanism).
 $Targets = [ordered]@{
-    'Microsoft.GamingServices'       = '9MWPM2CQNLHN'
-    'Microsoft.XboxIdentityProvider' = '9WZDNCRD1HKW'
+    'Microsoft.GamingServices'       = @{ ProductId = '9MWPM2CQNLHN'; PreserveData = $false }
+    'Microsoft.XboxIdentityProvider' = @{ ProductId = '9WZDNCRD1HKW'; PreserveData = $true  }
 }
 
 # Windows services that Gaming Services owns. Their registry keys are what
@@ -39,6 +43,11 @@ $ServiceNames = @('GamingServices', 'GamingServicesNet')
 # Forza Horizon 6's published minimum Gaming Services build (Forza support).
 # Worth re-checking on support.forza.net if this ever looks stale.
 $MinFH6Version = [version]'37.114.10001.0'
+
+# Standard Microsoft Store publisher hash for first-party packages. Used as
+# a fallback to locate an orphaned data folder when the package is already
+# gone, so its own PackageFamilyName can't be read directly off the object.
+$KnownPublisherHash = '8wekyb3d8bbwe'
 
 function Test-IsElevated {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -55,6 +64,10 @@ function Get-TargetPackage($PackageName) {
     Get-AppxPackage -Name $PackageName -AllUsers -ErrorAction SilentlyContinue
 }
 
+function Get-PackageDataPath($FamilyName) {
+    Join-Path $env:LOCALAPPDATA "Packages\$FamilyName"
+}
+
 function Show-GamingServicesStatus {
     Write-Host ""
     Write-Host "Packages:" -ForegroundColor Cyan
@@ -64,6 +77,16 @@ function Show-GamingServicesStatus {
             Write-Host ("  [x] {0}  v{1}" -f $packageName, $pkg.Version) -ForegroundColor Green
         } else {
             Write-Host ("  [ ] {0}  (not installed)" -f $packageName) -ForegroundColor DarkGray
+        }
+
+        $familyName = if ($pkg) { $pkg.PackageFamilyName } else { "$packageName`_$KnownPublisherHash" }
+        $dataPath = Get-PackageDataPath $familyName
+        if (Test-Path $dataPath) {
+            if ($Targets[$packageName].PreserveData) {
+                Write-Host "      local app data kept by design (cached sign-in)" -ForegroundColor DarkGray
+            } else {
+                Write-Host ("      local app data present: {0}" -f $dataPath) -ForegroundColor Yellow
+            }
         }
     }
     Write-Host "Service registry keys:" -ForegroundColor Cyan
@@ -119,6 +142,18 @@ function Install-TargetPackage($PackageName, $ProductId) {
     Write-Host "  Done." -ForegroundColor Green
 }
 
+function Remove-PackageDataFolder($FamilyName) {
+    $dataPath = Get-PackageDataPath $FamilyName
+    if (Test-Path $dataPath) {
+        try {
+            Remove-Item -Path $dataPath -Recurse -Force
+            Write-Host "  Cleared local app data: $FamilyName" -ForegroundColor Green
+        } catch {
+            Write-Host "  Could not clear app data for $FamilyName`: $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+}
+
 function Remove-ServiceRegistryRemnant($ServiceName) {
     $serviceObj = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
     if ($serviceObj) {
@@ -147,7 +182,7 @@ switch ($Action) {
 
     'Install' {
         foreach ($packageName in $Targets.Keys) {
-            Install-TargetPackage $packageName $Targets[$packageName]
+            Install-TargetPackage $packageName $Targets[$packageName].ProductId
         }
 
         $gamingServicesPkg = Get-TargetPackage 'Microsoft.GamingServices'
@@ -164,11 +199,19 @@ switch ($Action) {
     'Remove' {
         foreach ($packageName in $Targets.Keys) {
             $pkg = Get-TargetPackage $packageName
+            $familyName = if ($pkg) { $pkg.PackageFamilyName } else { "$packageName`_$KnownPublisherHash" }
+
             if ($pkg) {
                 $pkg | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
                 Write-Host "Removed: $packageName" -ForegroundColor Green
             } else {
                 Write-Host "Already absent: $packageName" -ForegroundColor DarkGray
+            }
+
+            if ($Targets[$packageName].PreserveData) {
+                Write-Host "  Kept local app data (cached sign-in): $familyName" -ForegroundColor DarkGray
+            } else {
+                Remove-PackageDataFolder $familyName
             }
         }
 

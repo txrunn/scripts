@@ -3,30 +3,30 @@
 ::  Gaming Services Session Toggle
 ::  Installs Gaming Services + Xbox Identity Provider before a Forza
 ::  session, and fully removes them (plus leftover registry entries)
-::  once you're done. Keep this file next to GamingServices.ps1.
+::  once you're done. Keep this file next to Invoke-GamingServicesAction.ps1.
 :: =====================================================================
 
 :: ---- Auto-elevate to Administrator ----
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 if '%errorlevel%' NEQ '0' (
     echo Requesting administrative privileges...
-    goto UACPrompt
-) else ( goto gotAdmin )
+    goto UAC_PROMPT
+) else ( goto GOT_ADMIN )
 
-:UACPrompt
+:UAC_PROMPT
     echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
     echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
     "%temp%\getadmin.vbs"
     exit /B
 
-:gotAdmin
+:GOT_ADMIN
     if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs"
     pushd "%~dp0"
 
 :: ---- Make sure the companion script is actually here ----
-if not exist "%~dp0GamingServices.ps1" (
+if not exist "%~dp0Invoke-GamingServicesAction.ps1" (
     echo.
-    echo [!] GamingServices.ps1 was not found next to this .bat file.
+    echo [!] Invoke-GamingServicesAction.ps1 was not found next to this .bat file.
     echo     Keep both files together in the same folder.
     echo.
     pause
@@ -58,7 +58,7 @@ goto MENU
 cls
 echo [+] Installing Gaming Services + Xbox Identity Provider...
 echo.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0GamingServices.ps1" -Action Install
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Invoke-GamingServicesAction.ps1" -Action Install
 echo.
 pause
 goto MENU
@@ -71,14 +71,14 @@ echo.
 set /p "confirm=Continue? (Y/N): "
 if /i not "%confirm%"=="Y" goto MENU
 echo.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0GamingServices.ps1" -Action Remove
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Invoke-GamingServicesAction.ps1" -Action Remove
 echo.
 pause
 goto MENU
 
 :STATUS
 cls
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0GamingServices.ps1" -Action Status
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Invoke-GamingServicesAction.ps1" -Action Status
 echo.
 pause
 goto MENU
