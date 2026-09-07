@@ -84,9 +84,37 @@ year either side is worth a little, and a wrong year merely loses the bonus
 rather than losing the film — festival premiere versus wide release disagree
 often enough that a hard filter would cause more misses than it prevents.
 
-Box sets go under `[collections]` and are never looked up against TMDB. Putting
-one film's runtime and director on a five-disc set would be worse than an empty
-row, so they carry only what you write in `overrides.toml`.
+### Box sets
+
+Put the set under `[collections]` and **indent the discs inside it**:
+
+```
+[collections]
+
+The Purge 3-Movie Collection
+  The Purge (2013)
+  The Purge: Anarchy (2014)
+  The Purge: Election Year (2016)
+```
+
+Each disc is looked up like any other film, and its numbers roll up onto the
+set — film count, total runtime, year span, and the mean Tomatometer. The set
+itself is never looked up against TMDB: putting one film's runtime and director
+on a five-disc box would be worse than an empty row.
+
+Averages are taken over the discs that **have** a score, not over all of them,
+so one film OMDb has no Tomatometer for shrinks the sample rather than dragging
+the average toward zero. When that happens the set's `Source_Notes` says how
+many discs the average actually covers.
+
+A set with nothing indented under it still works — it just shows as one row with
+no numbers, which is what every set looked like before you listed its contents.
+
+**Discs deliberately do not create director blocks.** Owning the Hitchcock box
+would otherwise manufacture a Hitchcock block and scatter the box across the
+alphabetical shelf. The box is one object; it sits in one place. On the shelf
+the discs stay with their box, in release order, and on the page they render
+inside the box's own panel.
 
 ### If it picks the wrong film
 
@@ -102,12 +130,23 @@ tmdb_id = 528086
 python build_collection.py --refresh "Anna (2019)"
 ```
 
+**The `--refresh` is not optional.** A pinned id only takes effect when the film
+is re-resolved — adding it to `overrides.toml` alone leaves the cached director,
+runtime, scores and Letterboxd link belonging to the wrong film while the title
+looks right, which is worse than an obvious mismatch. The build warns on stderr
+and names the exact command whenever it finds a pin the cache predates.
+
+To find the right id without a TMDB search, open the film on Letterboxd and read
+`data-tmdb-id` from the page source, or follow `letterboxd.com/tmdb/<id>/` and
+check where it lands.
+
 ---
 
 ## What gets filled in, and what doesn't
 
 | Field | Source |
 |---|---|
+| Box set film count, total runtime, year span, mean scores | Aggregated from the discs indented under it |
 | Title, year, director(s), runtime, genre, poster, overview | TMDB |
 | IMDb rating | OMDb |
 | `RT_Critic_Percent` — the Tomatometer | OMDb's `Ratings` array |
@@ -148,7 +187,8 @@ Director blocks           3+ owned films by one director, alphabetical by
    ↓
 Alphabetical              everything else, ignoring a leading "The", "A", "An"
    ↓
-Collection shelf          box sets, together, not scattered through the As
+Collection shelf          box sets, together, not scattered through the As,
+                          each immediately followed by its own discs
    ↓
 Documentary shelf
 ```
@@ -213,6 +253,7 @@ so a nightly cron would be 364 no-op runs a year.
 | Build the page | Looks up new titles, writes `site/` | never |
 | Commit the page and the cache | Persists state | nothing changed |
 | Write the run summary | What was added, plus the contract check | never |
+| Stage the Pages site | Puts the page under `blu-ray-discs/` | `PUBLISH_PAGES` unset |
 | Upload the page artifact | For Pages | `PUBLISH_PAGES` unset |
 
 ### Publishing to GitHub Pages
@@ -224,7 +265,27 @@ on.
 1. **Settings → Pages → Source: GitHub Actions**
 2. **Settings → Secrets and variables → Actions → Variables →** `PUBLISH_PAGES` = `true`
 
-The page lands at `https://<user>.github.io/scripts/`.
+The page lands at **`https://txrunn.github.io/scripts/blu-ray-discs/`**.
+
+The whole repo shares one Pages site, so the inventory gets a named sub-path
+rather than squatting on the root. Staging happens in the workflow rather than
+by changing `--out-dir`, so the committed `site/` path stays the same for local
+use. `/scripts/` itself serves a one-line index linking to whatever is
+published — add a line to it when a second script grows a page.
+
+**If you get a 405 instead**, the deploy is fine and the request never reached
+GitHub. A `CNAME` file in `txrunn/txrunn.github.io` claims
+`tarungunaseelan.com`, so GitHub 301s every project page to a domain that
+Cloudflare now routes to Squarespace, which 405s the unknown path. Clear the
+custom domain on that repo:
+
+```bash
+echo '{"cname":null}' | gh api -X PUT repos/txrunn/txrunn.github.io/pages --input -
+```
+
+Nothing about `tarungunaseelan.com` changes — GitHub does not serve it. That
+repo uses legacy branch-based Pages, where the `CNAME` file is authoritative, so
+if the setting ever reverts delete the file from the repo root.
 
 ---
 
@@ -234,11 +295,27 @@ One self-contained HTML file. Posters come from TMDB's CDN; `--embed-posters`
 inlines them as data URIs instead, which makes the file portable at the cost of
 a few megabytes.
 
-- Search across title, director, genre and year
+- Search across title, director, genre and year — a box set matches on the
+  titles inside it, so searching "Freddy" finds the Elm Street box
 - Sort by shelf order, title, year, Tomatometer, IMDb rating or runtime
 - Filter to one shelf section
+- **Shelf organisation toggle**, off by default
 - Every title links to its Letterboxd page
 - Light and dark, following the system setting
+
+### The shelf organisation toggle
+
+Off by default, the page is one alphabetical run: the director-block films are
+sorted back in among everything else, and the block sections disappear from both
+the page and the shelf filter. Turn it on to see the shelf as it is actually
+arranged — blocks first, each in release order.
+
+With it on, **each block collapses** by clicking its heading. The toggle and
+which blocks you collapsed are both remembered in `localStorage`, since this is
+a page you come back to.
+
+Box sets keep their own shelf either way. That division is physical — the box is
+one object — where the director blocks are curation.
 
 `site/collection.csv` carries the full 22-column schema alongside it.
 
@@ -317,14 +394,17 @@ ever need edits there.
 python -m unittest discover -s . -t . -v
 ```
 
-61 tests, no network — every build test runs against a cache seeded in memory.
+93 tests, no network — every build test runs against a cache seeded in memory.
 
 Coverage: inventory parsing (comments, sections, year hints, a year *in* a title
 not being a hint, duplicates rejected); alphabetisation (leading articles,
 accents, punctuation, and the exact orderings in this README); the 3+ director
 rule (discovered not hardcoded, box sets excluded, co-directed films counted for
-each director but shelved once, release order within a block); the change
-detection (a second build silent and not rewriting, an addition reported alone,
+each director but shelved once, release order within a block); box sets (indented
+discs parsed as members, a stray indent rejected, totals and spans, an average
+taken only over scored discs, discs never creating a director block, discs
+shelved with their box, the summary counting boxes rather than their contents);
+the change detection (a second build silent and not rewriting, an addition reported alone,
 a removal, an overrides edit rebuilding without the network, `--offline` failing
 loudly on an uncached title); the CSV schema (column order, audience score blank
 unless overridden, `Theatrical_Score` never substituted, Dolby Vision derived
@@ -344,7 +424,13 @@ only the `Director` job counted, keys redacted from errors).
   another name, it is left empty for you to define.
 - **The film's year and the disc's year are different things.** `Year` is the
   theatrical release; the UHD release goes in `uhd_year` in `overrides.toml`.
-- **Box sets carry no metadata.** By design — see above.
+- **A box set has no metadata of its own.** Everything it reports is rolled up
+  from the discs you indent under it, so an unlisted set is an empty row.
+- **OMDb's Tomatometer coverage is patchy.** Four titles on the current shelf
+  come back with no RT entry at all (*The Invisible Man*, *Spiral*, *Talk to
+  Me*, *Van Helsing*) despite having scores on rottentomatoes.com. They are left
+  blank with the reason in `Source_Notes`; fill them from `overrides.toml` if
+  you want them.
 - **Posters are hotlinked to TMDB's CDN** unless you pass `--embed-posters`.
 - **This product uses the TMDB API but is not endorsed or certified by TMDB.**
 

@@ -243,6 +243,166 @@ class ShelveTests(unittest.TestCase):
         self.assertEqual(len(self.shelf), len(self.records))
 
 
+# --- Box sets ----------------------------------------------------------------
+
+
+BOXED = """[films]
+Waterworld
+
+[collections]
+Bourne Box
+  The Bourne Identity
+  The Bourne Supremacy
+  The Bourne Ultimatum
+"""
+
+BOXED_RECORDS = [
+    record("Waterworld", year=1995, directors=["Kevin Reynolds"]),
+    record("Bourne Box", section="collections", directors=[], tmdb_id=None,
+           runtime=None, rt_critic=None, imdb_rating=None, poster=None,
+           role="item", parent=None),
+    record("The Bourne Identity", year=2002, directors=["Doug Liman"],
+           runtime=119, rt_critic=84, imdb_rating=7.9,
+           section="collections", role="member", parent="Bourne Box"),
+    record("The Bourne Supremacy", year=2004, directors=["Paul Greengrass"],
+           runtime=108, rt_critic=82, imdb_rating=7.7,
+           section="collections", role="member", parent="Bourne Box"),
+    record("The Bourne Ultimatum", year=2007, directors=["Paul Greengrass"],
+           runtime=115, rt_critic=None, imdb_rating=8.0,
+           section="collections", role="member", parent="Bourne Box"),
+]
+
+
+class NestingTests(unittest.TestCase):
+    def parse(self, text):
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False,
+                                         encoding="utf-8") as handle:
+            handle.write(text)
+            path = handle.name
+        self.addCleanup(os.unlink, path)
+        return bcol.parse_inventory(path)
+
+    def test_indented_line_becomes_a_member_of_the_set_above(self):
+        entries = self.parse("[collections]\nBourne Box\n  The Bourne Identity\n")
+        self.assertEqual(entries[1]["role"], "member")
+        self.assertEqual(entries[1]["parent"], "Bourne Box")
+
+    def test_unindented_line_starts_a_new_set(self):
+        entries = self.parse(
+            "[collections]\nBox A\n  Film One\nBox B\n  Film Two\n")
+        self.assertEqual(entries[3]["parent"], "Box B")
+
+    def test_member_keeps_its_year_hint(self):
+        entries = self.parse("[collections]\nBox\n  Psycho (1960)\n")
+        self.assertEqual(entries[1]["query"], "Psycho")
+        self.assertEqual(entries[1]["year_hint"], 1960)
+
+    def test_indent_with_no_set_above_is_an_error(self):
+        with self.assertRaises(bcol.InventoryError):
+            self.parse("[collections]\n  Orphan Disc\n")
+
+    def test_indent_inside_films_is_an_error(self):
+        # Nesting means nothing there, and silently accepting it would hide a
+        # stray space in front of a title.
+        with self.assertRaises(bcol.InventoryError):
+            self.parse("[films]\nAlien\n  Aliens\n")
+
+    def test_a_section_header_ends_the_previous_set(self):
+        with self.assertRaises(bcol.InventoryError):
+            self.parse("[collections]\nBox\n[documentaries]\n  Orphan\n")
+
+
+class AggregationTests(unittest.TestCase):
+    def setUp(self):
+        self.records = [dict(r) for r in BOXED_RECORDS]
+        self.shelf, self.blocks = bcol.shelve(self.records)
+        self.box = next(r for r in self.shelf if r["key"] == "Bourne Box")
+
+    def test_film_count(self):
+        self.assertEqual(self.box["film_count"], 3)
+
+    def test_runtime_is_the_total(self):
+        self.assertEqual(self.box["agg_runtime"], 119 + 108 + 115)
+
+    def test_year_span(self):
+        self.assertEqual(self.box["agg_years"], (2002, 2007))
+
+    def test_score_averaged_only_over_discs_that_have_one(self):
+        # 84 and 82 average to 83. The unscored third disc must not be counted
+        # as a zero, which would drag the set down to 55.
+        self.assertEqual(self.box["agg_rt"], 83)
+
+    def test_a_partial_average_is_recorded_in_source_notes(self):
+        notes = " ".join(self.box["source_notes"])
+        self.assertIn("aggregate of 3 disc(s)", notes)
+        self.assertIn("averaged over 2", notes)
+
+    def test_discs_do_not_create_a_director_block(self):
+        # Two Greengrass films here; a third would still not make a block,
+        # because splitting a box across the shelf defeats owning the box.
+        records = [dict(r) for r in BOXED_RECORDS]
+        records.append(record("Bourne Legacy", year=2012, directors=["Paul Greengrass"],
+                              section="collections", role="member", parent="Bourne Box"))
+        _, blocks = bcol.shelve(records)
+        self.assertNotIn("Paul Greengrass", blocks)
+
+    def test_discs_are_shelved_immediately_after_their_box(self):
+        keys = [r["key"] for r in self.shelf]
+        box_at = keys.index("Bourne Box")
+        self.assertEqual(keys[box_at + 1:box_at + 4],
+                         ["The Bourne Identity", "The Bourne Supremacy",
+                          "The Bourne Ultimatum"])
+
+    def test_discs_are_in_release_order(self):
+        years = [r["year"] for r in self.shelf if r.get("role") == "member"]
+        self.assertEqual(years, sorted(years))
+
+    def test_every_record_still_shelved_exactly_once(self):
+        self.assertEqual(len(self.shelf), len(BOXED_RECORDS))
+
+    def test_a_set_with_no_discs_aggregates_nothing(self):
+        records = [record("Empty Box", section="collections", role="item")]
+        shelf, _ = bcol.shelve(records)
+        self.assertIsNone(shelf[0].get("film_count"))
+
+
+class BoxSetOutputTests(unittest.TestCase):
+    def setUp(self):
+        self.ws = Workspace(BOXED, BOXED_RECORDS)
+        self.addCleanup(self.ws.close)
+        self.ws.run()
+        self.rows = {r["Title"]: r for r in self.ws.rows()}
+
+    def test_box_row_reports_the_totals(self):
+        box = self.rows["Bourne Box"]
+        self.assertEqual(box["Runtime_Minutes"], "342")
+        self.assertEqual(box["RT_Critic_Percent"], "83")
+        self.assertEqual(box["Category"], "Collection")
+
+    def test_disc_is_a_film_that_names_its_box(self):
+        disc = self.rows["The Bourne Identity"]
+        self.assertEqual(disc["Category"], "Film")
+        self.assertEqual(disc["Collection"], "Bourne Box")
+        self.assertEqual(disc["Director"], "Doug Liman")
+
+    def test_discs_carry_no_director_block(self):
+        self.assertEqual(self.rows["The Bourne Supremacy"]["Director_Block"], "")
+
+    def test_summary_counts_boxes_not_the_discs_inside_them(self):
+        page = self.ws.page()
+        self.assertIn("1 box sets (3 discs)", page)
+        self.assertNotIn("4 box sets", page)
+
+    def test_searching_a_disc_title_finds_the_box(self):
+        page = self.ws.page()
+        raw = page.split("const DATA = ", 1)[1].split(";\nconst shelf", 1)[0]
+        films = json.loads(raw.replace("<\\/", "</"))
+        box = next(f for f in films if f["title"] == "Bourne Box")
+        self.assertIn("ultimatum", box["haystack"])
+        self.assertTrue(box["box"])
+        self.assertEqual(box["films"], 3)
+
+
 # --- Builds ------------------------------------------------------------------
 
 
@@ -427,6 +587,31 @@ class HtmlTests(unittest.TestCase):
     def test_shelf_names_offered_as_filters(self):
         self.assertIn("Director block: Jordan Peele", self.html)
 
+    def test_shelf_organisation_toggle_is_present_and_off(self):
+        # Off by default: the blocks are a curation layer, and the common case
+        # is one A-Z run.
+        self.assertIn('id="blocks"', self.html)
+        self.assertNotIn('id="blocks" checked', self.html)
+
+    def test_filter_options_are_built_by_the_script_not_baked_in(self):
+        # They have to follow the toggle, so an empty select is correct here.
+        self.assertIn('<select id="filter"></select>', self.html)
+
+    def test_block_headings_carry_the_data_attribute_the_toggle_needs(self):
+        self.assertIn("data-block=", self.html)
+        self.assertIn("h2.click", self.html)
+
+    def test_collapse_state_is_persisted(self):
+        self.assertIn("localStorage", self.html)
+
+    def test_shelf_label_prefix_matches_what_the_script_greps_for(self):
+        # The page regroups on this exact prefix; renaming it in Python without
+        # renaming BLOCK in the JS would silently disable the toggle.
+        self.assertIn("const BLOCK = 'Director block: ';", self.html)
+        shelves = {r["shelf"] for r in bcol.shelve(
+            [record(f"F{i}", directors=["Jordan Peele"]) for i in range(3)])[0]}
+        self.assertTrue(any(s.startswith("Director block: ") for s in shelves))
+
 
 # --- Provider parsing (no network) ------------------------------------------
 
@@ -474,6 +659,86 @@ class ProviderParsingTests(unittest.TestCase):
         message = bcol._redact("https://api.themoviedb.org/3/movie/1?api_key=sekrit&x=1")
         self.assertNotIn("sekrit", message)
         self.assertIn("REDACTED", message)
+
+
+class PinnedIdTests(unittest.TestCase):
+    """A pinned tmdb_id must replace the search, not just repaint the title."""
+
+    def setUp(self):
+        self.searched = []
+        self.fetched = []
+
+        def fake_search(query, year, key):
+            self.searched.append(query)
+            return {"id": 766922, "title": "Spiral", "release_date": "2021-09-15"}
+
+        def fake_movie(tmdb_id, key):
+            self.fetched.append(tmdb_id)
+            return {
+                "id": tmdb_id, "title": "Spiral: From the Book of Saw",
+                "release_date": "2021-05-12", "runtime": 93,
+                "genres": [{"name": "Horror"}], "imdb_id": "tt10342730",
+                "poster_path": "/p.jpg", "overview": "",
+                "credits": {"crew": [{"job": "Director", "name": "Darren Lynn Bousman"}]},
+            }
+
+        self.addCleanup(setattr, bcol, "tmdb_search", bcol.tmdb_search)
+        self.addCleanup(setattr, bcol, "tmdb_movie", bcol.tmdb_movie)
+        self.addCleanup(setattr, bcol, "resolve_letterboxd", bcol.resolve_letterboxd)
+        bcol.tmdb_search = fake_search
+        bcol.tmdb_movie = fake_movie
+        bcol.resolve_letterboxd = lambda t, i: "https://letterboxd.com/film/x/"
+
+        self.entry = {
+            "key": "Spiral (2021)", "query": "Spiral", "year_hint": 2021,
+            "section": "films", "role": "item", "parent": None, "line": 1,
+        }
+        self.keys = {"tmdb": "k", "omdb": ""}
+
+    def test_pin_skips_the_search_entirely(self):
+        bcol.resolve(self.entry, self.keys, [],
+                     {"Spiral (2021)": {"tmdb_id": 602734}})
+        self.assertEqual(self.searched, [], "the search must not run at all")
+        self.assertEqual(self.fetched, [602734])
+
+    def test_pinned_record_carries_the_pinned_films_director(self):
+        # The whole point: without this the director stayed wrong while the
+        # title looked right.
+        record = bcol.resolve(self.entry, self.keys, [],
+                              {"Spiral (2021)": {"tmdb_id": 602734}})
+        self.assertEqual(record["directors"], ["Darren Lynn Bousman"])
+        self.assertEqual(record["tmdb_id"], 602734)
+
+    def test_the_pin_is_recorded_in_source_notes(self):
+        record = bcol.resolve(self.entry, self.keys, [],
+                              {"Spiral (2021)": {"tmdb_id": 602734}})
+        self.assertIn("pinned to 602734", " ".join(record["source_notes"]))
+
+    def test_without_a_pin_the_search_still_runs(self):
+        bcol.resolve(self.entry, self.keys, [], {})
+        self.assertEqual(self.searched, ["Spiral"])
+        self.assertEqual(self.fetched, [766922])
+
+    def test_a_pin_the_cache_predates_is_warned_about(self):
+        # Adding tmdb_id to overrides.toml does nothing until the film is
+        # re-resolved. Silently ignoring it is how you end up believing a
+        # mismatch is fixed when it is not.
+        ws = Workspace("[films]\nSpiral (2021)\n",
+                       [record("Spiral (2021)", tmdb_id=766922)],
+                       overrides='["Spiral (2021)"]\ntmdb_id = 602734\n')
+        self.addCleanup(ws.close)
+        code, _, err = ws.run()
+        self.assertEqual(code, 0)
+        self.assertIn("--refresh", err)
+        self.assertIn("Spiral (2021)", err)
+
+    def test_no_warning_once_the_cache_matches_the_pin(self):
+        ws = Workspace("[films]\nSpiral (2021)\n",
+                       [record("Spiral (2021)", tmdb_id=602734)],
+                       overrides='["Spiral (2021)"]\ntmdb_id = 602734\n')
+        self.addCleanup(ws.close)
+        _, _, err = ws.run()
+        self.assertNotIn("--refresh", err)
 
 
 class FingerprintTests(unittest.TestCase):

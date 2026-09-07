@@ -29,3 +29,14 @@ rt_audience = 60
 
 ["Hereditary"]
 rt_audience = 56
+
+# TMDB search found a French film called "Spiral" (Sofiene Mamdi) rather than
+# Spiral: From the Book of Saw. Pinning the id is the fix; the year hint alone
+# cannot separate two 2021 films with the same title.
+["Spiral (2021)"]
+tmdb_id = 602734
+
+# The right film -- TMDB just files Nakata's 1998 original under its
+# international title, "Ring".
+["Ringu"]
+title = "Ringu"

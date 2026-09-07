@@ -98,7 +98,7 @@ CSV_COLUMNS = [
 
 # Bump when the HTML template changes, so a template edit forces a rebuild even
 # though the inventory is untouched.
-TEMPLATE_VERSION = 1
+TEMPLATE_VERSION = 3
 
 
 class FetchError(Exception):
@@ -128,10 +128,16 @@ def parse_inventory(path):
     The raw line is kept as `key`: it is what the cache and overrides.toml are
     keyed by, so renaming a line is what re-resolves a film -- deliberately, as
     that is the only signal we get that you meant a different disc.
+
+    An **indented** line under a box set is one of the discs inside it. Those
+    are looked up like any other film and their scores roll up onto the set, so
+    a five-disc box stops being an empty row. They are shelved with their box
+    rather than alphabetically, because the box is the thing on the shelf.
     """
     entries = []
     seen = {}
     section = "films"
+    parent = None
 
     with open(os.path.expanduser(path), encoding="utf-8") as handle:
         for number, raw in enumerate(handle, 1):
@@ -142,12 +148,25 @@ def parse_inventory(path):
             header = SECTION_HEADER.match(line)
             if header:
                 section = header.group(1)
+                parent = None
                 if section not in SECTIONS:
                     raise InventoryError(
                         f"{path}:{number}: unknown section [{section}]; "
                         f"expected one of {', '.join(SECTIONS)}"
                     )
                 continue
+
+            indented = raw[0] in " \t"
+            if indented and parent is None:
+                raise InventoryError(
+                    f"{path}:{number}: {line!r} is indented but no box set "
+                    f"precedes it; indent only the discs inside a set"
+                )
+            if indented and section == "films":
+                raise InventoryError(
+                    f"{path}:{number}: {line!r} is indented inside [films]; "
+                    f"nesting only means something under a box set"
+                )
 
             if line in seen:
                 raise InventoryError(
@@ -157,13 +176,18 @@ def parse_inventory(path):
             seen[line] = number
 
             match = YEAR_HINT.match(line)
-            entries.append({
+            entry = {
                 "key": line,
                 "query": match.group(1) if match else line,
                 "year_hint": int(match.group(2)) if match else None,
                 "section": section,
+                "role": "member" if indented else "item",
+                "parent": parent if indented else None,
                 "line": number,
-            })
+            }
+            entries.append(entry)
+            if not indented and section != "films":
+                parent = line
 
     if not entries:
         raise InventoryError(f"{path} has no entries")
@@ -397,7 +421,7 @@ def _number(value, cast=float):
 # --- Resolution --------------------------------------------------------------
 
 
-def resolve(entry, keys, notes):
+def resolve(entry, keys, notes, overrides=None):
     """Look one inventory entry up, or return what the cache already knows.
 
     Returns the record. `notes` accumulates per-film Source_Notes -- what could
@@ -424,24 +448,35 @@ def resolve(entry, keys, notes):
         "verified": None,
     }
 
-    if entry["section"] != "films":
-        # Box sets and the nature series are not TMDB movies. Fabricating a
-        # match for "Bourne: The Ultimate Collection" would put a single film's
-        # runtime and director on a five-disc set, so they stay unresolved by
-        # design and carry only what overrides.toml says.
+    record["role"] = entry.get("role", "item")
+    record["parent"] = entry.get("parent")
+
+    if entry["section"] != "films" and record["role"] != "member":
+        # The box itself is not a TMDB movie. Fabricating a match for "Bourne:
+        # The Ultimate Collection" would put one film's runtime and director on
+        # a five-disc set, so the set carries only what its discs roll up plus
+        # whatever overrides.toml says.
         record["source_notes"].append(
-            "box set / non-film entry: not looked up against TMDB"
+            "box set: metadata is aggregated from the discs listed under it"
         )
         record["verified"] = dt.date.today().isoformat()
         return record
 
-    found = tmdb_search(entry["query"], entry["year_hint"], keys["tmdb"])
-    if not found:
-        record["source_notes"].append("no TMDB match for this title")
-        notes.append(f"{entry['key']}: no TMDB match")
-        return record
-
-    detail = tmdb_movie(found["id"], keys["tmdb"])
+    # A pinned id skips the search entirely. Without this the pin would only
+    # repaint the title of whatever the search picked, leaving the director,
+    # runtime, scores and Letterboxd link belonging to the wrong film -- which
+    # is worse than an obvious mismatch, because it looks right.
+    pinned = (overrides or {}).get(entry["key"], {}).get("tmdb_id")
+    if pinned:
+        detail = tmdb_movie(pinned, keys["tmdb"])
+        record["source_notes"].append(f"TMDB id pinned to {pinned} in overrides.toml")
+    else:
+        found = tmdb_search(entry["query"], entry["year_hint"], keys["tmdb"])
+        if not found:
+            record["source_notes"].append("no TMDB match for this title")
+            notes.append(f"{entry['key']}: no TMDB match")
+            return record
+        detail = tmdb_movie(found["id"], keys["tmdb"])
 
     record["tmdb_id"] = detail["id"]
     record["title"] = detail.get("title") or entry["query"]
@@ -521,6 +556,57 @@ def apply_overrides(record, overrides):
 # --- Shelf -------------------------------------------------------------------
 
 
+def aggregate_box_sets(records):
+    """Roll each box set's discs up onto the box, and return the shelf items.
+
+    A five-disc set becomes one row carrying a film count, a total runtime, a
+    year span and the mean of whatever scores its discs actually have. Means are
+    taken over the discs that have a score rather than over all of them, so one
+    film OMDb has no Tomatometer for lowers the sample, not the average.
+
+    The discs deliberately do NOT count toward director blocks. Owning the
+    Hitchcock box would otherwise manufacture a Hitchcock block and scatter the
+    box across the alphabetical shelf -- but the box is one object, and it sits
+    in one place.
+    """
+    by_key = {r["key"]: r for r in records}
+    items = []
+
+    for record in records:
+        parent = record.get("parent")
+        if parent and parent in by_key:
+            by_key[parent].setdefault("members", []).append(record)
+        else:
+            items.append(record)
+
+    for record in items:
+        members = record.get("members")
+        if not members:
+            continue
+        members.sort(key=lambda m: (m["year"] or 9999, sort_title(m["title"])))
+
+        years = [m["year"] for m in members if m["year"]]
+        runtimes = [m["runtime"] for m in members if m["runtime"]]
+        critics = [m["rt_critic"] for m in members if m["rt_critic"] is not None]
+        imdbs = [m["imdb_rating"] for m in members if m["imdb_rating"] is not None]
+
+        record["film_count"] = len(members)
+        record["agg_runtime"] = sum(runtimes) if runtimes else None
+        record["agg_years"] = (min(years), max(years)) if years else None
+        record["agg_rt"] = round(sum(critics) / len(critics)) if critics else None
+        record["agg_imdb"] = round(sum(imdbs) / len(imdbs), 1) if imdbs else None
+        if record["year"] is None and years:
+            record["year"] = min(years)
+
+        unscored = len(members) - len(critics)
+        note = "aggregate of {} disc(s)".format(len(members))
+        if unscored:
+            note += "; Tomatometer averaged over {} of them".format(len(critics))
+        record["source_notes"].append(note)
+
+    return items
+
+
 def director_blocks(records):
     """Every director with BLOCK_THRESHOLD+ owned films, and their films.
 
@@ -552,8 +638,10 @@ def shelve(records):
 
     Director blocks first, alphabetically by surname, each in release order.
     Then everything else alphabetically, ignoring leading articles. Box sets sit
-    on their own shelf at the end rather than being scattered through the As.
+    on their own shelf at the end, each immediately followed by its own discs,
+    rather than being scattered through the As.
     """
+    records = aggregate_box_sets(records)
     blocks = director_blocks(records)
 
     # A film by two blocked directors goes to the one with fewer films, so the
@@ -598,6 +686,14 @@ def shelve(records):
             record["order"] = order
             order += 1
             shelf.append(record)
+            # The discs follow their box immediately. Sorting them into the
+            # alphabetical run would break up the object you actually own.
+            for member in record.get("members", []):
+                member["block"] = ""
+                member["shelf"] = CATEGORY[section] + " shelf"
+                member["order"] = order
+                order += 1
+                shelf.append(member)
 
     return shelf, blocks
 
@@ -611,21 +707,29 @@ def write_csv(path, shelf):
         writer.writeheader()
         for record in shelf:
             hdr = record.get("hdr", "")
+            member = record.get("role") == "member"
+            # A box set has no runtime or score of its own -- it reports what
+            # its discs rolled up. A disc is a Film that names its box.
+            runtime = record["runtime"] if not record.get("members") else record.get("agg_runtime")
+            critic = record["rt_critic"] if not record.get("members") else record.get("agg_rt")
+            imdb = record["imdb_rating"] if not record.get("members") else record.get("agg_imdb")
             writer.writerow({
                 "Title": record["title"],
                 "Year": record["year"] or "",
                 "Director": record["directors"][0] if record["directors"] else "",
                 "Directors": "; ".join(record["directors"]),
-                "Runtime_Minutes": record["runtime"] or "",
+                "Runtime_Minutes": runtime or "",
                 "Genre": "; ".join(record["genres"]),
-                "IMDb_Rating": record["imdb_rating"] if record["imdb_rating"] is not None else "",
-                "RT_Critic_Percent": record["rt_critic"] if record["rt_critic"] is not None else "",
+                "IMDb_Rating": imdb if imdb is not None else "",
+                "RT_Critic_Percent": critic if critic is not None else "",
                 "RT_Audience_Percent": record["rt_audience"] if record.get("rt_audience") is not None else "",
                 "Theatrical_Score": record.get("theatrical_score", ""),
-                "Category": CATEGORY[record["section"]],
+                "Category": "Film" if member else CATEGORY[record["section"]],
                 "Director_Block": record.get("block", ""),
                 "Franchise": record.get("franchise", ""),
-                "Collection": record["title"] if record["section"] == "collections" else "",
+                "Collection": record.get("parent") or (
+                    record["title"] if record["section"] == "collections" else ""
+                ),
                 "Shelf_Section": record["shelf"],
                 "Shelf_Order": record["order"] + 1,
                 "4K_Status": "4K UHD" if record.get("uhd", True) else "Blu-ray",
@@ -673,7 +777,22 @@ input[type=search], select {
   border-radius: 8px; background: var(--panel); color: var(--ink);
 }
 input[type=search] { flex: 1 1 260px; min-width: 0; }
+.toggle {
+  display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+  font-size: 13.5px; color: var(--muted); cursor: pointer; user-select: none;
+  white-space: nowrap;
+}
+.toggle input { margin: 0; cursor: pointer; accent-color: var(--accent); }
 .count { color: var(--muted); font-size: 13px; margin-bottom: 26px; }
+h2.click { cursor: pointer; display: flex; align-items: center; gap: 8px; }
+h2.click:hover { color: var(--ink); }
+h2 .chev {
+  display: inline-block; width: 9px; transition: transform .15s ease;
+  font-size: 10px; color: var(--accent);
+}
+h2.shut .chev { transform: rotate(-90deg); }
+h2 .grow { flex: 1; }
 section { margin-bottom: 40px; }
 h2 {
   font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em;
@@ -708,6 +827,19 @@ h2 span { color: var(--accent); }
 .scores b { font-weight: 600; }
 .fresh { color: #2e7d32; } .rotten { color: #c33; }
 @media (prefers-color-scheme: dark) { .fresh { color: #7bc47f; } }
+.boxset {
+  border: 1px solid var(--line); border-radius: 10px; padding: 16px 16px 18px;
+  background: var(--panel); margin-bottom: 18px;
+}
+.boxset-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+  margin-bottom: 14px;
+}
+.boxset-head .bt { font-weight: 600; font-size: 15px; }
+.boxset-head .bm { color: var(--muted); font-size: 12.5px; }
+.boxset .grid { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 13px; }
+.boxset .name { font-size: 12.5px; }
+.boxset .meta, .boxset .scores { font-size: 11.5px; }
 .empty { color: var(--muted); padding: 30px 0; }
 footer {
   margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--line);
@@ -732,7 +864,10 @@ footer a { color: var(--accent); }
       <option value="imdb">IMDb rating</option>
       <option value="runtime">Runtime</option>
     </select>
-    <select id="filter">$filter_options</select>
+    <select id="filter"></select>
+    <label class="toggle">
+      <input type="checkbox" id="blocks"> Shelf organisation
+    </label>
   </div>
   <div class="count" id="count"></div>
 </header>
@@ -753,6 +888,39 @@ const q = document.getElementById('q');
 const sortBy = document.getElementById('sort');
 const filter = document.getElementById('filter');
 const count = document.getElementById('count');
+const blocksOn = document.getElementById('blocks');
+
+const BLOCK = 'Director block: ';
+const STORE = 'disc-inventory';
+
+// Shelf organisation is off by default: the director blocks are a curation
+// layer, and most of the time you just want one A-Z run. Both the toggle and
+// which blocks you collapsed are remembered, since this is a page you come
+// back to rather than land on once.
+let prefs = {blocks: false, shut: []};
+try { Object.assign(prefs, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch (e) {}
+blocksOn.checked = !!prefs.blocks;
+let shut = new Set(prefs.shut || []);
+
+function save() {
+  prefs.blocks = blocksOn.checked;
+  prefs.shut = [...shut];
+  try { localStorage.setItem(STORE, JSON.stringify(prefs)); } catch (e) {}
+}
+
+// With blocks off, a director-block film rejoins the alphabetical run. Box sets
+// keep their own shelf either way -- that is a physical division, not curation.
+function shelfOf(f) {
+  if (!blocksOn.checked && f.shelf.startsWith(BLOCK)) return 'Alphabetical';
+  return f.shelf;
+}
+
+function shelfRank(name) {
+  if (name.startsWith(BLOCK)) return [0, name];
+  if (name === 'Alphabetical') return [1, ''];
+  if (name === 'Collection shelf') return [2, ''];
+  return [3, name];
+}
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
@@ -764,10 +932,13 @@ function card(f) {
   const poster = f.poster
     ? '<img loading="lazy" src="' + esc(f.poster) + '" alt="">'
     : '<div class="none">' + esc(f.title) + '</div>';
-  const badge = f.uhd ? '<div class="badge">4K</div>' : '';
+  const badge = f.box
+    ? '<div class="badge">' + f.films + ' FILMS</div>'
+    : (f.uhd ? '<div class="badge">4K</div>' : '');
   const bits = [];
-  if (f.year) bits.push(f.year);
-  if (f.runtime) bits.push(f.runtime + ' min');
+  if (f.span && f.span[0] !== f.span[1]) bits.push(f.span[0] + '–' + f.span[1]);
+  else if (f.year) bits.push(f.year);
+  if (f.runtime) bits.push(f.box ? Math.round(f.runtime / 60) + 'h total' : f.runtime + ' min');
   const scores = [];
   if (f.rt_critic != null) {
     scores.push('<span class="' + (f.rt_critic >= 60 ? 'fresh' : 'rotten') +
@@ -787,18 +958,44 @@ function card(f) {
     '</div>';
 }
 
+function fillFilter() {
+  const names = [];
+  for (const f of DATA) {
+    const name = shelfOf(f);
+    if (!f.member && !names.includes(name)) names.push(name);
+  }
+  names.sort((a, b) => {
+    const ra = shelfRank(a), rb = shelfRank(b);
+    return ra[0] - rb[0] || ra[1].localeCompare(rb[1]);
+  });
+  const keep = filter.value;
+  filter.innerHTML = '<option value="all">Every shelf</option>' +
+    names.map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+  // A director block can vanish when the toggle goes off; fall back to all.
+  filter.value = names.includes(keep) ? keep : 'all';
+}
+
 function render() {
   const term = q.value.trim().toLowerCase();
   const want = filter.value;
   let films = DATA.filter(f => {
-    if (want !== 'all' && f.shelf !== want) return false;
+    if (want !== 'all' && shelfOf(f) !== want) return false;
     if (!term) return true;
     return f.haystack.indexOf(term) !== -1;
   });
 
   const key = sortBy.value;
   const cmp = {
-    shelf: (a, b) => a.order - b.order,
+    // Within the merged alphabetical run, shelf order is meaningless -- a block
+    // film carries a low order number and would jump the queue -- so sort those
+    // by title and leave every other shelf in its built order.
+    shelf: (a, b) => {
+      const sa = shelfRank(shelfOf(a)), sb = shelfRank(shelfOf(b));
+      if (sa[0] !== sb[0]) return sa[0] - sb[0];
+      if (sa[1] !== sb[1]) return sa[1].localeCompare(sb[1]);
+      if (shelfOf(a) === 'Alphabetical') return a.sortkey.localeCompare(b.sortkey);
+      return a.order - b.order;
+    },
     title: (a, b) => a.sortkey.localeCompare(b.sortkey),
     year: (a, b) => (b.year || 0) - (a.year || 0),
     yearold: (a, b) => (a.year || 9999) - (b.year || 9999),
@@ -820,19 +1017,57 @@ function render() {
   if (key === 'shelf') {
     let current = null;
     let open = false;
+    let inBox = false;
+    let collapsed = false;
+    const closeBox = () => { if (inBox) { html += '</div></div>'; inBox = false; } };
     for (const f of films) {
-      if (f.shelf !== current) {
+      const name = shelfOf(f);
+      if (name !== current) {
+        closeBox();
         if (open) html += '</div></section>';
-        current = f.shelf;
-        const n = films.filter(x => x.shelf === current).length;
-        html += '<section><h2>' + esc(current) + ' <span>' + n + '</span></h2><div class="grid">';
+        current = name;
+        // Count boxes and loose titles, not the discs inside a box.
+        const n = films.filter(x => shelfOf(x) === current && !x.member).length;
+        const isBlock = current.startsWith(BLOCK);
+        collapsed = isBlock && shut.has(current);
+        const head = isBlock
+          ? '<h2 class="click' + (collapsed ? ' shut' : '') + '" data-block="' +
+            esc(current) + '"><span class="chev">▼</span>' +
+            '<span class="grow">' + esc(current) + '</span><span>' + n + '</span></h2>'
+          : '<h2>' + esc(current) + ' <span>' + n + '</span></h2>';
+        html += '<section>' + head + '<div class="grid">';
         open = true;
       }
-      html += card(f);
+      if (collapsed) continue;
+      if (f.box) {
+        // A box set is one object on the shelf, so it gets its own panel with
+        // its discs inside rather than N loose cards in the run.
+        closeBox();
+        html += '</div>';           // leave the section's own grid
+        const meta = [];
+        if (f.span) meta.push(f.span[0] === f.span[1] ? f.span[0] : f.span[0] + '–' + f.span[1]);
+        meta.push(f.films + ' films');
+        if (f.runtime) meta.push(Math.round(f.runtime / 60) + 'h total');
+        if (f.rt_critic != null) meta.push('avg RT ' + f.rt_critic + '%');
+        if (f.imdb != null) meta.push('avg IMDb ' + f.imdb);
+        html += '<div class="boxset"><div class="boxset-head">' +
+          '<span class="bt">' + esc(f.title) + '</span>' +
+          '<span class="bm">' + esc(meta.join(' · ')) + '</span>' +
+          '</div><div class="grid">';
+        inBox = true;
+      } else if (!f.member && inBox) {
+        closeBox();
+        html += '<div class="grid">';
+      }
+      if (!f.box) html += card(f);
     }
+    closeBox();
     if (open) html += '</div></section>';
   } else {
-    html = '<section><div class="grid">' + films.map(card).join('') + '</div></section>';
+    // Any other sort cuts across the boxes, so discs stand on their own and the
+    // box itself is not a film to rank.
+    html = '<section><div class="grid">' +
+      films.filter(f => !f.box).map(card).join('') + '</div></section>';
   }
   shelf.innerHTML = html;
 }
@@ -840,6 +1075,24 @@ function render() {
 q.addEventListener('input', render);
 sortBy.addEventListener('change', render);
 filter.addEventListener('change', render);
+
+blocksOn.addEventListener('change', () => {
+  save();
+  fillFilter();
+  render();
+});
+
+// Delegated: the headings are rebuilt on every render.
+shelf.addEventListener('click', event => {
+  const head = event.target.closest('h2.click');
+  if (!head) return;
+  const name = head.dataset.block;
+  if (shut.has(name)) shut.delete(name); else shut.add(name);
+  save();
+  render();
+});
+
+fillFilter();
 render();
 </script>
 </body>
@@ -859,19 +1112,24 @@ def render_html(shelf, blocks, title, embedded=None):
     data = []
     for record in shelf:
         directors = ", ".join(record["directors"])
+        # Searching "Freddy" should find the Elm Street box, not just the disc,
+        # so a box set's haystack includes every title inside it.
         haystack = " ".join(filter(None, [
             record["title"], str(record["year"] or ""), directors,
             " ".join(record["genres"]), record["shelf"],
+            record.get("parent") or "",
+            " ".join(m["title"] for m in record.get("members", [])),
         ])).lower()
+        boxed = bool(record.get("members"))
         data.append({
             "title": record["title"],
             "year": record["year"],
-            "runtime": record["runtime"],
+            "runtime": record.get("agg_runtime") if boxed else record["runtime"],
             "directors": directors,
             "genres": record["genres"],
-            "rt_critic": record["rt_critic"],
+            "rt_critic": record.get("agg_rt") if boxed else record["rt_critic"],
             "rt_audience": record.get("rt_audience"),
-            "imdb": record["imdb_rating"],
+            "imdb": record.get("agg_imdb") if boxed else record["imdb_rating"],
             "poster": poster_url(record, embedded),
             "letterboxd": record["letterboxd"],
             "shelf": record["shelf"],
@@ -879,29 +1137,30 @@ def render_html(shelf, blocks, title, embedded=None):
             "uhd": bool(record.get("uhd", True)),
             "sortkey": sort_title(record["title"]),
             "haystack": haystack,
+            "box": bool(boxed),
+            "member": record.get("role") == "member",
+            "parent": record.get("parent"),
+            "films": record.get("film_count"),
+            "span": list(record["agg_years"]) if record.get("agg_years") else None,
         })
 
-    shelves = []
-    for record in shelf:
-        if record["shelf"] not in shelves:
-            shelves.append(record["shelf"])
-    options = ['<option value="all">Every shelf</option>']
-    options += [
-        f'<option value="{html.escape(name, quote=True)}">{html.escape(name)}</option>'
-        for name in shelves
-    ]
-
+    # Count the boxes, not the discs inside them -- a five-disc set is one
+    # object on the shelf, and counting its contents here would report 40 box
+    # sets where there are seven.
     films = [r for r in shelf if r["section"] == "films"]
-    summary = "{} films · {} box sets · {} director blocks".format(
+    boxes = [r for r in shelf if r["section"] == "collections"
+             and r.get("role") != "member"]
+    discs = sum(r.get("film_count") or 0 for r in boxes)
+    summary = "{} films · {} box sets{} · {} director blocks".format(
         len(films),
-        len([r for r in shelf if r["section"] == "collections"]),
+        len(boxes),
+        f" ({discs} discs)" if discs else "",
         len(blocks),
     )
 
     return PAGE.substitute(
         page_title=html.escape(title),
         summary=html.escape(summary),
-        filter_options="".join(options),
         # </script> inside a JSON string would close the block early; the rest
         # is ordinary JSON and safe between script tags.
         data=json.dumps(data, ensure_ascii=False).replace("</", "<\\/"),
@@ -1143,7 +1402,7 @@ def build_parser():
                         help="build ledger (default: cache/build.json)")
     parser.add_argument("--out-dir", default=DEFAULT_OUT_DIR,
                         help="where index.html and collection.csv go")
-    parser.add_argument("--title", default="4K Collection",
+    parser.add_argument("--title", default="4K Disc Inventory",
                         help="page title")
     parser.add_argument("--force", action="store_true",
                         help="rebuild the outputs even if nothing changed")
@@ -1215,7 +1474,7 @@ def main(argv=None):
     for entry in stale:
         print(f"  {entry['key']}", file=sys.stderr)
         try:
-            records_cache[entry["key"]] = resolve(entry, keys, notes)
+            records_cache[entry["key"]] = resolve(entry, keys, notes, overrides)
         except (FetchError, SchemaError) as exc:
             print(f"error: {entry['key']}: {exc}", file=sys.stderr)
             return 1
@@ -1223,11 +1482,28 @@ def main(argv=None):
     # Rebuild the working records from the cache every time, so an overrides.toml
     # edit takes effect without re-fetching anything.
     records = []
+    unpinned = []
     for entry in entries:
         record = dict(records_cache[entry["key"]])
         record["section"] = entry["section"]
         record["key"] = entry["key"]
+        record["role"] = entry.get("role", "item")
+        record["parent"] = entry.get("parent")
+        # A tmdb_id added to overrides.toml after the film was already cached
+        # changes nothing until it is re-resolved. Saying so is the difference
+        # between a pin that works and a pin you think works.
+        wanted = overrides.get(entry["key"], {}).get("tmdb_id")
+        if wanted and record.get("tmdb_id") != wanted:
+            unpinned.append(entry["key"])
         records.append(apply_overrides(record, overrides))
+
+    if unpinned:
+        print(
+            "warning: these have a pinned tmdb_id that the cache predates; "
+            "re-resolve them with:\n  --refresh " +
+            " --refresh ".join(f'"{k}"' for k in unpinned),
+            file=sys.stderr,
+        )
 
     shelf, blocks = shelve(records)
 

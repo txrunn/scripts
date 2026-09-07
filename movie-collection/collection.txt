@@ -120,14 +120,64 @@ The World's End
 
 [collections]
 
+# Box sets. Indent the discs inside a set and their scores roll up onto it --
+# film count, total runtime, year span, and the mean Tomatometer. A set with no
+# discs listed under it is just an empty row, so list them.
+#
+# The discs deliberately do NOT create director blocks. Owning the Hitchcock box
+# would otherwise manufacture a Hitchcock block and scatter the box across the
+# alphabetical shelf, and the box is one object that sits in one place.
+
+# Universal's "Classics Collection Vol. 1" -- confirmed. Vol. 2 and the 15-film
+# Ultimate Collection are different boxes with different contents.
 Alfred Hitchcock Classic Collection
+  Rear Window (1954)
+  Vertigo (1958)
+  Psycho (1960)
+  The Birds (1963)
+
 Bourne: The Ultimate Collection
+  The Bourne Identity (2002)
+  The Bourne Supremacy (2004)
+  The Bourne Ultimatum (2007)
+  The Bourne Legacy (2012)
+  Jason Bourne (2016)
+
 Daniel Craig Collection
+  Casino Royale (2006)
+  Quantum of Solace (2008)
+  Skyfall (2012)
+  Spectre (2015)
+
 Jurassic World 5-Movie Collection
+  Jurassic Park (1993)
+  The Lost World: Jurassic Park (1997)
+  Jurassic Park III (2001)
+  Jurassic World (2015)
+  Jurassic World: Fallen Kingdom (2018)
+
 Mad Max Anthology
+  Mad Max (1979)
+  Mad Max 2 (1981)
+  Mad Max Beyond Thunderdome (1985)
+  Mad Max: Fury Road (2015)
+
 A Nightmare on Elm Street 7-Film Collection
+  A Nightmare on Elm Street (1984)
+  A Nightmare on Elm Street 2: Freddy's Revenge (1985)
+  A Nightmare on Elm Street 3: Dream Warriors (1987)
+  A Nightmare on Elm Street 4: The Dream Master (1988)
+  A Nightmare on Elm Street 5: The Dream Child (1989)
+  Freddy's Dead: The Final Nightmare (1991)
+  Wes Craven's New Nightmare (1994)
+
 The Purge 3-Movie Collection
+  The Purge (2013)
+  The Purge: Anarchy (2014)
+  The Purge: Election Year (2016)
 
 [documentaries]
 
+# A nature series, not a film -- no TMDB movie to look up, and no discs to
+# aggregate. It carries whatever overrides.toml says and nothing else.
 Seven Worlds, One Planet

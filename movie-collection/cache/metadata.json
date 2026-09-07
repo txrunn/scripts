@@ -53,6 +53,145 @@
       "verified": "2026-09-07",
       "year": 1971
     },
+    "A Nightmare on Elm Street (1984)": {
+      "directors": [
+        "Wes Craven"
+      ],
+      "genres": [
+        "Horror"
+      ],
+      "imdb_id": "tt0087800",
+      "imdb_rating": 7.4,
+      "key": "A Nightmare on Elm Street (1984)",
+      "letterboxd": "https://letterboxd.com/film/a-nightmare-on-elm-street/",
+      "overview": "Teenagers in a small town are dropping like flies, apparently in the grip of mass hysteria causing their suicides. A cop's daughter, Nancy Thompson, traces the cause to child molester Fred Krueger, who was burned alive by angry parents many years before. Krueger has now come back in the dreams of his killers' children, claiming their lives as his revenge. Nancy and her boyfriend, Glen, must devise a plan to lure the monster out of the realm of nightmares and into the real world...",
+      "parent": "A Nightmare on Elm Street 7-Film Collection",
+      "poster": "/tI0RQFYevX97NSdDSYmn0Z19i3r.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 94,
+      "runtime": 91,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "A Nightmare on Elm Street",
+      "tmdb_id": 377,
+      "verified": "2026-09-07",
+      "year": 1984
+    },
+    "A Nightmare on Elm Street 2: Freddy's Revenge (1985)": {
+      "directors": [
+        "Jack Sholder"
+      ],
+      "genres": [
+        "Horror"
+      ],
+      "imdb_id": "tt0089686",
+      "imdb_rating": 5.5,
+      "key": "A Nightmare on Elm Street 2: Freddy's Revenge (1985)",
+      "letterboxd": "https://letterboxd.com/film/a-nightmare-on-elm-street-part-2-freddys-revenge/",
+      "overview": "A teenage boy is haunted in his dreams by deceased child murderer Freddy Krueger, who is out to possess him in order to continue his reign of terror in the real world.",
+      "parent": "A Nightmare on Elm Street 7-Film Collection",
+      "poster": "/53kxYw0G3o55yJ23K7s7KMaOyAM.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 47,
+      "runtime": 87,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "A Nightmare on Elm Street Part 2: Freddy's Revenge",
+      "tmdb_id": 10014,
+      "verified": "2026-09-07",
+      "year": 1985
+    },
+    "A Nightmare on Elm Street 3: Dream Warriors (1987)": {
+      "directors": [
+        "Chuck Russell"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller",
+        "Fantasy"
+      ],
+      "imdb_id": "tt0093629",
+      "imdb_rating": 6.7,
+      "key": "A Nightmare on Elm Street 3: Dream Warriors (1987)",
+      "letterboxd": "https://letterboxd.com/film/a-nightmare-on-elm-street-3-dream-warriors/",
+      "overview": "A psychiatrist, familiar with the knife-wielding dream demon Freddy Krueger, helps teens at a mental hospital battle the killer who is invading their dreams.",
+      "parent": "A Nightmare on Elm Street 7-Film Collection",
+      "poster": "/qbtZewU6EGvxi8yFVzwZ31NijLX.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 68,
+      "runtime": 96,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "A Nightmare on Elm Street 3: Dream Warriors",
+      "tmdb_id": 10072,
+      "verified": "2026-09-07",
+      "year": 1987
+    },
+    "A Nightmare on Elm Street 4: The Dream Master (1988)": {
+      "directors": [
+        "Renny Harlin"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt0095742",
+      "imdb_rating": 5.6,
+      "key": "A Nightmare on Elm Street 4: The Dream Master (1988)",
+      "letterboxd": "https://letterboxd.com/film/a-nightmare-on-elm-street-4-the-dream-master/",
+      "overview": "Freddy Krueger returns once again to terrorize the dreams of the remaining Dream Warriors, as well as those of a young woman who may be able to defeat him for good.",
+      "parent": "A Nightmare on Elm Street 7-Film Collection",
+      "poster": "/boStYG7jKdoIZTduiOOsUVknD13.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 56,
+      "runtime": 93,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "A Nightmare on Elm Street 4: The Dream Master",
+      "tmdb_id": 10131,
+      "verified": "2026-09-07",
+      "year": 1988
+    },
+    "A Nightmare on Elm Street 5: The Dream Child (1989)": {
+      "directors": [
+        "Stephen Hopkins"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt0097981",
+      "imdb_rating": 5.0,
+      "key": "A Nightmare on Elm Street 5: The Dream Child (1989)",
+      "letterboxd": "https://letterboxd.com/film/a-nightmare-on-elm-street-the-dream-child/",
+      "overview": "The pregnant Alice finds Freddy Krueger striking through the sleeping mind of her unborn child, hoping to be reborn into the real world.",
+      "parent": "A Nightmare on Elm Street 7-Film Collection",
+      "poster": "/kizvpgXQfrAgN8FhOd87LbKk6kO.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 32,
+      "runtime": 89,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "A Nightmare on Elm Street: The Dream Child",
+      "tmdb_id": 10160,
+      "verified": "2026-09-07",
+      "year": 1989
+    },
     "A Nightmare on Elm Street 7-Film Collection": {
       "directors": [],
       "genres": [],
@@ -67,7 +206,13 @@
       "runtime": null,
       "section": "collections",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "box set / non-film entry: not looked up against TMDB",
+        "aggregate of 7 disc(s)",
+        "aggregate of 7 disc(s)",
+        "aggregate of 7 disc(s)",
+        "aggregate of 7 disc(s)",
+        "aggregate of 7 disc(s)",
+        "aggregate of 7 disc(s)"
       ],
       "title": "A Nightmare on Elm Street 7-Film Collection",
       "tmdb_id": null,
@@ -115,7 +260,13 @@
       "runtime": null,
       "section": "collections",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "box set / non-film entry: not looked up against TMDB",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)"
       ],
       "title": "Alfred Hitchcock Classic Collection",
       "tmdb_id": null,
@@ -322,12 +473,47 @@
       "runtime": null,
       "section": "collections",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "box set / non-film entry: not looked up against TMDB",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)"
       ],
       "title": "Bourne: The Ultimate Collection",
       "tmdb_id": null,
       "verified": "2026-09-07",
       "year": null
+    },
+    "Casino Royale (2006)": {
+      "directors": [
+        "Martin Campbell"
+      ],
+      "genres": [
+        "Adventure",
+        "Action",
+        "Thriller"
+      ],
+      "imdb_id": "tt0381061",
+      "imdb_rating": 8.0,
+      "key": "Casino Royale (2006)",
+      "letterboxd": "https://letterboxd.com/film/casino-royale-2006/",
+      "overview": "Le Chiffre, a banker to the world's terrorists, is scheduled to participate in a high-stakes poker game in Montenegro, where he intends to use his winnings to establish his financial grip on the terrorist market. M sends Bond—on his maiden mission as a 00 Agent—to attend this game and prevent Le Chiffre from winning. With the help of Vesper Lynd and Felix Leiter, Bond enters the most important poker game in his already dangerous career.",
+      "parent": "Daniel Craig Collection",
+      "poster": "/lMrxYKKhd4lqRzwUHAy5gcx9PSO.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 94,
+      "runtime": 144,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Casino Royale",
+      "tmdb_id": 36557,
+      "verified": "2026-09-07",
+      "year": 2006
     },
     "Close Encounters of the Third Kind": {
       "directors": [
@@ -423,7 +609,13 @@
       "runtime": null,
       "section": "collections",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "box set / non-film entry: not looked up against TMDB",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)"
       ],
       "title": "Daniel Craig Collection",
       "tmdb_id": null,
@@ -827,6 +1019,36 @@
       "verified": "2026-09-07",
       "year": 2015
     },
+    "Freddy's Dead: The Final Nightmare (1991)": {
+      "directors": [
+        "Rachel Talalay"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller",
+        "Comedy",
+        "Fantasy"
+      ],
+      "imdb_id": "tt0101917",
+      "imdb_rating": 4.7,
+      "key": "Freddy's Dead: The Final Nightmare (1991)",
+      "letterboxd": "https://letterboxd.com/film/freddys-dead-the-final-nightmare/",
+      "overview": "Just when you thought it was safe to sleep, Freddy Krueger returns in this sixth installment of the Nightmare on Elm Street films, as psychologist Maggie Burroughs, tormented by recurring nightmares, meets a patient with the same horrific dreams. Their quest for answers leads to a certain house on Elm Street -- where the nightmares become reality.",
+      "parent": "A Nightmare on Elm Street 7-Film Collection",
+      "poster": "/e4qh58n2WaG4Gyh9VhjOUeN9Mhv.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 23,
+      "runtime": 89,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Freddy's Dead: The Final Nightmare",
+      "tmdb_id": 11284,
+      "verified": "2026-09-07",
+      "year": 1991
+    },
     "Get Out": {
       "directors": [
         "Jordan Peele"
@@ -1177,6 +1399,35 @@
       "verified": "2026-09-07",
       "year": 2019
     },
+    "Jason Bourne (2016)": {
+      "directors": [
+        "Paul Greengrass"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Thriller"
+      ],
+      "imdb_id": "tt4196776",
+      "imdb_rating": 6.6,
+      "key": "Jason Bourne (2016)",
+      "letterboxd": "https://letterboxd.com/film/jason-bourne/",
+      "overview": "The most dangerous former operative of the CIA is drawn out of hiding to uncover hidden truths about his past.",
+      "parent": "Bourne: The Ultimate Collection",
+      "poster": "/xA7N41glw17MBQtcWSm2eBlBRuG.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 55,
+      "runtime": 123,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Jason Bourne",
+      "tmdb_id": 324668,
+      "verified": "2026-09-07",
+      "year": 2016
+    },
     "Jaws": {
       "directors": [
         "Steven Spielberg"
@@ -1338,6 +1589,94 @@
       "verified": "2026-09-07",
       "year": 2019
     },
+    "Jurassic Park (1993)": {
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "genres": [
+        "Adventure",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0107290",
+      "imdb_rating": 8.2,
+      "key": "Jurassic Park (1993)",
+      "letterboxd": "https://letterboxd.com/film/jurassic-park/",
+      "overview": "A wealthy entrepreneur secretly creates a theme park featuring living dinosaurs drawn from prehistoric DNA. Before opening day, he invites a team of experts and his two eager grandchildren to experience the park and help calm anxious investors. However, the park is anything but amusing as the security systems go off-line and the dinosaurs escape.",
+      "parent": "Jurassic World 5-Movie Collection",
+      "poster": "/63viWuPfYQjRYLSZSZNq7dglJP5.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 91,
+      "runtime": 127,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Jurassic Park",
+      "tmdb_id": 329,
+      "verified": "2026-09-07",
+      "year": 1993
+    },
+    "Jurassic Park III (2001)": {
+      "directors": [
+        "Joe Johnston"
+      ],
+      "genres": [
+        "Adventure",
+        "Thriller",
+        "Science Fiction",
+        "Action"
+      ],
+      "imdb_id": "tt0163025",
+      "imdb_rating": 6.0,
+      "key": "Jurassic Park III (2001)",
+      "letterboxd": "https://letterboxd.com/film/jurassic-park-iii/",
+      "overview": "In need of funds for research, Dr. Alan Grant accepts a large sum of money to accompany Paul and Amanda Kirby on an aerial tour of the infamous Isla Sorna. It isn't long before all hell breaks loose and the stranded wayfarers must fight for survival as a host of new -- and even more deadly -- dinosaurs try to make snacks of them.",
+      "parent": "Jurassic World 5-Movie Collection",
+      "poster": "/oQXj4NUfS3r3gHXtDOzcJgj1lLc.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 49,
+      "runtime": 92,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Jurassic Park III",
+      "tmdb_id": 331,
+      "verified": "2026-09-07",
+      "year": 2001
+    },
+    "Jurassic World (2015)": {
+      "directors": [
+        "Colin Trevorrow"
+      ],
+      "genres": [
+        "Adventure",
+        "Science Fiction",
+        "Thriller",
+        "Action"
+      ],
+      "imdb_id": "tt0369610",
+      "imdb_rating": 6.9,
+      "key": "Jurassic World (2015)",
+      "letterboxd": "https://letterboxd.com/film/jurassic-world/",
+      "overview": "Twenty-two years after the events of Jurassic Park, Isla Nublar now features a fully functioning dinosaur theme park, Jurassic World, as originally envisioned by John Hammond.",
+      "parent": "Jurassic World 5-Movie Collection",
+      "poster": "/rhr4y79GpxQF9IsfJItRXVaoGs4.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 72,
+      "runtime": 124,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Jurassic World",
+      "tmdb_id": 135397,
+      "verified": "2026-09-07",
+      "year": 2015
+    },
     "Jurassic World 5-Movie Collection": {
       "directors": [],
       "genres": [],
@@ -1352,12 +1691,48 @@
       "runtime": null,
       "section": "collections",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "box set / non-film entry: not looked up against TMDB",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)",
+        "aggregate of 5 disc(s)"
       ],
       "title": "Jurassic World 5-Movie Collection",
       "tmdb_id": null,
       "verified": "2026-09-07",
       "year": null
+    },
+    "Jurassic World: Fallen Kingdom (2018)": {
+      "directors": [
+        "J. A. Bayona"
+      ],
+      "genres": [
+        "Adventure",
+        "Science Fiction",
+        "Thriller",
+        "Action"
+      ],
+      "imdb_id": "tt4881806",
+      "imdb_rating": 6.2,
+      "key": "Jurassic World: Fallen Kingdom (2018)",
+      "letterboxd": "https://letterboxd.com/film/jurassic-world-fallen-kingdom/",
+      "overview": "Three years after Jurassic World was destroyed, Isla Nublar now sits abandoned. When the island's dormant volcano begins roaring to life, Owen and Claire mount a campaign to rescue the remaining dinosaurs from this extinction-level event.",
+      "parent": "Jurassic World 5-Movie Collection",
+      "poster": "/x2Us3jR6ToMJjbcPbLimYoxf6xr.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 47,
+      "runtime": 129,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Jurassic World: Fallen Kingdom",
+      "tmdb_id": 351286,
+      "verified": "2026-09-07",
+      "year": 2018
     },
     "Logan": {
       "directors": [
@@ -1439,6 +1814,64 @@
       "verified": "2026-09-07",
       "year": 2014
     },
+    "Mad Max (1979)": {
+      "directors": [
+        "George Miller"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0079501",
+      "imdb_rating": 6.8,
+      "key": "Mad Max (1979)",
+      "letterboxd": "https://letterboxd.com/film/mad-max/",
+      "overview": "In the ravaged near-future, a savage motorcycle gang rules the road. Terrorizing innocent civilians while tearing up the streets, the ruthless gang laughs in the face of a police force hell-bent on stopping them.",
+      "parent": "Mad Max Anthology",
+      "poster": "/5LrI4GiCSrChgkdskVZiwv643Kg.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 89,
+      "runtime": 91,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Mad Max",
+      "tmdb_id": 9659,
+      "verified": "2026-09-07",
+      "year": 1979
+    },
+    "Mad Max 2 (1981)": {
+      "directors": [
+        "George Miller"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0082694",
+      "imdb_rating": 7.6,
+      "key": "Mad Max 2 (1981)",
+      "letterboxd": "https://letterboxd.com/film/mad-max-2/",
+      "overview": "Max Rockatansky returns as the heroic loner who drives the dusty roads of a postapocalyptic Australian Outback in an unending search for gasoline. Arrayed against him and the other scraggly defendants of a fuel-depot encampment are the bizarre warriors commanded by the charismatic Lord Humungus, a violent leader whose scruples are as barren as the surrounding landscape.",
+      "parent": "Mad Max Anthology",
+      "poster": "/l1KVEhkGDpWRzQ0VqIhZqDDuOim.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 93,
+      "runtime": 96,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Mad Max 2",
+      "tmdb_id": 8810,
+      "verified": "2026-09-07",
+      "year": 1981
+    },
     "Mad Max Anthology": {
       "directors": [],
       "genres": [],
@@ -1453,12 +1886,77 @@
       "runtime": null,
       "section": "collections",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "box set / non-film entry: not looked up against TMDB",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)",
+        "aggregate of 4 disc(s)"
       ],
       "title": "Mad Max Anthology",
       "tmdb_id": null,
       "verified": "2026-09-07",
       "year": null
+    },
+    "Mad Max Beyond Thunderdome (1985)": {
+      "directors": [
+        "George Miller",
+        "George Ogilvie"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0089530",
+      "imdb_rating": 6.2,
+      "key": "Mad Max Beyond Thunderdome (1985)",
+      "letterboxd": "https://letterboxd.com/film/mad-max-beyond-thunderdome/",
+      "overview": "Mad Max becomes a pawn in a decadent oasis of a technological society, and when exiled, becomes the deliverer of a colony of children.",
+      "parent": "Mad Max Anthology",
+      "poster": "/jJlxcEVVUHnrUeEkQ0077VeHQpb.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 80,
+      "runtime": 107,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Mad Max Beyond Thunderdome",
+      "tmdb_id": 9355,
+      "verified": "2026-09-07",
+      "year": 1985
+    },
+    "Mad Max: Fury Road (2015)": {
+      "directors": [
+        "George Miller"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt1392190",
+      "imdb_rating": 8.1,
+      "key": "Mad Max: Fury Road (2015)",
+      "letterboxd": "https://letterboxd.com/film/mad-max-fury-road/",
+      "overview": "An apocalyptic story set in the furthest reaches of our planet, in a stark desert landscape where humanity is broken, and most everyone is crazed fighting for the necessities of life. Within this world exist two rebels on the run who just might be able to restore order.",
+      "parent": "Mad Max Anthology",
+      "poster": "/ulcAi4dKpAjHwYGS08vNyx9H6I9.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 97,
+      "runtime": 121,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Mad Max: Fury Road",
+      "tmdb_id": 76341,
+      "verified": "2026-09-07",
+      "year": 2015
     },
     "Mickey 17": {
       "directors": [
@@ -1566,6 +2064,35 @@
       "tmdb_id": 1018,
       "verified": "2026-09-07",
       "year": 2001
+    },
+    "No Time to Die (2021)": {
+      "directors": [
+        "Cary Joji Fukunaga"
+      ],
+      "genres": [
+        "Action",
+        "Thriller",
+        "Adventure"
+      ],
+      "imdb_id": "tt2382320",
+      "imdb_rating": 7.3,
+      "key": "No Time to Die (2021)",
+      "letterboxd": "https://letterboxd.com/film/no-time-to-die-2021/",
+      "overview": "Bond has left active service and is enjoying a tranquil life in Jamaica. His peace is short-lived when his old friend Felix Leiter from the CIA turns up asking for help. The mission to rescue a kidnapped scientist turns out to be far more treacherous than expected, leading Bond onto the trail of a mysterious villain armed with dangerous new technology.",
+      "parent": "Daniel Craig Collection",
+      "poster": "/iUgygt3fscRoKWCV1d0C7FbM9TP.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 163,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "No Time to Die",
+      "tmdb_id": 370172,
+      "verified": "2026-09-07",
+      "year": 2021
     },
     "Nope": {
       "directors": [
@@ -1805,6 +2332,93 @@
       "verified": "2026-09-07",
       "year": 2012
     },
+    "Psycho (1960)": {
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller",
+        "Mystery"
+      ],
+      "imdb_id": "tt0054215",
+      "imdb_rating": 8.5,
+      "key": "Psycho (1960)",
+      "letterboxd": "https://letterboxd.com/film/psycho/",
+      "overview": "When larcenous real estate clerk Marion Crane goes on the lam with a wad of cash and hopes of starting a new life, she ends up at the notorious Bates Motel, where manager Norman Bates cares for his housebound mother.",
+      "parent": "Alfred Hitchcock Classic Collection",
+      "poster": "/yz4QVqPx3h1hD1DfqqQkCq3rmxW.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 97,
+      "runtime": 109,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Psycho",
+      "tmdb_id": 539,
+      "verified": "2026-09-07",
+      "year": 1960
+    },
+    "Quantum of Solace (2008)": {
+      "directors": [
+        "Marc Forster"
+      ],
+      "genres": [
+        "Adventure",
+        "Action",
+        "Thriller"
+      ],
+      "imdb_id": "tt0830515",
+      "imdb_rating": 6.5,
+      "key": "Quantum of Solace (2008)",
+      "letterboxd": "https://letterboxd.com/film/quantum-of-solace/",
+      "overview": "Betrayed by Vesper, the woman he loved, 007 fights the urge to make his latest mission personal. Pursuing his determination to uncover the truth, Bond and M interrogate Mr. White, who reveals that the organization that blackmailed Vesper is far more complex and dangerous than anyone had imagined.",
+      "parent": "Daniel Craig Collection",
+      "poster": "/e3DXXLJHGqMx9yYpXsql1XNljmM.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 63,
+      "runtime": 106,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Quantum of Solace",
+      "tmdb_id": 10764,
+      "verified": "2026-09-07",
+      "year": 2008
+    },
+    "Rear Window (1954)": {
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "genres": [
+        "Thriller",
+        "Mystery",
+        "Drama"
+      ],
+      "imdb_id": "tt0047396",
+      "imdb_rating": 8.5,
+      "key": "Rear Window (1954)",
+      "letterboxd": "https://letterboxd.com/film/rear-window/",
+      "overview": "A wheelchair-bound photographer spies on his neighbors from his apartment window and becomes convinced one of them has committed murder.",
+      "parent": "Alfred Hitchcock Classic Collection",
+      "poster": "/ILVF0eJxHMddjxeQhswFtpMtqx.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 99,
+      "runtime": 113,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Rear Window",
+      "tmdb_id": 567,
+      "verified": "2026-09-07",
+      "year": 1954
+    },
     "Red Sparrow": {
       "directors": [
         "Francis Lawrence"
@@ -2037,6 +2651,64 @@
       "verified": "2026-09-07",
       "year": 2015
     },
+    "Skyfall (2012)": {
+      "directors": [
+        "Sam Mendes"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Thriller"
+      ],
+      "imdb_id": "tt1074638",
+      "imdb_rating": 7.8,
+      "key": "Skyfall (2012)",
+      "letterboxd": "https://letterboxd.com/film/skyfall/",
+      "overview": "When Bond's latest assignment goes gravely wrong, agents around the world are exposed and MI6 headquarters is attacked. While M faces challenges to her authority and position from Gareth Mallory, the new Chairman of the Intelligence and Security Committee, it's up to Bond, aided only by field agent Eve, to locate the mastermind behind the attack.",
+      "parent": "Daniel Craig Collection",
+      "poster": "/d0IVecFQvsGdSbnMAHqiYsNYaJT.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 92,
+      "runtime": 143,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Skyfall",
+      "tmdb_id": 37724,
+      "verified": "2026-09-07",
+      "year": 2012
+    },
+    "Spectre (2015)": {
+      "directors": [
+        "Sam Mendes"
+      ],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Thriller"
+      ],
+      "imdb_id": "tt2379713",
+      "imdb_rating": 6.8,
+      "key": "Spectre (2015)",
+      "letterboxd": "https://letterboxd.com/film/spectre-2015/",
+      "overview": "A cryptic message from Bond’s past sends him on a trail to uncover a sinister organization. While M battles political forces to keep the secret service alive, Bond peels back the layers of deceit to reveal the terrible truth behind SPECTRE.",
+      "parent": "Daniel Craig Collection",
+      "poster": "/zj8ongFhtWNsVlfjOGo8pSr7PQg.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 63,
+      "runtime": 148,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Spectre",
+      "tmdb_id": 206647,
+      "verified": "2026-09-07",
+      "year": 2015
+    },
     "Spider-Man: Far From Home": {
       "directors": [
         "Jon Watts"
@@ -2093,27 +2765,30 @@
     },
     "Spiral (2021)": {
       "directors": [
-        "Sofiene Mamdi"
+        "Darren Lynn Bousman"
       ],
       "genres": [
-        "Drama"
+        "Horror",
+        "Mystery"
       ],
-      "imdb_id": "tt9278312",
-      "imdb_rating": null,
+      "imdb_id": "tt10342730",
+      "imdb_rating": 5.2,
       "key": "Spiral (2021)",
-      "letterboxd": "https://letterboxd.com/film/spiral-2021/",
-      "overview": "Alexander, a young actor, has been falling for a few months in a spiral of self-destruction, becoming strongly addicted to alcohol and drugs. One night, he is stabbed by drug dealers and almost dies. To get out of his addictions he wrote the scenario of a film \"Spiral\" close to autofiction where he would play the main role of Daniel. Olivier Rainer, a director whom he admires, agrees to direct the movie and make Alexander pass screen tests while rewriting the script by incorporating elements of the personal life of the actor. Alexander wishing to exorcise his demons and reach his catharsis will follow Olivier unconditionally in a blistering adventure where reality and fiction merge.",
-      "poster": "/kiZCD78g637GOxSn9IcJRPr9PH6.jpg",
+      "letterboxd": "https://letterboxd.com/film/spiral-from-the-book-of-saw/",
+      "overview": "Working in the shadow of an esteemed police veteran, brash Detective Ezekiel “Zeke” Banks and his rookie partner take charge of a grisly investigation into murders that are eerily reminiscent of the city’s gruesome past.  Unwittingly entrapped in a deepening mystery, Zeke finds himself at the center of the killer’s morbid game.",
+      "parent": null,
+      "poster": "/cTvSDfBuXTZTdRCNduGMANd7VEP.jpg",
+      "role": "item",
       "rt_audience": null,
-      "rt_critic": null,
-      "runtime": 92,
+      "rt_critic": 39,
+      "runtime": 93,
       "section": "films",
       "source_notes": [
-        "Rotten Tomatoes has no Tomatometer for this title on OMDb",
+        "TMDB id pinned to 602734 in overrides.toml",
         "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
       ],
-      "title": "Spiral",
-      "tmdb_id": 766922,
+      "title": "Spiral: From the Book of Saw",
+      "tmdb_id": 602734,
       "verified": "2026-09-07",
       "year": 2021
     },
@@ -2279,6 +2954,150 @@
       "tmdb_id": 115,
       "verified": "2026-09-07",
       "year": 1998
+    },
+    "The Birds (1963)": {
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt0056869",
+      "imdb_rating": 7.6,
+      "key": "The Birds (1963)",
+      "letterboxd": "https://letterboxd.com/film/the-birds/",
+      "overview": "Thousands of birds flock into a seaside town and terrorize the residents in a series of deadly attacks.",
+      "parent": "Alfred Hitchcock Classic Collection",
+      "poster": "/eClg8QPg8mwB6INIC4pyR5pAbDr.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 95,
+      "runtime": 119,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Birds",
+      "tmdb_id": 571,
+      "verified": "2026-09-07",
+      "year": 1963
+    },
+    "The Bourne Identity (2002)": {
+      "directors": [
+        "Doug Liman"
+      ],
+      "genres": [
+        "Action",
+        "Mystery",
+        "Thriller"
+      ],
+      "imdb_id": "tt0258463",
+      "imdb_rating": 7.8,
+      "key": "The Bourne Identity (2002)",
+      "letterboxd": "https://letterboxd.com/film/the-bourne-identity-2002/",
+      "overview": "Wounded to the brink of death and suffering from amnesia, Jason Bourne is rescued at sea by a fisherman. With nothing to go on but a Swiss bank account number, he starts to reconstruct his life, but finds that many people he encounters want him dead. However, Bourne realizes that he has the combat and mental skills of a world-class spy—but who does he work for?",
+      "parent": "Bourne: The Ultimate Collection",
+      "poster": "/aP8swke3gmowbkfZ6lmNidu0y9p.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 84,
+      "runtime": 119,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Bourne Identity",
+      "tmdb_id": 2501,
+      "verified": "2026-09-07",
+      "year": 2002
+    },
+    "The Bourne Legacy (2012)": {
+      "directors": [
+        "Tony Gilroy"
+      ],
+      "genres": [
+        "Action",
+        "Thriller"
+      ],
+      "imdb_id": "tt1194173",
+      "imdb_rating": 6.6,
+      "key": "The Bourne Legacy (2012)",
+      "letterboxd": "https://letterboxd.com/film/the-bourne-legacy/",
+      "overview": "New CIA operative Aaron Cross experiences life-or-death stakes that have been triggered by the previous actions of Jason Bourne.",
+      "parent": "Bourne: The Ultimate Collection",
+      "poster": "/1aExL5DTGHj25ZfIC3dDwS84RWi.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 56,
+      "runtime": 135,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Bourne Legacy",
+      "tmdb_id": 49040,
+      "verified": "2026-09-07",
+      "year": 2012
+    },
+    "The Bourne Supremacy (2004)": {
+      "directors": [
+        "Paul Greengrass"
+      ],
+      "genres": [
+        "Action",
+        "Drama",
+        "Thriller"
+      ],
+      "imdb_id": "tt0372183",
+      "imdb_rating": 7.7,
+      "key": "The Bourne Supremacy (2004)",
+      "letterboxd": "https://letterboxd.com/film/the-bourne-supremacy/",
+      "overview": "A CIA operation to purchase classified Russian documents is blown by a rival agent, who then shows up in the sleepy seaside village where Bourne and Marie have been living. The pair run for their lives and Bourne, who promised retaliation should anyone from his former life attempt contact, is forced to once again take up his life as a trained assassin to survive.",
+      "parent": "Bourne: The Ultimate Collection",
+      "poster": "/jupG9sFT64YwM8PSkwkUD2wHcYD.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 81,
+      "runtime": 108,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Bourne Supremacy",
+      "tmdb_id": 2502,
+      "verified": "2026-09-07",
+      "year": 2004
+    },
+    "The Bourne Ultimatum (2007)": {
+      "directors": [
+        "Paul Greengrass"
+      ],
+      "genres": [
+        "Action",
+        "Drama",
+        "Mystery",
+        "Thriller"
+      ],
+      "imdb_id": "tt0440963",
+      "imdb_rating": 8.0,
+      "key": "The Bourne Ultimatum (2007)",
+      "letterboxd": "https://letterboxd.com/film/the-bourne-ultimatum/",
+      "overview": "Bourne is brought out of hiding once again by reporter Simon Ross who is trying to unveil Operation Blackbriar, an upgrade to Project Treadstone, in a series of newspaper columns. Information from the reporter stirs a new set of memories, and Bourne must finally uncover his dark past while dodging The Company's best efforts to eradicate him.",
+      "parent": "Bourne: The Ultimate Collection",
+      "poster": "/15rMz5MRXFp7CP4VxhjYw4y0FUn.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 92,
+      "runtime": 115,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Bourne Ultimatum",
+      "tmdb_id": 2503,
+      "verified": "2026-09-07",
+      "year": 2007
     },
     "The Cabin in the Woods": {
       "directors": [
@@ -2494,6 +3313,35 @@
       "verified": "2026-09-07",
       "year": 2020
     },
+    "The Lost World: Jurassic Park (1997)": {
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "genres": [
+        "Adventure",
+        "Action",
+        "Science Fiction"
+      ],
+      "imdb_id": "tt0119567",
+      "imdb_rating": 6.6,
+      "key": "The Lost World: Jurassic Park (1997)",
+      "letterboxd": "https://letterboxd.com/film/the-lost-world-jurassic-park/",
+      "overview": "Four years after Jurassic Park's genetically bred dinosaurs ran amok, multimillionaire John Hammond shocks chaos theorist Ian Malcolm by revealing that he has been breeding more beasties at a secret location. Malcolm, his paleontologist ladylove and a wildlife videographer join an expedition to document the lethal lizards' natural behavior in this action-packed thriller.",
+      "parent": "Jurassic World 5-Movie Collection",
+      "poster": "/7st3JW0xpMAkwB3dYfv3iqAwD8Y.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 57,
+      "runtime": 129,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Lost World: Jurassic Park",
+      "tmdb_id": 330,
+      "verified": "2026-09-07",
+      "year": 1997
+    },
     "The Matrix": {
       "directors": [
         "Lana Wachowski",
@@ -2575,6 +3423,35 @@
       "verified": "2026-09-07",
       "year": 2018
     },
+    "The Purge (2013)": {
+      "directors": [
+        "James DeMonaco"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt2184339",
+      "imdb_rating": 5.8,
+      "key": "The Purge (2013)",
+      "letterboxd": "https://letterboxd.com/film/the-purge/",
+      "overview": "Given the country's overcrowded prisons, the U.S. government begins to allow 12-hour periods of time in which all illegal activity is legal. During one of these free-for-alls, a family must protect themselves from a home invasion.",
+      "parent": "The Purge 3-Movie Collection",
+      "poster": "/46X1ei9uf13nkkr0OhWldGyr5Uh.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 41,
+      "runtime": 85,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Purge",
+      "tmdb_id": 158015,
+      "verified": "2026-09-07",
+      "year": 2013
+    },
     "The Purge 3-Movie Collection": {
       "directors": [],
       "genres": [],
@@ -2589,12 +3466,75 @@
       "runtime": null,
       "section": "collections",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "box set / non-film entry: not looked up against TMDB",
+        "aggregate of 3 disc(s)",
+        "aggregate of 3 disc(s)",
+        "aggregate of 3 disc(s)",
+        "aggregate of 3 disc(s)",
+        "aggregate of 3 disc(s)",
+        "aggregate of 3 disc(s)"
       ],
       "title": "The Purge 3-Movie Collection",
       "tmdb_id": null,
       "verified": "2026-09-07",
       "year": null
+    },
+    "The Purge: Anarchy (2014)": {
+      "directors": [
+        "James DeMonaco"
+      ],
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt2975578",
+      "imdb_rating": 6.4,
+      "key": "The Purge: Anarchy (2014)",
+      "letterboxd": "https://letterboxd.com/film/the-purge-anarchy/",
+      "overview": "One night per year, the government sanctions a 12-hour period in which citizens can commit any crime they wish -- including murder -- without fear of punishment or imprisonment. Leo, a sergeant who lost his son, plans a vigilante mission of revenge during the mayhem. However, instead of a death-dealing avenger, he becomes the unexpected protector of four innocent strangers who desperately need his help if they are to survive the night.",
+      "parent": "The Purge 3-Movie Collection",
+      "poster": "/qwqHHZLZSUvMkAMQ47ymtfjEifY.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 58,
+      "runtime": 103,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Purge: Anarchy",
+      "tmdb_id": 238636,
+      "verified": "2026-09-07",
+      "year": 2014
+    },
+    "The Purge: Election Year (2016)": {
+      "directors": [
+        "James DeMonaco"
+      ],
+      "genres": [
+        "Action",
+        "Horror",
+        "Thriller"
+      ],
+      "imdb_id": "tt4094724",
+      "imdb_rating": 6.0,
+      "key": "The Purge: Election Year (2016)",
+      "letterboxd": "https://letterboxd.com/film/the-purge-election-year/",
+      "overview": "Two years after choosing not to kill the man who killed his son, former police sergeant Leo Barnes has become head of security for Senator Charlene Roan, the front runner in the next Presidential election due to her vow to eliminate the Purge. On the night of what should be the final Purge, a betrayal from within the government forces Barnes and Roan out onto the street where they must fight to survive the night.",
+      "parent": "The Purge 3-Movie Collection",
+      "poster": "/gg7tlp45xqGWMra0sqQVPvybje2.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 55,
+      "runtime": 109,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Purge: Election Year",
+      "tmdb_id": 316727,
+      "verified": "2026-09-07",
+      "year": 2016
     },
     "The Shining": {
       "directors": [
@@ -2838,6 +3778,35 @@
       "verified": "2026-09-07",
       "year": 2004
     },
+    "Vertigo (1958)": {
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "genres": [
+        "Mystery",
+        "Romance",
+        "Thriller"
+      ],
+      "imdb_id": "tt0052357",
+      "imdb_rating": 8.2,
+      "key": "Vertigo (1958)",
+      "letterboxd": "https://letterboxd.com/film/vertigo/",
+      "overview": "A retired San Francisco detective suffering from acrophobia investigates the strange activities of an old friend's wife, all the while becoming dangerously obsessed with her.",
+      "parent": "Alfred Hitchcock Classic Collection",
+      "poster": "/15uOEfqBNTVtDUT7hGBVCka0rZz.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 94,
+      "runtime": 128,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Vertigo",
+      "tmdb_id": 426,
+      "verified": "2026-09-07",
+      "year": 1958
+    },
     "Waterworld": {
       "directors": [
         "Kevin Reynolds"
@@ -2864,6 +3833,35 @@
       "tmdb_id": 9804,
       "verified": "2026-09-07",
       "year": 1995
+    },
+    "Wes Craven's New Nightmare (1994)": {
+      "directors": [
+        "Wes Craven"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Fantasy"
+      ],
+      "imdb_id": "tt0111686",
+      "imdb_rating": 6.4,
+      "key": "Wes Craven's New Nightmare (1994)",
+      "letterboxd": "https://letterboxd.com/film/wes-cravens-new-nightmare/",
+      "overview": "A demonic force has chosen Freddy Krueger as its portal to the real world. Can Heather Langenkamp play the part of Nancy one last time and trap the evil trying to enter our world?",
+      "parent": "A Nightmare on Elm Street 7-Film Collection",
+      "poster": "/q5BWxfL1x34nyYSvA3Qo5odleGW.jpg",
+      "role": "member",
+      "rt_audience": null,
+      "rt_critic": 78,
+      "runtime": 112,
+      "section": "collections",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Wes Craven's New Nightmare",
+      "tmdb_id": 11596,
+      "verified": "2026-09-07",
+      "year": 1994
     }
   },
   "version": 1
