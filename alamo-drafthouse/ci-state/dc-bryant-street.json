@@ -108,6 +108,10 @@
       "first_seen": "2026-08-25",
       "title": "Fallen Angels by No\u00ebl Coward"
     },
+    "family-party-forgotten-island": {
+      "first_seen": "2026-09-08",
+      "title": "Forgotten Island"
+    },
     "film-club-amadeus": {
       "first_seen": "2026-08-27",
       "title": "Amadeus"
@@ -131,6 +135,10 @@
     "first-blood": {
       "first_seen": "2026-08-25",
       "title": "First Blood"
+    },
+    "forgotten-island": {
+      "first_seen": "2026-09-08",
+      "title": "Forgotten Island"
     },
     "ghost-2-big-to-rig": {
       "first_seen": "2026-08-25",
@@ -337,6 +345,6 @@
       "title": "Verity"
     }
   },
-  "updated": "2026-09-05T15:46:54",
+  "updated": "2026-09-08T16:07:29",
   "version": 1
 }
