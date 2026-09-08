@@ -6,6 +6,7 @@ verified CSV. **You edit one file; everything else is looked up once and cached.
 Adding the two discs you bought last weekend:
 
 ```bash
+git pull                                    # the Action commits, so start in sync
 echo "Sinners" >> collection.txt
 echo "The Substance" >> collection.txt
 git commit -am "Add Sinners and The Substance" && git push
@@ -238,6 +239,33 @@ disc was added.
 
 Force a rebuild with `--force`; ignore the cache entirely with `--refresh-all`.
 
+### Pull before you edit
+
+Because the Action commits the rebuilt page and cache back, **your clone is one
+commit behind every time it runs.** Adding the next disc without pulling gets
+the push rejected, and editing first leaves you resolving a conflict in
+`cache/metadata.json` and `site/index.html` — two generated files that conflict
+horribly and that nobody should ever merge by hand.
+
+`git pull` first and it never comes up. If you forget:
+
+```bash
+git pull --rebase
+# Both are generated, so do not merge them -- take either side and rebuild.
+git checkout --theirs movie-collection/cache/metadata.json movie-collection/site/
+python3 build_collection.py --force
+git add -u && git rebase --continue
+```
+
+The rebuild is the authority. Whichever side you take, `--force` regenerates
+both files from `collection.txt` and the cache, so the result is correct
+regardless of which conflicting version you started from.
+
+If you would rather not deal with this at all, build locally before you push
+(`python build_collection.py`) and commit the outputs yourself. The Action then
+finds a matching fingerprint, no-ops, and commits nothing — so your clone never
+falls behind.
+
 ---
 
 ## The Action
@@ -300,8 +328,18 @@ a few megabytes.
 - Sort by shelf order, title, year, Tomatometer, IMDb rating or runtime
 - Filter to one shelf section
 - **Shelf organisation toggle**, off by default
+- Filter to one genre, commonest first with counts
+- Titles are never truncated; two lines are reserved so rows stay even
+- Scores carry their source's icon — a red tomato above 60, the green splat
+  below, the IMDb badge, and popcorn for an audience score
 - Every title links to its Letterboxd page
 - Light and dark, following the system setting
+
+The icons are inline SVG defined once as a sprite and referenced per card, not
+the real logo files. At the 13px they render, a 980px PNG with 3D shading turns
+to mush, and embedding both would have added ~145KB to a ~100KB page. Drawing
+them also means the rotten score gets its own green splat rather than a red
+tomato in a different colour.
 
 ### The shelf organisation toggle
 
@@ -394,7 +432,7 @@ ever need edits there.
 python -m unittest discover -s . -t . -v
 ```
 
-93 tests, no network — every build test runs against a cache seeded in memory.
+101 tests, no network — every build test runs against a cache seeded in memory.
 
 Coverage: inventory parsing (comments, sections, year hints, a year *in* a title
 not being a hint, duplicates rejected); alphabetisation (leading articles,

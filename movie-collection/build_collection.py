@@ -98,7 +98,7 @@ CSV_COLUMNS = [
 
 # Bump when the HTML template changes, so a template edit forces a rebuild even
 # though the inventory is untouched.
-TEMPLATE_VERSION = 3
+TEMPLATE_VERSION = 4
 
 
 class FetchError(Exception):
@@ -819,14 +819,29 @@ h2 span { color: var(--accent); }
   color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .05em;
   padding: 3px 6px; border-radius: 4px;
 }
-.name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.name {
+  font-weight: 600; font-size: 14px; line-height: 1.3;
+  /* Never truncated -- the title is the whole point of the card. Reserving two
+     lines evens out the rows without hiding anything: on this shelf 90 of 102
+     titles are one line and 12 are two, so the reserve costs nothing and stops
+     cards jumping. The four Elm Street discs that need a third line simply get
+     one. */
+  min-height: 2.6em;
+}
 .name a { color: inherit; text-decoration: none; }
 .name a:hover { color: var(--accent); text-decoration: underline; }
 .meta { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.meta.gen { font-size: 11.5px; opacity: .78; }
 .scores { display: flex; gap: 9px; margin-top: 5px; font-size: 12px; flex-wrap: wrap; }
+.scores span { display: inline-flex; align-items: center; gap: 3px; }
 .scores b { font-weight: 600; }
-.fresh { color: #2e7d32; } .rotten { color: #c33; }
-@media (prefers-color-scheme: dark) { .fresh { color: #7bc47f; } }
+.ico { width: 13px; height: 13px; flex: none; }
+.ico.imdb { width: 24px; height: 12px; border-radius: 2px; }
+.fresh { color: #2e7d32; } .rotten { color: #b5501f; }
+@media (prefers-color-scheme: dark) {
+  .fresh { color: #7bc47f; }
+  .rotten { color: #e08a5a; }
+}
 .boxset {
   border: 1px solid var(--line); border-radius: 10px; padding: 16px 16px 18px;
   background: var(--panel); margin-bottom: 18px;
@@ -849,6 +864,32 @@ footer a { color: var(--accent); }
 </style>
 </head>
 <body>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-imdb" viewBox="0 0 64 32">
+    <rect width="64" height="32" rx="5" fill="#f5c518"/>
+    <text x="32" y="24" text-anchor="middle" fill="#000"
+          font-family="Helvetica,Arial,sans-serif" font-size="19" font-weight="700"
+          letter-spacing="-1">IMDb</text>
+  </symbol>
+  <symbol id="i-fresh" viewBox="0 0 24 24">
+    <circle cx="12" cy="14.6" r="8.6" fill="#fa320a"/>
+    <path d="M11.9 8.2C11 6 8.9 4.8 6.6 5.1c1.1.8 1.8 1.9 2 3-1.5-.7-3.2-.5-4.5.4 1.5.2 2.8 1 3.7 2.1 1-1.2 2.5-2.1 4.1-2.4z" fill="#0d8a3e"/>
+    <path d="M12.1 8.2C13 6 15.1 4.8 17.4 5.1c-1.1.8-1.8 1.9-2 3 1.5-.7 3.2-.5 4.5.4-1.5.2-2.8 1-3.7 2.1-1-1.2-2.5-2.1-4.1-2.4z" fill="#0d8a3e"/>
+    <rect x="11.3" y="3.4" width="1.5" height="4.6" rx=".75" fill="#0d8a3e"/>
+  </symbol>
+  <symbol id="i-rotten" viewBox="0 0 24 24">
+    <path d="M12 3.6c1 1.4 2.6 1.2 3.4 2.6.6 1.1.1 2.1.9 2.8.9.8 2.4.3 3 1.5.5 1.1-.5 2-.2 3.1.3 1.2 1.7 1.7 1.5 3-.2 1.2-1.7 1.3-2.4 2.3-.7 1-.3 2.4-1.5 2.9-1.1.5-2-.6-3.1-.4-1.2.2-1.8 1.6-3 1.5-1.2-.1-1.5-1.6-2.5-2.3-1-.7-2.5-.4-3-1.6-.5-1.1.7-2.1.5-3.2-.2-1.2-1.6-1.8-1.3-3 .3-1.2 1.8-1.2 2.6-2.1.8-.9.4-2.4 1.5-2.9 1.1-.5 2 .7 3.2.5 1.1-.2 1.7-1.4 2.4-2.7z" fill="#5a8f29"/>
+    <circle cx="9.6" cy="12.4" r="1.3" fill="#3f6b1a"/>
+    <circle cx="14.2" cy="15.4" r="1.6" fill="#3f6b1a"/>
+  </symbol>
+  <symbol id="i-aud" viewBox="0 0 24 24">
+    <circle cx="8.4" cy="7.4" r="3.1" fill="#f2c94c"/>
+    <circle cx="14.4" cy="6.4" r="2.7" fill="#f7dd7e"/>
+    <circle cx="12" cy="9.6" r="2.9" fill="#f2c94c"/>
+    <path d="M4.6 11h14.8l-1.7 10.4H6.3z" fill="#fa320a"/>
+    <path d="M9.3 11h1.9l-.7 10.4H8.8zm4.4 0h1.9l-1.1 10.4h-1.6z" fill="#fff" opacity=".9"/>
+  </symbol>
+</svg>
 <div class="wrap">
 <header>
   <h1>$page_title</h1>
@@ -865,6 +906,7 @@ footer a { color: var(--accent); }
       <option value="runtime">Runtime</option>
     </select>
     <select id="filter"></select>
+    <select id="genre"></select>
     <label class="toggle">
       <input type="checkbox" id="blocks"> Shelf organisation
     </label>
@@ -889,6 +931,7 @@ const sortBy = document.getElementById('sort');
 const filter = document.getElementById('filter');
 const count = document.getElementById('count');
 const blocksOn = document.getElementById('blocks');
+const genre = document.getElementById('genre');
 
 const BLOCK = 'Director block: ';
 const STORE = 'disc-inventory';
@@ -928,32 +971,52 @@ function esc(s) {
   ));
 }
 
+function ico(name, cls) {
+  return '<svg class="ico' + (cls ? ' ' + cls : '') + '" aria-hidden="true">' +
+    '<use href="#i-' + name + '"/></svg>';
+}
+
 function card(f) {
   const poster = f.poster
     ? '<img loading="lazy" src="' + esc(f.poster) + '" alt="">'
     : '<div class="none">' + esc(f.title) + '</div>';
+  // Everything on this shelf is 4K, so a "4K" badge on all 133 films marked
+  // nothing. Flag the exception instead.
   const badge = f.box
     ? '<div class="badge">' + f.films + ' FILMS</div>'
-    : (f.uhd ? '<div class="badge">4K</div>' : '');
+    : (f.uhd ? '' : '<div class="badge">BLU-RAY</div>');
   const bits = [];
   if (f.span && f.span[0] !== f.span[1]) bits.push(f.span[0] + '–' + f.span[1]);
   else if (f.year) bits.push(f.year);
   if (f.runtime) bits.push(f.box ? Math.round(f.runtime / 60) + 'h total' : f.runtime + ' min');
   const scores = [];
   if (f.rt_critic != null) {
-    scores.push('<span class="' + (f.rt_critic >= 60 ? 'fresh' : 'rotten') +
-      '">RT <b>' + f.rt_critic + '%</b></span>');
+    // Fresh gets the tomato, rotten gets the green splat -- the same signal
+    // Rotten Tomatoes itself uses, so the icon carries the meaning and the
+    // colour is not doing the job alone.
+    const fresh = f.rt_critic >= 60;
+    scores.push('<span class="' + (fresh ? 'fresh' : 'rotten') + '" title="' +
+      'Tomatometer ' + f.rt_critic + '% (' + (fresh ? 'Fresh' : 'Rotten') + ')">' +
+      ico(fresh ? 'fresh' : 'rotten') + '<b>' + f.rt_critic + '%</b></span>');
   }
-  if (f.rt_audience != null) scores.push('<span>Aud <b>' + f.rt_audience + '%</b></span>');
-  if (f.imdb != null) scores.push('<span>IMDb <b>' + f.imdb + '</b></span>');
+  if (f.rt_audience != null) {
+    scores.push('<span title="Rotten Tomatoes audience score">' +
+      ico('aud') + '<b>' + f.rt_audience + '%</b></span>');
+  }
+  if (f.imdb != null) {
+    scores.push('<span title="IMDb rating">' +
+      ico('imdb', 'imdb') + '<b>' + f.imdb + '</b></span>');
+  }
   const name = f.letterboxd
     ? '<a href="' + esc(f.letterboxd) + '" target="_blank" rel="noopener">' + esc(f.title) + '</a>'
     : esc(f.title);
+  const genre = f.genres && f.genres.length ? f.genres.slice(0, 2).join(', ') : '';
   return '<div class="card">' +
     '<div class="poster">' + poster + badge + '</div>' +
-    '<div class="name">' + name + '</div>' +
+    '<div class="name" title="' + esc(f.title) + '">' + name + '</div>' +
     '<div class="meta">' + esc(bits.join(' · ')) + '</div>' +
     (f.directors ? '<div class="meta">' + esc(f.directors) + '</div>' : '') +
+    (genre ? '<div class="meta gen">' + esc(genre) + '</div>' : '') +
     '<div class="scores">' + scores.join('') + '</div>' +
     '</div>';
 }
@@ -975,11 +1038,30 @@ function fillFilter() {
   filter.value = names.includes(keep) ? keep : 'all';
 }
 
+function fillGenre() {
+  const seen = new Map();
+  for (const f of DATA) {
+    for (const g of f.genres || []) seen.set(g, (seen.get(g) || 0) + 1);
+  }
+  // Commonest first: on a shelf this size the tail is mostly one-offs.
+  const names = [...seen.keys()].sort((a, b) => seen.get(b) - seen.get(a) || a.localeCompare(b));
+  const keep = genre.value;
+  genre.innerHTML = '<option value="all">Every genre</option>' +
+    names.map(n => '<option value="' + esc(n) + '">' + esc(n) + ' (' + seen.get(n) + ')</option>').join('');
+  // Set explicitly rather than leaning on a select defaulting to its first
+  // option, so the filter cannot start in a state that matches nothing.
+  genre.value = names.includes(keep) ? keep : 'all';
+}
+
 function render() {
   const term = q.value.trim().toLowerCase();
   const want = filter.value;
+  const wantGenre = genre.value;
   let films = DATA.filter(f => {
     if (want !== 'all' && shelfOf(f) !== want) return false;
+    // A box set has no genre of its own, so a genre filter would silently drop
+    // every box. Keep them; their discs carry the genres.
+    if (wantGenre !== 'all' && !f.box && !(f.genres || []).includes(wantGenre)) return false;
     if (!term) return true;
     return f.haystack.indexOf(term) !== -1;
   });
@@ -1075,6 +1157,7 @@ function render() {
 q.addEventListener('input', render);
 sortBy.addEventListener('change', render);
 filter.addEventListener('change', render);
+genre.addEventListener('change', render);
 
 blocksOn.addEventListener('change', () => {
   save();
@@ -1093,6 +1176,7 @@ shelf.addEventListener('click', event => {
 });
 
 fillFilter();
+fillGenre();
 render();
 </script>
 </body>
@@ -1484,7 +1568,14 @@ def main(argv=None):
     records = []
     unpinned = []
     for entry in entries:
+        # dict() is a shallow copy, so the lists inside are still the cache's
+        # own. Anything downstream that appends -- the box-set aggregate note
+        # does -- would otherwise mutate the cache and be written back, growing
+        # the committed file by one duplicate line per box set per build.
         record = dict(records_cache[entry["key"]])
+        for field in ("source_notes", "directors", "genres"):
+            record[field] = list(record.get(field) or [])
+        record.pop("members", None)
         record["section"] = entry["section"]
         record["key"] = entry["key"]
         record["role"] = entry.get("role", "item")

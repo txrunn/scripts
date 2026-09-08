@@ -366,6 +366,46 @@ class AggregationTests(unittest.TestCase):
         self.assertIsNone(shelf[0].get("film_count"))
 
 
+class CacheIsolationTests(unittest.TestCase):
+    """Building must never mutate the cache it read from."""
+
+    def test_repeated_builds_do_not_grow_the_cache(self):
+        # aggregate_box_sets() appends a note to the box set's source_notes.
+        # dict() is a shallow copy, so without an explicit list copy that append
+        # lands in the cache and is written back -- one duplicate line per box
+        # set per build, forever, in a committed file.
+        ws = Workspace(BOXED, BOXED_RECORDS)
+        self.addCleanup(ws.close)
+        sizes, notes = [], []
+        for _ in range(3):
+            ws.run("--force")
+            with open(ws.cache, encoding="utf-8") as handle:
+                cached = json.load(handle)["records"]
+            sizes.append(os.path.getsize(ws.cache))
+            notes.append(len(cached["Bourne Box"]["source_notes"]))
+        self.assertEqual(len(set(sizes)), 1, f"cache size drifted: {sizes}")
+        self.assertEqual(len(set(notes)), 1, f"notes accumulated: {notes}")
+
+    def test_source_notes_never_contain_duplicates(self):
+        ws = Workspace(BOXED, BOXED_RECORDS)
+        self.addCleanup(ws.close)
+        ws.run()
+        ws.run("--force")
+        for row in ws.rows():
+            notes = [n for n in row["Source_Notes"].split(" | ") if n]
+            self.assertEqual(len(notes), len(set(notes)), row["Title"])
+
+    def test_aggregation_does_not_write_members_into_the_cache(self):
+        # members holds live record objects; serialising them would nest the
+        # whole shelf inside each box set.
+        ws = Workspace(BOXED, BOXED_RECORDS)
+        self.addCleanup(ws.close)
+        ws.run("--force")
+        with open(ws.cache, encoding="utf-8") as handle:
+            cached = json.load(handle)["records"]
+        self.assertNotIn("members", cached["Bourne Box"])
+
+
 class BoxSetOutputTests(unittest.TestCase):
     def setUp(self):
         self.ws = Workspace(BOXED, BOXED_RECORDS)
@@ -600,6 +640,48 @@ class HtmlTests(unittest.TestCase):
     def test_block_headings_carry_the_data_attribute_the_toggle_needs(self):
         self.assertIn("data-block=", self.html)
         self.assertIn("h2.click", self.html)
+
+    def test_rating_icons_are_defined_once_as_a_sprite(self):
+        # Inline SVG per card would repeat the artwork 141 times; <use> against
+        # one sprite keeps it to a few hundred bytes.
+        for name in ("i-fresh", "i-rotten", "i-imdb", "i-aud"):
+            self.assertEqual(self.html.count('<symbol id="%s"' % name), 1, name)
+
+    def test_fresh_and_rotten_are_different_icons(self):
+        # Red tomato above 60, green splat below -- the icon carries the meaning
+        # so colour is not doing the job alone.
+        self.assertIn("f.rt_critic >= 60", self.html)
+        self.assertIn("fresh ? 'fresh' : 'rotten'", self.html)
+
+    def test_no_external_image_requests_for_the_icons(self):
+        self.assertNotIn("imdb.png", self.html)
+        self.assertNotIn("rotten_tomatoes.png", self.html)
+
+    def test_badge_marks_the_exception_not_the_rule(self):
+        # Every disc is 4K, so a "4K" badge on all of them marked nothing.
+        self.assertNotIn('"badge">4K<', self.html)
+        self.assertIn("BLU-RAY", self.html)
+
+    def test_titles_are_never_truncated(self):
+        # Measured: 0 of 102 main-grid titles and 4 of 32 box-set titles run
+        # past two lines. Clamping hid real titles to tidy four cards.
+        self.assertNotIn("line-clamp", self.html)
+        self.assertIn("min-height: 2.6em", self.html)
+
+    def test_full_title_is_in_the_tooltip_too(self):
+        self.assertIn('class="name" title="', self.html)
+
+    def test_a_very_long_title_survives_intact(self):
+        long = "A Nightmare on Elm Street Part 2: Freddy's Revenge"
+        ws = Workspace("[films]\n" + long + "\n", [record(long)])
+        self.addCleanup(ws.close)
+        ws.run()
+        self.assertIn(long, ws.page())
+
+    def test_genre_filter_defaults_to_all_explicitly(self):
+        # Relying on a select defaulting to its first option would let the
+        # filter start in a state matching nothing.
+        self.assertIn("genre.value = names.includes(keep) ? keep : 'all'", self.html)
 
     def test_collapse_state_is_persisted(self):
         self.assertIn("localStorage", self.html)
