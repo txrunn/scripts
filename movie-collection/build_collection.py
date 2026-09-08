@@ -602,7 +602,11 @@ def aggregate_box_sets(records):
         note = "aggregate of {} disc(s)".format(len(members))
         if unscored:
             note += "; Tomatometer averaged over {} of them".format(len(critics))
-        record["source_notes"].append(note)
+        # Idempotent: shelve() can run more than once over the same records, and
+        # a note that appends every time turns into a column of repeated
+        # sentences in the CSV.
+        if note not in record["source_notes"]:
+            record["source_notes"].append(note)
 
     return items
 

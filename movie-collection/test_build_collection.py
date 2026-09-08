@@ -312,9 +312,20 @@ class NestingTests(unittest.TestCase):
             self.parse("[collections]\nBox\n[documentaries]\n  Orphan\n")
 
 
+def deep(records):
+    """Copy records *and* their lists, so one test cannot mutate another's."""
+    out = []
+    for r in records:
+        c = dict(r)
+        for field in ("source_notes", "directors", "genres"):
+            c[field] = list(c.get(field) or [])
+        out.append(c)
+    return out
+
+
 class AggregationTests(unittest.TestCase):
     def setUp(self):
-        self.records = [dict(r) for r in BOXED_RECORDS]
+        self.records = deep(BOXED_RECORDS)
         self.shelf, self.blocks = bcol.shelve(self.records)
         self.box = next(r for r in self.shelf if r["key"] == "Bourne Box")
 
@@ -340,7 +351,7 @@ class AggregationTests(unittest.TestCase):
     def test_discs_do_not_create_a_director_block(self):
         # Two Greengrass films here; a third would still not make a block,
         # because splitting a box across the shelf defeats owning the box.
-        records = [dict(r) for r in BOXED_RECORDS]
+        records = deep(BOXED_RECORDS)
         records.append(record("Bourne Legacy", year=2012, directors=["Paul Greengrass"],
                               section="collections", role="member", parent="Bourne Box"))
         _, blocks = bcol.shelve(records)
@@ -374,7 +385,7 @@ class CacheIsolationTests(unittest.TestCase):
         # dict() is a shallow copy, so without an explicit list copy that append
         # lands in the cache and is written back -- one duplicate line per box
         # set per build, forever, in a committed file.
-        ws = Workspace(BOXED, BOXED_RECORDS)
+        ws = Workspace(BOXED, deep(BOXED_RECORDS))
         self.addCleanup(ws.close)
         sizes, notes = [], []
         for _ in range(3):
@@ -387,7 +398,7 @@ class CacheIsolationTests(unittest.TestCase):
         self.assertEqual(len(set(notes)), 1, f"notes accumulated: {notes}")
 
     def test_source_notes_never_contain_duplicates(self):
-        ws = Workspace(BOXED, BOXED_RECORDS)
+        ws = Workspace(BOXED, deep(BOXED_RECORDS))
         self.addCleanup(ws.close)
         ws.run()
         ws.run("--force")
@@ -398,7 +409,7 @@ class CacheIsolationTests(unittest.TestCase):
     def test_aggregation_does_not_write_members_into_the_cache(self):
         # members holds live record objects; serialising them would nest the
         # whole shelf inside each box set.
-        ws = Workspace(BOXED, BOXED_RECORDS)
+        ws = Workspace(BOXED, deep(BOXED_RECORDS))
         self.addCleanup(ws.close)
         ws.run("--force")
         with open(ws.cache, encoding="utf-8") as handle:
@@ -408,7 +419,7 @@ class CacheIsolationTests(unittest.TestCase):
 
 class BoxSetOutputTests(unittest.TestCase):
     def setUp(self):
-        self.ws = Workspace(BOXED, BOXED_RECORDS)
+        self.ws = Workspace(BOXED, deep(BOXED_RECORDS))
         self.addCleanup(self.ws.close)
         self.ws.run()
         self.rows = {r["Title"]: r for r in self.ws.rows()}
