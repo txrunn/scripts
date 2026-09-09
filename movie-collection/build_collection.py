@@ -753,6 +753,7 @@ PAGE = string.Template("""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>$page_title</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+IDxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjE1IiBmaWxsPSIjYjQ0NDFmIi8+IDxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y2ZjVmMyIgc3Ryb2tlLXdpZHRoPSIxLjUiIG9wYWNpdHk9Ii41NSIvPiA8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSI0IiBmaWxsPSIjZjZmNWYzIi8+PC9zdmc+">
 <style>
 :root {
   color-scheme: light dark;

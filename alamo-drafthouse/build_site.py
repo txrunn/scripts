@@ -657,6 +657,7 @@ PAGE = string.Template("""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>$page_title</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAYFBMVEX0siMHCAjqqyK4hxynexoyJwyacRlKOA8ZFQmMaBdZQxHLlB4jHAtzVhTVnCBmTBPCjh7coSGAXxY/MA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA87wXQAAAAIHRSTlP//////////////////////////wAAAAAAAAAAAAAAALESzYUAAAH0SURBVHja7VXRjuMgDMQYxxgCJL3//9cb0/ZUurtS7+EeTspIbWGwx46N0xAuXLhw4cK/Ryw50wNZ0kculTe7tTFKKapZbEs8kWyQAqWM0ZrT/Tv3G+WcRWRaltHi62kaD10V2ZGaxjf3KplSfGPnfnLxja9Cv+rCZeXTf3t36/iU6v0pdP9Ep6Ysa14EqLojC5HWEGXn6a5EXr6WC4SSZJ4WebhEpVVgOyO4WfIYiZLnIXPPYTi5YVndAr3REM9tFcg7yjJIOp7OQp4CRpmRhLoAife0ohs9pkwVSa6PkA1pCaKFDRW+CxRIIascGppINOCnsIhB/dj2RUBgCz9jbiRYeA2UGjMyj41an2wt1FCa3Y9NFgGVFuPj5rlpMUO4OyAwPAIEGKeaYVGb6CJQ5Oa1a2YFx9MPAmrWIDCoeOe8nm1GqAECZRXANqbkzU6MBRA4+S0AWdPhTZnHNRnHp8cLjI74V6N2eIWX2aNsCLJV60c9jM2nyOpRN8xSOO3ghAUjiw3WqEN5D9gLytrKyKalaS8sGKjSmg4twVpqIkUt64ZLWyl9mccYEm5GsopAKZ2BT88AkbGz0JEBeOOKb56mX1Hp4yo0+ZYW2Vb8EeSVN9p+eInJ/gIhvb+QcBv3BWKfJdrl+U5s11/EhQsXLvwn+A0WDhGl39if1wAAAABJRU5ErkJggg==">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap"
