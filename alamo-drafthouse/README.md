@@ -264,10 +264,19 @@ What arrives:
 - **The title** — the counts, led by special events.
 - **The new film titles**, so you can tell from the lock screen whether this is
   worth getting up for without opening anything.
-- **Tapping the notification** opens the issue.
+- **Tapping the notification** opens [the page](https://txrunn.github.io/scripts/alamo/#added-wrap)
+  at "Newly added". That is where you can actually act — posters, search, the
+  booking planner — whereas a GitHub issue on a phone is a markdown table behind
+  a login. The issue is still the durable record, still one tap from the
+  notification email, and links back to the page.
 - **Up to three buttons** going straight to those films' showtimes on
-  drafthouse.com, skipping the issue entirely. ntfy allows three; a day that
+  drafthouse.com, skipping both. ntfy allows three; a day that
   adds one film gets a single button labelled "Showtimes".
+
+The page shows the current slate rather than a snapshot, so a push opened days
+later lands on that week's arrivals rather than exactly that batch. That is the
+right trade for a notification, whose job is "act now" — the issue keeps the
+frozen copy.
 
 Days with a special event go out at high priority, since those are the ones that
 sell out. Everything else arrives at normal priority.

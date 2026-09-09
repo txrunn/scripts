@@ -44,6 +44,14 @@ jobs:
   bryant-street:
     name: DC Bryant Street
     runs-on: ubuntu-latest
+    env:
+      # Where a human should land. Defined once: the run summary, the issue and
+      # the phone push all point at the same place, and moving the page is one
+      # edit rather than three.
+      SITE_URL: https://txrunn.github.io/scripts/alamo/
+      # The page lists arrivals newest first under "Newly added", so this drops
+      # you on today's batch instead of the top of the slate.
+      SITE_ADDED_URL: https://txrunn.github.io/scripts/alamo/#added-wrap
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -149,7 +157,7 @@ jobs:
             echo
             echo "</details>"
             echo
-            echo "[Browse the full slate](https://txrunn.github.io/scripts/alamo/)"
+            echo "[Browse the full slate]($SITE_URL)"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Open an issue for the new films
@@ -160,6 +168,11 @@ jobs:
         run: |
           {
             cat "$RUNNER_TEMP/report.md"
+            echo
+            # The page is the better place to act from -- posters, search, and
+            # the booking planner -- and this issue is the only route to it for
+            # anyone reading the notification email rather than the push.
+            echo "**[Browse the full slate]($SITE_ADDED_URL)** — posters, search and the booking planner."
             echo
             echo "---"
             echo
@@ -265,7 +278,17 @@ jobs:
           NTFY_URL: ${{ secrets.NTFY_URL }}
           NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
           ISSUE_TITLE: ${{ steps.issue.outputs.title }}
-          ISSUE_URL: ${{ steps.issue.outputs.url }}
+          # Tapping the body opens the page, not the issue. On a phone the page
+          # is the thing you can act from -- posters, search, the planner -- and
+          # a GitHub issue is a markdown table behind a login. The issue stays
+          # the durable record and is still one tap from the notification email;
+          # it also links back to the page, so neither route is a dead end.
+          #
+          # The page shows the current slate rather than a snapshot, so a push
+          # opened days later lands on that week's arrivals rather than exactly
+          # this batch. That is the right trade for a notification, whose whole
+          # job is "act now"; the issue keeps the frozen copy.
+          CLICK_URL: ${{ env.SITE_ADDED_URL }}
         run: |
           if [ -z "$NTFY_URL" ]; then
             echo "No NTFY_URL secret set -- skipping the push. The issue was still opened."
@@ -338,7 +361,7 @@ jobs:
             -H "Title: $ISSUE_TITLE" \
             -H "Priority: $PRIORITY" \
             -H "Tags: clapper" \
-            -H "Click: $ISSUE_URL" \
+            -H "Click: $CLICK_URL" \
             -H "Actions: $(cat "$RUNNER_TEMP/actions.txt")" \
             --data-binary @"$RUNNER_TEMP/push.txt" \
             "$NTFY_URL"
