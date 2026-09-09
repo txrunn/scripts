@@ -24,6 +24,14 @@
       "first_seen": "2026-08-25",
       "title": "Basic Instinct"
     },
+    "beetlejuice": {
+      "first_seen": "2026-09-09",
+      "title": "Beetlejuice"
+    },
+    "blue-velvet": {
+      "first_seen": "2026-09-09",
+      "title": "Blue Velvet"
+    },
     "buddy-2026": {
       "first_seen": "2026-08-27",
       "title": "Buddy (2026)"
@@ -35,6 +43,10 @@
     "by-any-means": {
       "first_seen": "2026-09-01",
       "title": "By Any Means"
+    },
+    "cars-20th-anniversary": {
+      "first_seen": "2026-09-09",
+      "title": "Cars: 20th Anniversary"
     },
     "catvideofest-2026": {
       "first_seen": "2026-08-25",
@@ -116,6 +128,10 @@
       "first_seen": "2026-08-27",
       "title": "Amadeus"
     },
+    "film-club-event-horizon": {
+      "first_seen": "2026-09-09",
+      "title": "FILM CLUB: EVENT HORIZON"
+    },
     "film-club-network": {
       "first_seen": "2026-08-25",
       "title": "Network"
@@ -143,6 +159,10 @@
     "ghost-2-big-to-rig": {
       "first_seen": "2026-08-25",
       "title": "GHOST: 2 Big To Rig"
+    },
+    "halloween-1978": {
+      "first_seen": "2026-09-09",
+      "title": "Halloween (1978)"
     },
     "harry-potter-and-the-sorcerers-stone": {
       "first_seen": "2026-08-25",
@@ -200,6 +220,10 @@
       "first_seen": "2026-08-25",
       "title": "Nacho Libre"
     },
+    "oasis-dont-look-back-in-anger": {
+      "first_seen": "2026-09-09",
+      "title": "Oasis: Don't Look Back in Anger"
+    },
     "onslaught": {
       "first_seen": "2026-08-27",
       "title": "Onslaught"
@@ -207,6 +231,10 @@
     "paw-patrol-the-dino-movie": {
       "first_seen": "2026-08-25",
       "title": "Paw Patrol: The Dino Movie"
+    },
+    "possession-1981": {
+      "first_seen": "2026-09-09",
+      "title": "POSSESSION (1981)"
     },
     "practical-magic-2": {
       "first_seen": "2026-08-25",
@@ -216,9 +244,17 @@
       "first_seen": "2026-09-05",
       "title": "Primetime"
     },
+    "psycho-1960": {
+      "first_seen": "2026-09-09",
+      "title": "PSYCHO (1960)"
+    },
     "queen-budapest": {
       "first_seen": "2026-08-25",
       "title": "Queen Budapest"
+    },
+    "queer-film-theory-101-daughters-of-darkness": {
+      "first_seen": "2026-09-09",
+      "title": "Daughters of Darkness"
     },
     "queer-film-theory-101-the-birdcage": {
       "first_seen": "2026-08-25",
@@ -232,6 +268,10 @@
       "first_seen": "2026-08-25",
       "title": "Rear Window"
     },
+    "repo-the-genetic-opera": {
+      "first_seen": "2026-09-09",
+      "title": "Repo! The Genetic Opera"
+    },
     "resident-evil-2026": {
       "first_seen": "2026-09-01",
       "title": "Resident Evil (2026)"
@@ -239,6 +279,10 @@
     "sad-girl-cinema-club-my-sassy-girl": {
       "first_seen": "2026-08-25",
       "title": "My Sassy Girl"
+    },
+    "scream": {
+      "first_seen": "2026-09-09",
+      "title": "SCREAM (1996)"
     },
     "special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026": {
       "first_seen": "2026-09-05",
@@ -304,6 +348,10 @@
       "first_seen": "2026-08-25",
       "title": "The Faculty"
     },
+    "the-craft": {
+      "first_seen": "2026-09-09",
+      "title": "The Craft"
+    },
     "the-dog-stars": {
       "first_seen": "2026-08-25",
       "title": "The Dog Stars"
@@ -320,9 +368,17 @@
       "first_seen": "2026-08-25",
       "title": "The Fast and the Furious: 25th Anniversary"
     },
+    "the-lost-boys": {
+      "first_seen": "2026-09-09",
+      "title": "THE LOST BOYS"
+    },
     "the-odyssey": {
       "first_seen": "2026-08-25",
       "title": "The Odyssey"
+    },
+    "the-texas-chainsaw-massacre-1974": {
+      "first_seen": "2026-09-09",
+      "title": "The Texas Chain Saw Massacre (1974)"
     },
     "the-twilight-saga-the-twilight-saga-new-moon-fan-screening": {
       "first_seen": "2026-08-25",
@@ -340,11 +396,19 @@
       "first_seen": "2026-08-25",
       "title": "Toxic: A Fairy Tale for Grown-Ups"
     },
+    "trick-or-treat-1986": {
+      "first_seen": "2026-09-09",
+      "title": "Trick or Treat (1986)"
+    },
     "verity": {
       "first_seen": "2026-09-04",
       "title": "Verity"
+    },
+    "weird-wednesday-manos-the-hands-of-fate": {
+      "first_seen": "2026-09-09",
+      "title": "Manos: The Hands of Fate"
     }
   },
-  "updated": "2026-09-09T14:53:24",
+  "updated": "2026-09-09T17:01:02",
   "version": 1
 }

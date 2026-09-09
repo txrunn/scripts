@@ -35,6 +35,30 @@
     "v": 2,
     "year": "1992"
   },
+  "beetlejuice": {
+    "checked": "2026-09-09",
+    "tmdb_id": 4011,
+    "tmdb_title": "Beetlejuice",
+    "trailer": "https://www.youtube.com/watch?v=GuyNP-XyFHs",
+    "v": 2,
+    "year": "1988"
+  },
+  "blue-velvet": {
+    "checked": "2026-09-09",
+    "tmdb_id": 793,
+    "tmdb_title": "Blue Velvet",
+    "trailer": "https://www.youtube.com/watch?v=k_BybDB_phY",
+    "v": 2,
+    "year": "1986"
+  },
+  "buddy-2026": {
+    "checked": "2026-09-09",
+    "tmdb_id": 1514026,
+    "tmdb_title": "Buddy",
+    "trailer": "https://www.youtube.com/watch?v=O1fNEHX9tSM",
+    "v": 2,
+    "year": "2026"
+  },
   "by-any-means": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/33wobiMyK5L99htHYjlZ1YAeK2F.jpg",
@@ -43,6 +67,11 @@
     "trailer": "https://www.youtube.com/watch?v=ej8pjisr0Pc",
     "v": 2,
     "year": "2026"
+  },
+  "cars-20th-anniversary": {
+    "checked": "2026-09-09",
+    "tmdb_id": null,
+    "v": 2
   },
   "catvideofest-2026": {
     "checked": "2026-09-09",
@@ -194,6 +223,11 @@
     "v": 2,
     "year": "1984"
   },
+  "film-club-event-horizon": {
+    "checked": "2026-09-09",
+    "tmdb_id": null,
+    "v": 2
+  },
   "film-club-network": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/qZomlHsaALUtkFeMDwdYmwS2Pbo.jpg",
@@ -229,6 +263,14 @@
     "trailer": "https://www.youtube.com/watch?v=a8RHqN93qfo",
     "v": 2,
     "year": "2026"
+  },
+  "halloween-1978": {
+    "checked": "2026-09-09",
+    "tmdb_id": 948,
+    "tmdb_title": "Halloween",
+    "trailer": "https://www.youtube.com/watch?v=2Orp73nufs0",
+    "v": 2,
+    "year": "1978"
   },
   "hope-2026": {
     "checked": "2026-09-09",
@@ -298,6 +340,14 @@
     "v": 2,
     "year": "2006"
   },
+  "oasis-dont-look-back-in-anger": {
+    "checked": "2026-09-09",
+    "tmdb_id": 1447853,
+    "tmdb_title": "Oasis: Don't Look Back in Anger",
+    "trailer": "https://www.youtube.com/watch?v=X9sIYLtgc_s",
+    "v": 2,
+    "year": "2026"
+  },
   "onslaught": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/cOGtvhc6Ij9KvzM6jZsfQyg0B0O.jpg",
@@ -306,6 +356,14 @@
     "trailer": "https://www.youtube.com/watch?v=L24CYVpQ-LI",
     "v": 2,
     "year": "2026"
+  },
+  "possession-1981": {
+    "checked": "2026-09-09",
+    "tmdb_id": 21484,
+    "tmdb_title": "Possession",
+    "trailer": "https://www.youtube.com/watch?v=Ah4Z1yIAoFM",
+    "v": 2,
+    "year": "1981"
   },
   "practical-magic-2": {
     "checked": "2026-09-09",
@@ -325,6 +383,14 @@
     "v": 2,
     "year": "2026"
   },
+  "psycho-1960": {
+    "checked": "2026-09-09",
+    "tmdb_id": 539,
+    "tmdb_title": "Psycho",
+    "trailer": "https://www.youtube.com/watch?v=zn7dBPlFkA0",
+    "v": 2,
+    "year": "1960"
+  },
   "queen-budapest": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/dCsCez4aVeXqMiALdWYp4LFsztI.jpg",
@@ -333,6 +399,14 @@
     "trailer": "https://www.youtube.com/watch?v=CnWgjtNWKXI",
     "v": 2,
     "year": "2012"
+  },
+  "queer-film-theory-101-daughters-of-darkness": {
+    "checked": "2026-09-09",
+    "tmdb_id": 46175,
+    "tmdb_title": "Daughters of Darkness",
+    "trailer": "https://www.youtube.com/watch?v=nlWScevOsVo",
+    "v": 2,
+    "year": "1971"
   },
   "queer-film-theory-101-the-birdcage": {
     "checked": "2026-09-09",
@@ -352,6 +426,14 @@
     "v": 2,
     "year": "1975"
   },
+  "repo-the-genetic-opera": {
+    "checked": "2026-09-09",
+    "tmdb_id": 14353,
+    "tmdb_title": "Repo! The Genetic Opera",
+    "trailer": "https://www.youtube.com/watch?v=LWqUDEsyMts",
+    "v": 2,
+    "year": "2008"
+  },
   "resident-evil-2026": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/qku2uWSoJ9amQV5MWo1Eek29iji.jpg",
@@ -369,6 +451,14 @@
     "trailer": "https://www.youtube.com/watch?v=4lnyW3vIGvI",
     "v": 2,
     "year": "2001"
+  },
+  "scream": {
+    "checked": "2026-09-09",
+    "tmdb_id": 4232,
+    "tmdb_title": "Scream",
+    "trailer": "https://www.youtube.com/watch?v=i3J6ACKQ7K0",
+    "v": 2,
+    "year": "1996"
   },
   "special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026": {
     "checked": "2026-09-09",
@@ -447,6 +537,14 @@
     "tmdb_id": null,
     "v": 2
   },
+  "the-craft": {
+    "checked": "2026-09-09",
+    "tmdb_id": 9100,
+    "tmdb_title": "The Craft",
+    "trailer": "https://www.youtube.com/watch?v=SxEqB--5ToI",
+    "v": 2,
+    "year": "1996"
+  },
   "the-dog-stars": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/5O616X9vmRzQdB68PHzBewPittd.jpg",
@@ -465,6 +563,14 @@
     "v": 2,
     "year": "1991"
   },
+  "the-lost-boys": {
+    "checked": "2026-09-09",
+    "tmdb_id": 1547,
+    "tmdb_title": "The Lost Boys",
+    "trailer": "https://www.youtube.com/watch?v=RbiOaaE2RGg",
+    "v": 2,
+    "year": "1987"
+  },
   "the-odyssey": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/5rhTDKUhPYvpdQIijFIs5VoWsON.jpg",
@@ -473,6 +579,14 @@
     "trailer": "https://www.youtube.com/watch?v=Mzw2ttJD2qQ",
     "v": 2,
     "year": "2026"
+  },
+  "the-texas-chainsaw-massacre-1974": {
+    "checked": "2026-09-09",
+    "tmdb_id": 30497,
+    "tmdb_title": "The Texas Chain Saw Massacre",
+    "trailer": "https://www.youtube.com/watch?v=ntirBs-Or-8",
+    "v": 2,
+    "year": "1974"
   },
   "the-twilight-saga-the-twilight-saga-new-moon-fan-screening": {
     "checked": "2026-09-09",
@@ -501,6 +615,14 @@
     "v": 2,
     "year": "2026"
   },
+  "trick-or-treat-1986": {
+    "checked": "2026-09-09",
+    "tmdb_id": 25438,
+    "tmdb_title": "Trick or Treat",
+    "trailer": "https://www.youtube.com/watch?v=PXD_xfKv7MY",
+    "v": 2,
+    "year": "1986"
+  },
   "verity": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/7ZgjGeacN0PwenoQX4DjI4FlN6Z.jpg",
@@ -509,5 +631,13 @@
     "trailer": "https://www.youtube.com/watch?v=xdPMKhjMSFs",
     "v": 2,
     "year": "2026"
+  },
+  "weird-wednesday-manos-the-hands-of-fate": {
+    "checked": "2026-09-09",
+    "tmdb_id": 22293,
+    "tmdb_title": "Manos: The Hands of Fate",
+    "trailer": "https://www.youtube.com/watch?v=sF03ZFt8t8w",
+    "v": 2,
+    "year": "1966"
   }
 }
