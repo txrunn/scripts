@@ -98,7 +98,8 @@ CSV_COLUMNS = [
 
 # Bump when the HTML template changes, so a template edit forces a rebuild even
 # though the inventory is untouched.
-TEMPLATE_VERSION = 4
+#   5: favicon
+TEMPLATE_VERSION = 5
 
 
 class FetchError(Exception):
