@@ -45,11 +45,35 @@ class SplitYearTests(unittest.TestCase):
     def test_leaves_a_plain_title_alone(self):
         self.assertEqual(build_site.split_year("Taxi Driver"), ("Taxi Driver", None))
 
-    def test_ignores_a_parenthetical_that_is_not_a_year(self):
+    def test_strips_a_presentation_format(self):
+        # Alamo lists these twice, dubbed and subtitled. TMDB has neither
+        # spelling, so both must reduce to the film.
         self.assertEqual(
-            build_site.split_year("Mean Girls (Quote-Along)"),
-            ("Mean Girls (Quote-Along)", None),
+            build_site.split_year("Princess Mononoke (Dubbed)"),
+            ("Princess Mononoke", None),
         )
+        self.assertEqual(
+            build_site.split_year("Princess Mononoke (Subtitled)"),
+            ("Princess Mononoke", None),
+        )
+
+    def test_strips_a_gimmick_suffix(self):
+        self.assertEqual(
+            build_site.split_year("Mean Girls (Quote-Along)"), ("Mean Girls", None)
+        )
+        self.assertEqual(build_site.split_year("Alien (70mm)"), ("Alien", None))
+
+    def test_strips_stacked_suffixes_and_still_finds_the_year(self):
+        self.assertEqual(
+            build_site.split_year("Akira (1988) (Dubbed)"), ("Akira", 1988)
+        )
+
+    def test_leaves_a_parenthetical_that_could_be_part_of_the_title(self):
+        # A wrong poster is worse than none, so anything that is not plainly a
+        # format stays and simply fails to match.
+        for title in ("Fallen Angels by Noel Coward (Live)",
+                      "Dismember the Alamo 2026 - DC Area"):
+            self.assertEqual(build_site.split_year(title), (title, None))
 
 
 class SearchScoringTests(unittest.TestCase):

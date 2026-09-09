@@ -61,10 +61,27 @@ NEW_DAYS = 7
 # disambiguate remakes, which is exactly when TMDB search needs the help.
 YEAR_SUFFIX = re.compile(r"^(.*?)\s*\((\d{4})\)\s*$")
 
+# How the print is being shown, not what the film is. Alamo lists Princess
+# Mononoke twice, dubbed and subtitled, and TMDB has never heard of either
+# spelling -- so these come off before the search and both cards land on the
+# same film. Deliberately only formats and presentation gimmicks: anything that
+# might be part of a real title stays, because a wrong poster is worse than
+# none. The suffix is kept on the card, which is where it matters to you.
+FORMAT_SUFFIX = re.compile(
+    r"\s*\((?:dubbed|subtitled|dub|sub|subbed|"
+    r"\d{2}mm|4k|imax|3d|"
+    r"quote-?along|sing-?along|movie\s*party)\)\s*$",
+    re.I,
+)
+
 TIER_NAME = {alamo.TIER_EVENT: "event", alamo.TIER_REGULAR: "regular",
              alamo.TIER_ADVANCE: "advance"}
 
-TEMPLATE_VERSION = 1
+# Bump to invalidate the cache when the matcher changes. Entries recorded as
+# misses under an older, worse matcher are the whole reason this exists:
+# nothing else would ever retry them.
+#   2: format suffixes stripped before searching
+TEMPLATE_VERSION = 2
 
 
 class FetchError(Exception):
@@ -131,11 +148,25 @@ def fetch(url):
 
 
 def split_year(title):
-    """"Nosferatu (1922)" -> ("Nosferatu", 1922). No suffix -> (title, None)."""
+    """Reduce an Alamo title to what TMDB would call it, plus a year hint.
+
+    "Nosferatu (1922)"        -> ("Nosferatu", 1922)
+    "Princess Mononoke (Dubbed)" -> ("Princess Mononoke", None)
+    "Taxi Driver"             -> ("Taxi Driver", None)
+
+    Format suffixes come off first and repeatedly, because Alamo stacks them
+    ("Akira (Dubbed) (35mm)"), and a year can sit behind one.
+    """
+    while True:
+        stripped = FORMAT_SUFFIX.sub("", title)
+        if stripped == title:
+            break
+        title = stripped
+
     match = YEAR_SUFFIX.match(title)
     if not match:
-        return title, None
-    return match.group(1), int(match.group(2))
+        return title.strip(), None
+    return match.group(1).strip(), int(match.group(2))
 
 
 def tmdb_search(query, year_hint, api_key):
