@@ -391,6 +391,22 @@ def group_key(slug, title, cache):
     return "title:%s" % split_year(title)[0].lower()
 
 
+def build_stamp():
+    """When this page was built, in the cinema's clock where we can get it.
+
+    The runner is UTC and the cinema is not, and "checked 07:47" is misleading
+    if you are standing in DC. zoneinfo needs the tzdata the runner has and a
+    bare Windows checkout does not, so it falls back to UTC and says which.
+    """
+    try:
+        from zoneinfo import ZoneInfo
+        now = dt.datetime.now(ZoneInfo("America/New_York"))
+    except Exception:
+        now = dt.datetime.now(dt.timezone.utc)
+    zone = now.strftime("%Z") or "UTC"
+    return f"{now.day} {now:%b}, {clock(now)} {zone}"
+
+
 def baseline_date(ledger):
     """The day the ledger was seeded, which is not a day anything was added.
 
@@ -586,6 +602,10 @@ a { color: inherit; }
   width: 112px; height: 112px;
 }
 h1 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
+.stamp {
+  margin-left: auto; font-size: 12px; font-weight: 500; opacity: 0.7;
+  white-space: nowrap;
+}
 header { margin-bottom: 30px; }
 .standfirst {
   margin: 12px 0 0; font-size: 25px; font-weight: 400; line-height: 1.25;
@@ -665,8 +685,9 @@ footer {
 @media (max-width: 640px) {
   .wrap { padding: 24px 16px 60px; }
   .standfirst { font-size: 22px; }
-  .bar-in { padding: 12px 16px; gap: 12px; }
+  .bar-in { padding: 12px 16px; gap: 12px; flex-wrap: wrap; }
   h1 { font-size: 17px; }
+  .stamp { margin-left: 0; flex-basis: 100%; font-size: 11px; }
   .logo { width: 62px; height: 25px; }
   .logo img { width: 87px; height: 87px; }
   .batch { grid-template-columns: 1fr; gap: 14px; padding: 20px 0; }
@@ -686,6 +707,7 @@ footer {
   <div class="bar-in">
     <span class="logo"><img src="$logo" alt="Alamo Drafthouse"></span>
     <h1>$masthead</h1>
+    <div class="stamp">Checked $stamp</div>
   </div>
 </div>
 
@@ -843,9 +865,8 @@ def render_html(added, soon, title, label, market, missing, has_key, since=None)
         standfirst = "Nothing new, and nothing one-off on the schedule ahead."
 
     notes = [
-        f"Checked every morning; last run {dt.date.today():%d %B %Y}. A film earns a"
-        " place here by being newly on sale or by screening only once — a wide release"
-        " playing all month is neither.",
+        "Checked every morning. A film earns a place here by being newly on sale or"
+        " by screening only once — a wide release playing all month is neither.",
         f'For everything currently showing, <a href="{calendar}" rel="noopener">Alamo\'s'
         " own calendar</a> is the place.",
     ]
@@ -867,11 +888,16 @@ def render_html(added, soon, title, label, market, missing, has_key, since=None)
         " Drafthouse; their name and mark are theirs."
     )
 
+    # The tab is the only part of this you see without opening it, so it carries
+    # the one fact that decides whether to: did anything land today. No number
+    # means nothing did.
+    today_count = sum(len(b["films"]) for b in added if b["label"] == "Today")
+    tab = f"{today_count} new today · {title}" if today_count else title
+
     return PAGE.substitute(
-        # The tab needs to stand on its own in a bookmark list; the masthead has
-        # the logo beside it and does not need to say Alamo twice.
-        page_title=html.escape(f"{title} · Alamo Drafthouse"),
+        page_title=html.escape(f"{tab} · Alamo Drafthouse"),
         masthead=html.escape(title),
+        stamp=html.escape(build_stamp()),
         logo=LOGO,
         standfirst=standfirst,
         footer=" ".join(notes),
