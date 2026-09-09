@@ -856,10 +856,15 @@ render();
 """)
 
 
-def render_html(added, soon, title, label, market, missing, has_key, since=None):
+def render_html(added, soon, title, label, market, has_key, since=None):
     """Build the page. Data is injected as JSON and rendered client-side."""
     new_count = sum(len(b["films"]) for b in added)
     soon_count = len(soon)
+    # Counted over the films actually on the page, not the whole slate: "5 of
+    # these" has to mean five of the ones you can see. A film that matched TMDB
+    # but has no trailer counts too -- a missing link is a missing link.
+    on_page = [f for b in added for f in b["films"]] + list(soon)
+    no_trailer = sum(1 for f in on_page if not f["trailer"])
     calendar = f"https://drafthouse.com/{market}?showCalendar=true"
 
     started = ""
@@ -885,8 +890,8 @@ def render_html(added, soon, title, label, market, missing, has_key, since=None)
     if has_key:
         notes.append(
             'Trailers from <a href="https://www.themoviedb.org/" rel="noopener">TMDB</a>'
-            + (f", which had no match for {len(missing)} of these — usually a festival,"
-               " a livestream or a one-off." if missing else ".")
+            + (f"; {no_trailer} of the {len(on_page)} films here have none, usually"
+               " a festival, a livestream or a one-off." if no_trailer else ".")
         )
     else:
         notes.append("No TMDB key was set for this build, so there are no trailer links.")
@@ -1069,7 +1074,7 @@ def main(argv=None):
                      posters=posters_by_slug(presentations))
     added = added_batches(cards)
     soon = upcoming_batches(cards)
-    page = render_html(added, soon, args.title, label, args.market, missing,
+    page = render_html(added, soon, args.title, label, args.market,
                        has_key=bool(api_key), since=baseline_date(ledger))
 
     out_dir = os.path.expanduser(args.out_dir)

@@ -431,7 +431,7 @@ class RenderTests(unittest.TestCase):
         cards = build_site.assemble(films, ledger, {}, "m", today=dt.date(2026, 9, 10))
         added = build_site.added_batches(cards, today=dt.date(2026, 9, 10))
         soon = build_site.upcoming_batches(cards, today=dt.date(2026, 9, 10))
-        opts = {"missing": [], "has_key": True, "since": "2026-08-01"}
+        opts = {"has_key": True, "since": "2026-08-01"}
         opts.update(kw)
         return build_site.render_html(added, soon, "T", "Bryant", "m", **opts)
 
@@ -459,7 +459,7 @@ class RenderTests(unittest.TestCase):
         ledger = {"a": {"first_seen": "2026-09-09"}, "_s": {"first_seen": "2026-08-01"}}
         cards = build_site.assemble(films, ledger, {}, "m", today=dt.date(2026, 9, 10))
         page = build_site.render_html(build_site.added_batches(cards), [], "T", "L", "m",
-                                      [], has_key=True)
+                                      has_key=True)
         self.assertNotIn("</script><img", page)
 
     def test_declares_utf8_and_a_viewport(self):
