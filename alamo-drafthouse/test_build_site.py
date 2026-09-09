@@ -162,8 +162,10 @@ class EnrichTests(unittest.TestCase):
             looked_up, missing = build_site.enrich(films, cache, "k", verbose=False)
         self.assertEqual((looked_up, missing), (1, []))
         self.assertEqual(cache["taxi-driver"]["tmdb_id"], 103)
-        self.assertTrue(cache["taxi-driver"]["poster"].endswith("/abc.jpg"))
         self.assertTrue(cache["taxi-driver"]["trailer"].endswith("xyz"))
+        # Posters are Alamo's; TMDB is here for the trailer and the id that
+        # joins two bookings of one film.
+        self.assertNotIn("poster", cache["taxi-driver"])
 
     def test_a_cache_hit_makes_no_request(self):
         films = {"taxi-driver": film("Taxi Driver")}
@@ -247,105 +249,217 @@ class EnrichTests(unittest.TestCase):
         self.assertEqual((looked_up, missing), (0, ["Taxi Driver"]))
 
 
+class PosterTests(unittest.TestCase):
+    """Artwork comes from Alamo, which has one for every booking including the
+    festivals and livestreams a film database has never heard of."""
+
+    SHOW = {"posterImages": [{"uri": "https://img/x.jpg?auto=compress&h=1620&w=1080"}],
+            "portraitHeroImage": {"uri": "https://img/hero.jpg?w=900&h=1200"}}
+
+    def test_prefers_the_poster_and_resizes_it(self):
+        url = build_site.poster_for(self.SHOW)
+        self.assertIn("w=%d" % build_site.POSTER_W, url)
+        self.assertIn("h=%d" % build_site.POSTER_H, url)
+        self.assertNotIn("w=1080", url)
+
+    def test_falls_back_to_the_portrait_hero(self):
+        url = build_site.poster_for({"portraitHeroImage": self.SHOW["portraitHeroImage"]})
+        self.assertIn("hero.jpg", url)
+
+    def test_no_art_is_none_not_a_crash(self):
+        self.assertIsNone(build_site.poster_for({}))
+        self.assertIsNone(build_site.poster_for({"posterImages": []}))
+
+    def test_maps_by_slug(self):
+        out = build_site.posters_by_slug([{"slug": "a", "show": self.SHOW}, {"slug": "b"}])
+        self.assertEqual(list(out), ["a"])
+
+
 class AssembleTests(unittest.TestCase):
     TODAY = dt.date(2026, 9, 10)
+    SEED = "2026-08-01"
 
-    def _cards(self, ledger):
-        films = {"a": film("Taxi Driver", alamo.TIER_EVENT, "Film Club")}
-        return build_site.assemble(films, ledger, {}, "dc-metro-area", today=self.TODAY)
+    def _cards(self, ledger, films=None, cache=None, posters=None):
+        films = films or {"a": film("Taxi Driver", alamo.TIER_EVENT, "Film Club")}
+        ledger = dict(ledger)
+        ledger.setdefault("_seed", {"first_seen": self.SEED})
+        return build_site.assemble(films, ledger, cache or {}, "m",
+                                   posters=posters, today=self.TODAY)
 
-    def test_recent_first_seen_is_badged_new(self):
-        cards = self._cards({"a": {"first_seen": "2026-09-08"}})
-        self.assertTrue(cards[0]["new"])
+    def test_a_later_arrival_is_fresh(self):
+        self.assertTrue(self._cards({"a": {"first_seen": "2026-09-09"}})[0]["fresh"])
 
-    def test_an_old_first_seen_is_not(self):
-        cards = self._cards({"a": {"first_seen": "2026-08-01"}})
-        self.assertFalse(cards[0]["new"])
+    def test_the_seed_batch_is_not_fresh(self):
+        # Those films were simply playing the day tracking started.
+        self.assertFalse(self._cards({"a": {"first_seen": self.SEED}})[0]["fresh"])
 
-    def test_the_boundary_is_exclusive(self):
-        # Exactly NEW_DAYS old has had its week; the badge is for this week.
-        edge = (self.TODAY - dt.timedelta(days=build_site.NEW_DAYS)).isoformat()
-        self.assertFalse(self._cards({"a": {"first_seen": edge}})[0]["new"])
-        newer = (self.TODAY - dt.timedelta(days=build_site.NEW_DAYS - 1)).isoformat()
-        self.assertTrue(self._cards({"a": {"first_seen": newer}})[0]["new"])
+    def test_a_film_absent_from_the_ledger_is_not_fresh(self):
+        self.assertFalse(self._cards({})[0]["fresh"])
 
-    def test_a_film_missing_from_the_ledger_is_not_new(self):
-        self.assertFalse(self._cards({})[0]["new"])
+    def test_a_single_screening_is_a_oneoff(self):
+        cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR)})
+        self.assertTrue(cards[0]["oneoff"])
 
-    def test_a_corrupt_date_does_not_crash_the_build(self):
-        self.assertFalse(self._cards({"a": {"first_seen": "not-a-date"}})[0]["new"])
+    def test_a_long_run_is_not_a_oneoff(self):
+        # The Spider-Man case: a wide release playing all month is not something
+        # you can miss, and it is why the page is not just the schedule.
+        cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR,
+                                                 hours=list(range(0, 200, 24)), count=20)})
+        self.assertFalse(cards[0]["oneoff"])
 
-    def test_tier_and_series_survive(self):
-        card = self._cards({})[0]
-        self.assertEqual(card["tier"], "event")
-        self.assertEqual(card["label"], "Film Club")
-        self.assertTrue(card["url"].endswith("/show/a"))
+    def test_a_special_event_is_a_oneoff_even_with_several_showings(self):
+        cards = self._cards({}, films={"a": film("X", alamo.TIER_EVENT, hours=[0, 24],
+                                                 count=2)})
+        self.assertTrue(cards[0]["oneoff"])
 
-    def test_a_run_gets_a_span_and_a_single_date_gets_a_time(self):
-        one = build_site.assemble({"a": film("X")}, {}, {}, "m", today=self.TODAY)
-        self.assertIn(":", one[0]["when"])
-        many = build_site.assemble({"a": film("X", hours=[0, 24, 48])}, {}, {}, "m",
-                                   today=self.TODAY)
-        self.assertIn("–", many[0]["when"])
-        self.assertNotIn(":", many[0]["when"])
+    def test_the_showing_carries_a_date_and_a_time(self):
+        sh = self._cards({})[0]["showings"][0]
+        self.assertEqual((sh["date"], sh["time"]), ("Thu 10 Sep", "8:00 PM"))
+        self.assertIsNone(sh["run"])
+
+    def test_a_run_says_where_it_ends(self):
+        cards = self._cards({}, films={"a": film("X", hours=[0, 24, 48])})
+        self.assertEqual(cards[0]["showings"][0]["run"], "12 Sep")
+
+    def test_midnight_and_noon_read_correctly(self):
+        self.assertEqual(build_site.clock(dt.datetime(2026, 9, 10, 0, 5)), "12:05 AM")
+        self.assertEqual(build_site.clock(dt.datetime(2026, 9, 10, 12, 0)), "12:00 PM")
+
+    def test_the_poster_comes_from_the_map(self):
+        cards = self._cards({}, posters={"a": "https://img/x.jpg"})
+        self.assertEqual(cards[0]["poster"], "https://img/x.jpg")
 
 
-class TimelineTests(unittest.TestCase):
-    LEDGER = {
-        "a": {"title": "Taxi Driver", "first_seen": "2026-09-08"},
-        "b": {"title": "Amadeus", "first_seen": "2026-09-08"},
-        "c": {"title": "Network", "first_seen": "2026-08-27"},
-        "d": {"title": "No date"},
-    }
+class GroupingTests(unittest.TestCase):
+    """Alamo books one film more than once; the page must not read as a bug."""
 
-    def test_groups_by_day_newest_first(self):
-        days = build_site.timeline(self.LEDGER, "m")
-        self.assertEqual([d["date"] for d in days], ["2026-09-08", "2026-08-27"])
-        self.assertEqual([f["title"] for f in days[0]["films"]], ["Amadeus", "Taxi Driver"])
+    TODAY = dt.date(2026, 9, 10)
 
-    def test_entries_without_a_date_are_dropped(self):
-        titles = [f["title"] for d in build_site.timeline(self.LEDGER, "m") for f in d["films"]]
-        self.assertNotIn("No date", titles)
+    def _cards(self, films, cache=None, ledger=None):
+        ledger = ledger or {s: {"first_seen": "2026-09-09"} for s in films}
+        ledger.setdefault("_seed", {"first_seen": "2026-08-01"})
+        return build_site.assemble(films, ledger, cache or {}, "m", today=self.TODAY)
 
-    def test_limit_caps_the_days(self):
-        self.assertEqual(len(build_site.timeline(self.LEDGER, "m", limit=1)), 1)
+    def test_dubbed_and_subtitled_become_one_card(self):
+        films = {"pm-dub": film("Princess Mononoke (Dubbed)", alamo.TIER_EVENT,
+                                "Special event"),
+                 "pm-sub": film("Princess Mononoke (Subtitled)", alamo.TIER_EVENT,
+                                "Special event", hours=[48])}
+        cards = self._cards(films)
+        self.assertEqual(len(cards), 1)
+        self.assertEqual(cards[0]["title"], "Princess Mononoke")
+        self.assertEqual([sh["note"] for sh in cards[0]["showings"]],
+                         ["Dubbed", "Subtitled"])
 
-    def test_an_empty_ledger_is_empty_not_an_error(self):
-        self.assertEqual(build_site.timeline({}, "m"), [])
+    def test_tmdb_id_joins_bookings_the_title_would_not(self):
+        films = {"a": film("Forgotten Island"),
+                 "b": film("Forgotten Island", label="Family Parties", hours=[48])}
+        cache = {"a": {"tmdb_id": 7}, "b": {"tmdb_id": 7}}
+        cards = self._cards(films, cache)
+        self.assertEqual(len(cards), 1)
+        self.assertEqual([sh["note"] for sh in cards[0]["showings"]],
+                         [None, "Family Parties"])
+
+    def test_different_films_stay_apart(self):
+        films = {"a": film("Taxi Driver"), "b": film("Amadeus")}
+        self.assertEqual(len(self._cards(films)), 2)
+
+    def test_showings_are_ordered_soonest_first(self):
+        films = {"a": film("X (Late)", hours=[48]), "b": film("X (Early)", hours=[0])}
+        cards = self._cards(films, {"a": {"tmdb_id": 3}, "b": {"tmdb_id": 3}})
+        dates = [sh["date"] for sh in cards[0]["showings"]]
+        self.assertEqual(dates, sorted(dates, key=lambda d: d.split()[1]))
+
+
+class BatchTests(unittest.TestCase):
+    TODAY = dt.date(2026, 9, 10)
+
+    def _cards(self, ledger, films):
+        ledger = dict(ledger)
+        ledger.setdefault("_seed", {"first_seen": "2026-08-01"})
+        return build_site.assemble(films, ledger, {}, "m", today=self.TODAY)
+
+    def test_added_batches_run_newest_first(self):
+        films = {"a": film("A"), "b": film("B"), "c": film("C")}
+        cards = self._cards({"a": {"first_seen": "2026-09-08"},
+                             "b": {"first_seen": "2026-09-10"},
+                             "c": {"first_seen": "2026-09-09"}}, films)
+        out = build_site.added_batches(cards, today=self.TODAY)
+        self.assertEqual([b["label"] for b in out], ["Today", "Yesterday", "Tue 8 Sep"])
+
+    def test_the_seed_batch_never_appears(self):
+        films = {"a": film("A")}
+        cards = self._cards({"a": {"first_seen": "2026-08-01"}}, films)
+        self.assertEqual(build_site.added_batches(cards, today=self.TODAY), [])
+
+    def test_upcoming_holds_oneoffs_soonest_first(self):
+        films = {"a": film("A", hours=[24]), "b": film("B", hours=[0])}
+        cards = self._cards({}, films)
+        out = build_site.upcoming_batches(cards, today=self.TODAY)
+        self.assertEqual([c["title"] for c in out], ["B", "A"])
+
+    def test_upcoming_skips_anything_already_listed_as_new(self):
+        # Same film in both sections would be the page saying it twice.
+        films = {"a": film("A")}
+        cards = self._cards({"a": {"first_seen": "2026-09-10"}}, films)
+        self.assertEqual(len(build_site.added_batches(cards, today=self.TODAY)), 1)
+        self.assertEqual(build_site.upcoming_batches(cards, today=self.TODAY), [])
+
+    def test_upcoming_skips_long_runs(self):
+        films = {"a": film("A", hours=list(range(0, 200, 24)), count=20)}
+        cards = self._cards({}, films)
+        self.assertEqual(build_site.upcoming_batches(cards, today=self.TODAY), [])
+
+    def test_upcoming_respects_the_horizon(self):
+        films = {"a": film("A", hours=[24 * 400])}
+        cards = self._cards({}, films)
+        self.assertEqual(build_site.upcoming_batches(cards, today=self.TODAY), [])
+
+    def test_every_upcoming_card_carries_its_own_date(self):
+        # This section is a flat run, so the date has to live on the card --
+        # that is exactly why it is not grouped by day.
+        films = {"a": film("A", hours=[0]), "b": film("B", hours=[24])}
+        out = build_site.upcoming_batches(self._cards({}, films), today=self.TODAY)
+        self.assertEqual([c["showings"][0]["date"] for c in out],
+                         ["Thu 10 Sep", "Fri 11 Sep"])
 
 
 class RenderTests(unittest.TestCase):
     def _page(self, **kw):
+        ledger = {"a": {"first_seen": "2026-09-09"}, "_seed": {"first_seen": "2026-08-01"}}
         films = {"a": film("Taxi Driver", alamo.TIER_EVENT, "Film Club")}
-        cards = build_site.assemble(films, {}, {}, "dc-metro-area")
-        days = build_site.timeline({"a": {"title": "Taxi Driver",
-                                          "first_seen": "2026-09-08"}}, "dc-metro-area")
-        opts = {"missing": [], "has_key": True}
+        cards = build_site.assemble(films, ledger, {}, "m", today=dt.date(2026, 9, 10))
+        added = build_site.added_batches(cards, today=dt.date(2026, 9, 10))
+        soon = build_site.upcoming_batches(cards, today=dt.date(2026, 9, 10))
+        opts = {"missing": [], "has_key": True, "since": "2026-08-01"}
         opts.update(kw)
-        return build_site.render_html(cards, days, "T", "Bryant", "dc-metro-area", **opts)
+        return build_site.render_html(added, soon, "T", "Bryant", "m", **opts)
 
     def test_no_unsubstituted_placeholders(self):
         self.assertNotRegex(self._page(), r"\$\{?[a-z_]+\}?")
 
-    def test_the_embedded_payloads_are_valid_json(self):
+    def test_both_payloads_are_valid_json(self):
         page = self._page()
-        data = json.loads(re.search(r"^const DATA = (.*);$", page, re.M).group(1))
-        tl = json.loads(re.search(r"^const TIMELINE = (.*);$", page, re.M).group(1))
-        self.assertEqual(data[0]["title"], "Taxi Driver")
-        self.assertEqual(tl[0]["date"], "2026-09-08")
+        added = json.loads(re.search(r"^const ADDED = (.*);$", page, re.M).group(1))
+        soon = json.loads(re.search(r"^const SOON = (.*);$", page, re.M).group(1))
+        self.assertEqual(added[0]["films"][0]["title"], "Taxi Driver")
+        self.assertEqual(soon, [])
 
-    def test_a_missing_key_is_said_out_loud(self):
-        # A page that quietly lost its artwork must not look like one that
-        # never had any.
-        self.assertIn("no posters", self._page(has_key=False))
+    def test_says_where_the_full_schedule_lives(self):
+        # The page is deliberately not the schedule, so it must point at it.
+        self.assertIn("showCalendar=true", self._page())
 
-    def test_unmatched_titles_are_explained(self):
-        self.assertIn("no TMDB match", self._page(missing=["CatVideoFest 2026"]))
+    def test_a_missing_key_only_costs_trailers(self):
+        page = self._page(has_key=False)
+        self.assertIn("no trailer links", page)
+        self.assertIn("Artwork is Alamo's own", page)
 
     def test_a_hostile_title_cannot_break_out_of_the_page(self):
         films = {"a": film('</script><img src=x onerror=alert(1)>')}
-        cards = build_site.assemble(films, {}, {}, "m")
-        page = build_site.render_html(cards, [], "T", "L", "m", [], has_key=True)
+        ledger = {"a": {"first_seen": "2026-09-09"}, "_s": {"first_seen": "2026-08-01"}}
+        cards = build_site.assemble(films, ledger, {}, "m", today=dt.date(2026, 9, 10))
+        page = build_site.render_html(build_site.added_batches(cards), [], "T", "L", "m",
+                                      [], has_key=True)
         self.assertNotIn("</script><img", page)
 
     def test_declares_utf8_and_a_viewport(self):

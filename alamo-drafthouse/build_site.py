@@ -43,8 +43,16 @@ DEFAULT_CACHE = os.path.join(SCRIPT_DIR, "cache", "metadata.json")
 DEFAULT_OUT_DIR = os.path.join(SCRIPT_DIR, "site")
 
 TMDB_API = "https://api.themoviedb.org/3"
-TMDB_IMAGE = "https://image.tmdb.org/t/p/w342"
 YOUTUBE_WATCH = "https://www.youtube.com/watch?v={key}"
+
+# Alamo serves its own key art through imgix, so the size is ours to ask for.
+# The originals are ~470KB at 1080 wide, which is absurd for a 136px card.
+POSTER_W, POSTER_H = 340, 510
+
+# Alamo's mark, used to make an unofficial page about Alamo look like it is
+# about Alamo. The footer says plainly that this is not their site.
+LOGO = ("https://images.squarespace-cdn.com/content/v1/67c8ca97b8e01f608e7e617a/"
+        "05efa451-5164-47c8-b1bb-89ede4bd5190/alamo_logos+%281%29.png")
 
 USER_AGENT = alamo.USER_AGENT
 TIMEOUT = 20
@@ -145,6 +153,36 @@ def fetch(url):
         return json.loads(raw.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise SchemaError(f"response from {_redact(url)} is not JSON: {exc}") from exc
+
+
+def poster_for(show):
+    """Alamo's own poster for a show, sized for a card.
+
+    Their art beats a film database's for this page: it is the key art for the
+    booking you are actually being sold -- the Quote-Along artwork, the festival
+    poster -- and every presentation has one, including the festivals and
+    livestreams TMDB has never heard of.
+    """
+    images = show.get("posterImages") or []
+    uri = (images[0] or {}).get("uri") if images else None
+    if not uri:
+        uri = (show.get("portraitHeroImage") or {}).get("uri")
+    if not uri:
+        return None
+    uri = re.sub(r"([?&])w=\d+", r"\g<1>w=%d" % POSTER_W, uri)
+    uri = re.sub(r"([?&])h=\d+", r"\g<1>h=%d" % POSTER_H, uri)
+    return uri
+
+
+def posters_by_slug(presentations):
+    """slug -> poster URL, for every presentation that has one."""
+    out = {}
+    for presentation in presentations:
+        slug = presentation.get("slug")
+        art = poster_for(presentation.get("show") or {})
+        if slug and art:
+            out[slug] = art
+    return out
 
 
 def split_year(title):
@@ -254,7 +292,11 @@ def trailer_from(payload):
 
 
 def enrich(films, cache, api_key, refresh_all=False, verbose=True):
-    """Attach poster/trailer/year to each film, filling the cache as it goes.
+    """Look up trailers, filling the cache as it goes.
+
+    Posters come from Alamo. TMDB is here for the trailer, and for the id that
+    tells two bookings of one film apart -- though the title fallback handles
+    that too, so a build with no key loses only the trailer links.
 
     Returns (looked_up, missing). A film TMDB cannot place is recorded as a miss
     so tomorrow's run does not ask again -- Alamo's one-off events are never
@@ -294,13 +336,11 @@ def enrich(films, cache, api_key, refresh_all=False, verbose=True):
             missing.append(film["title"])
             continue
 
-        poster = details.get("poster_path")
         cache[slug] = {
             "v": TEMPLATE_VERSION,
             "tmdb_id": details["id"],
             "tmdb_title": details.get("title"),
             "year": (details.get("release_date") or "")[:4] or None,
-            "poster": (TMDB_IMAGE + poster) if poster else None,
             "trailer": trailer_from(details),
             "checked": dt.date.today().isoformat(),
         }
@@ -312,75 +352,186 @@ def enrich(films, cache, api_key, refresh_all=False, verbose=True):
 # --- Assembly ----------------------------------------------------------------
 
 
-def format_when(film):
-    """A single date keeps its clock time; a run gets its span and no time.
+def clock(when):
+    """"4:00 PM". strftime %-I is not portable, so build it by hand."""
+    hour = when.hour % 12 or 12
+    return f"{hour}:{when.minute:02d} {'AM' if when.hour < 12 else 'PM'}"
 
-    Quoting one showtime's hour next to a date range implies every screening is
-    at that hour, which for a two-week run is simply false.
+
+def screening_days(film):
+    """The distinct calendar days this film has an upcoming showtime on."""
+    return sorted({s.date() for s in film.get("showtimes") or [film["first_showtime"]]})
+
+
+def variant_note(title, base, label):
+    """What tells one booking of a film apart from another.
+
+    "Princess Mononoke (Dubbed)" against the base title gives "Dubbed"; where
+    the titles match, the series does it ("Family Parties"). None when only the
+    date separates them, which the date already says.
     """
-    days = sorted({s.date() for s in film.get("showtimes") or [film["first_showtime"]]})
-    if len(days) == 1:
-        return alamo.format_showtime(film["first_showtime"])
-    first, last = days[0], days[-1]
-    return f"{first:%a %b} {first.day} – {last:%a %b} {last.day}"
+    if title.lower().startswith(base.lower()) and len(title) > len(base):
+        extra = title[len(base):].strip().strip("()").strip()
+        if extra:
+            return extra
+    return label or None
 
 
-def assemble(films, ledger, cache, market, today=None):
-    """Turn the slate into the JSON the page renders from."""
+def group_key(slug, title, cache):
+    """Identity of the film behind a booking.
+
+    Alamo books the same film more than once -- dubbed and subtitled, a Family
+    Party and a normal run -- each under its own slug. TMDB's id is the reliable
+    join because the suffix stripping already collapses the spellings; the
+    stripped title is the fallback for the one-offs TMDB has never heard of.
+    """
+    entry = cache.get(slug) or {}
+    if entry.get("tmdb_id"):
+        return "tmdb:%s" % entry["tmdb_id"]
+    return "title:%s" % split_year(title)[0].lower()
+
+
+def baseline_date(ledger):
+    """The day the ledger was seeded, which is not a day anything was added.
+
+    The tracker's first run records the whole slate at once and reports none of
+    it -- those films were simply playing when tracking started. Without this
+    the page opens with 42 films that are not news, which is the opposite of
+    what it is for.
+    """
+    dates = [e.get("first_seen") for e in ledger.values() if e.get("first_seen")]
+    return min(dates) if dates else None
+
+
+def assemble(films, ledger, cache, market, posters=None, today=None):
+    """One card per film, carrying every booking of it.
+
+    A film Alamo listed twice -- dubbed and subtitled, or a Family Party
+    alongside a normal run -- is one entry offering both dates, not two entries
+    that look like a bug.
+
+    Nothing is filtered here. Each card is marked `fresh` (the tracker saw it
+    appear) and `oneoff` (it screens once, or it is a programmed special), and
+    the two sections of the page choose from those.
+    """
     today = today or dt.date.today()
-    cutoff = today - dt.timedelta(days=NEW_DAYS)
+    seeded = baseline_date(ledger)
+    posters = posters or {}
 
-    cards = []
+    bookings = {}
     for slug, film in films.items():
-        meta = cache.get(slug) or {}
         seen = (ledger.get(slug) or {}).get("first_seen")
-        is_new = False
-        if seen:
-            try:
-                is_new = dt.date.fromisoformat(seen) > cutoff
-            except ValueError:
-                is_new = False
-        cards.append({
+        meta = cache.get(slug) or {}
+        first = film["first_showtime"]
+        days = screening_days(film)
+        last = days[-1]
+        bookings.setdefault(group_key(slug, film["title"], cache), []).append({
             "slug": slug,
-            "title": film["title"],
+            "raw_title": film["title"],
+            "base": split_year(film["title"])[0],
             "url": alamo.SHOW_URL.format(market=market, slug=slug),
             "tier": TIER_NAME[film.get("tier", alamo.TIER_REGULAR)],
             "label": film.get("label"),
-            "when": format_when(film),
+            "first": first,
+            "run": None if len(days) == 1 else f"{last.day} {last:%b}",
             "shows": film["session_count"],
-            "sort": film["first_showtime"].isoformat(),
-            "poster": meta.get("poster"),
+            "poster": posters.get(slug),
             "trailer": meta.get("trailer"),
             "year": meta.get("year"),
             "seen": seen,
-            "new": is_new,
         })
 
-    cards.sort(key=lambda c: (c["sort"], c["title"]))
+    cards = []
+    for gkey, group in bookings.items():
+        group.sort(key=lambda b: b["first"])
+        lead = group[0]
+        shared = len(group) > 1
+        name = min((b["base"] for b in group), key=len) if shared else lead["raw_title"]
+        stamps = [b["seen"] for b in group if b["seen"]]
+        added = min(stamps) if stamps else None
+
+        showings = []
+        for b in group:
+            showings.append({
+                "url": b["url"],
+                "note": variant_note(b["raw_title"], name, b["label"]) if shared else None,
+                "date": f"{b['first']:%a} {b['first'].day} {b['first']:%b}",
+                "time": clock(b["first"]),
+                "run": b["run"],
+                "shows": b["shows"],
+            })
+
+        total = sum(sh["shows"] for sh in showings)
+        cards.append({
+            "gkey": gkey,
+            "title": name,
+            "url": lead["url"],
+            "tier": lead["tier"],
+            "label": None if shared else lead["label"],
+            "added": added,
+            # The seed batch is not an arrival: those films were simply playing
+            # the day tracking started.
+            "fresh": bool(added) and added != seeded,
+            # What sells out. A single screening is the plain case; a programmed
+            # special is one too even when it runs dubbed and subtitled.
+            "oneoff": total == 1 or lead["tier"] == "event",
+            "showings": showings,
+            "day": lead["first"].date().isoformat(),
+            "sort": lead["first"].isoformat(),
+            "poster": lead["poster"],
+            "trailer": lead["trailer"],
+            "year": lead["year"],
+        })
+
+    cards.sort(key=lambda c: c["sort"])
     return cards
 
 
-def timeline(ledger, market, limit=40):
-    """Recent arrivals grouped by the day they first showed up.
-
-    Reads the committed ledger rather than the slate, so it remembers films that
-    have since finished their run -- that history is the reason the ledger is in
-    the repo at all.
-    """
-    by_date = {}
-    for slug, entry in ledger.items():
-        date = entry.get("first_seen")
-        if not date:
+def added_batches(cards, today=None):
+    """Newly-added films grouped into the mornings they arrived, newest first."""
+    today = today or dt.date.today()
+    groups = {}
+    for card in cards:
+        if not card["fresh"]:
             continue
-        by_date.setdefault(date, []).append({
-            "title": entry.get("title") or slug,
-            "url": alamo.SHOW_URL.format(market=market, slug=slug),
-        })
+        groups.setdefault(card["added"], []).append(card)
 
-    days = []
-    for date in sorted(by_date, reverse=True)[:limit]:
-        days.append({"date": date, "films": sorted(by_date[date], key=lambda f: f["title"])})
-    return days
+    out = []
+    for date in sorted(groups, reverse=True):
+        when = dt.date.fromisoformat(date)
+        delta = (today - when).days
+        if delta == 0:
+            label, sub = "Today", ""
+        elif delta == 1:
+            label, sub = "Yesterday", f"{when:%a} {when.day} {when:%b}"
+        else:
+            label, sub = f"{when:%a} {when.day} {when:%b}", f"{delta} days ago"
+        out.append({"label": label, "sub": sub, "films": groups[date]})
+    return out
+
+
+def upcoming_batches(cards, today=None, weeks=10):
+    """One-off screenings ahead, soonest first.
+
+    Skips anything already listed as newly added -- it is the same film and the
+    page would be telling you twice. Long runs never qualify: a wide release
+    playing for a month is not something you can miss.
+    """
+    today = today or dt.date.today()
+    horizon = today + dt.timedelta(weeks=weeks)
+
+    out = []
+    for card in cards:
+        if card["fresh"] or not card["oneoff"]:
+            continue
+        if dt.date.fromisoformat(card["day"]) > horizon:
+            continue
+        out.append(card)
+
+    # A flat run rather than a day spine: each card already prints its own date,
+    # so grouping by day would say it twice and stretch 29 films down 20 rows.
+    out.sort(key=lambda c: c["sort"])
+    return out
 
 
 # --- Page --------------------------------------------------------------------
@@ -392,160 +543,204 @@ PAGE = string.Template("""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>$page_title</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap"
+      rel="stylesheet">
 <style>
+/* Alamo's own values, lifted from drafthouse.com: black #090909, the yellow
+   #f5b324 they put on everything you are meant to press, #333 rules. Dark only,
+   because the brand is dark and a light variant would be someone else's page.
+   Jost stands in for Futura PT, which Alamo licenses and we cannot. */
 :root {
-  color-scheme: light dark;
-  --bg: #f6f5f3; --panel: #ffffff; --ink: #16150f; --muted: #6d6a61;
-  --line: #e2ded6; --accent: #b4441f; --chip: #efece6;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #131211; --panel: #1c1b19; --ink: #ece9e2; --muted: #97928a;
-    --line: #2c2a27; --accent: #e0713f; --chip: #262421;
-  }
+  color-scheme: dark;
+  --paper: #090909; --sunk: #1a1a1a; --ink: #f2f2f2;
+  --soft: #a3a3a3; --rule: #333333; --brand: #f5b324;
 }
 * { box-sizing: border-box; }
 body {
-  margin: 0; background: var(--bg); color: var(--ink);
-  font: 15px/1.5 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 15px/1.45 Jost, "Futura", "Century Gothic", Avenir, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-.wrap { max-width: 1180px; margin: 0 auto; padding: 40px 20px 80px; }
-header { border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 26px; }
-h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
-.sub { color: var(--muted); font-size: 14px; }
-.sub a { color: var(--accent); }
-.controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 8px; }
-input[type=search] {
-  font: inherit; padding: 9px 12px; border: 1px solid var(--line);
-  border-radius: 8px; background: var(--panel); color: var(--ink);
-  flex: 1 1 260px; min-width: 0;
+.wrap { max-width: 1040px; margin: 0 auto; padding: 34px 22px 90px; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* Alamo put yellow on the things you are meant to press; a solid band of it is
+   the most Alamo the page can be in one element. It also means the mark needs
+   no treatment: the source art is black, which is what it wants to be here. */
+.bar { background: var(--brand); color: #090909; }
+.bar-in {
+  max-width: 1040px; margin: 0 auto; padding: 15px 22px;
+  display: flex; align-items: center; gap: 16px;
 }
+/* 1496x600 of logo centred in a mostly transparent 2100 square. Scaled 3.5x
+   (2100/600) behind a window of its own 2.49:1 so the padding does not become
+   two thirds of the masthead. */
+.logo {
+  position: relative; flex: none; width: 80px; height: 32px; overflow: hidden;
+}
+.logo img {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 112px; height: 112px;
+}
+h1 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
+.venue {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.18em;
+  text-transform: uppercase; opacity: 0.72; margin-top: 1px;
+}
+header { margin-bottom: 30px; }
+.standfirst {
+  margin: 12px 0 0; font-size: 25px; font-weight: 400; line-height: 1.25;
+  letter-spacing: -0.02em; max-width: 34ch;
+}
+.standfirst b { font-weight: 600; color: var(--brand); }
+.controls { display: flex; flex-wrap: wrap; gap: 9px; margin: 24px 0 0; }
+input[type=search] {
+  font: inherit; padding: 9px 12px; border: 1px solid var(--rule);
+  border-radius: 2px; background: transparent; color: var(--ink);
+  flex: 1 1 240px; min-width: 0;
+}
+input[type=search]::placeholder { color: var(--soft); }
 .toggle {
   display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px;
-  border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
-  font-size: 13.5px; color: var(--muted); cursor: pointer; user-select: none;
+  border: 1px solid var(--rule); border-radius: 2px;
+  font-size: 14px; color: var(--soft); cursor: pointer; user-select: none;
   white-space: nowrap;
 }
-.toggle input { margin: 0; cursor: pointer; accent-color: var(--accent); }
-.count { color: var(--muted); font-size: 13px; margin-bottom: 26px; }
-section { margin-bottom: 40px; }
-h2 {
-  font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em;
-  color: var(--muted); font-weight: 600; margin: 0 0 6px;
-  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+.toggle input { margin: 0; cursor: pointer; accent-color: var(--brand); }
+.count { color: var(--soft); font-size: 13px; }
+.count:not(:empty) { margin-top: 12px; }
+
+/* One row per morning the tracker found something. The date is the spine. */
+section { margin-bottom: 54px; }
+section h2 {
+  margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--brand);
 }
-h2 span { color: var(--accent); }
-h2 + .note { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
-.grid {
-  display: grid; gap: 18px;
-  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+.lede { margin: 8px 0 0; color: var(--soft); font-size: 13px; max-width: 56ch; }
+.batch {
+  display: grid; grid-template-columns: 128px 1fr; gap: 26px;
+  padding: 26px 0; border-top: 1px solid var(--rule);
 }
-.card { display: flex; flex-direction: column; min-width: 0; }
+section h2 + .batch, .lede + div > .batch:first-child { margin-top: 4px; }
+.batch:last-child { border-bottom: 1px solid var(--rule); }
+.when { font-size: 20px; font-weight: 600; letter-spacing: 0; }
+.ago { font-size: 11px; letter-spacing: 0.12em; color: var(--soft); margin-top: 4px; }
+.tally { font-size: 12px; color: var(--soft); margin-top: 10px; }
+.films {
+  display: grid; gap: 24px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+}
+.films.flat { margin-top: 22px; }
+
+.film { min-width: 0; }
 .poster {
-  position: relative; aspect-ratio: 2/3; border-radius: 8px; overflow: hidden;
-  background: var(--chip); border: 1px solid var(--line); margin-bottom: 9px;
+  position: relative; aspect-ratio: 2/3; background: var(--sunk);
+  border-radius: 2px; overflow: hidden; margin-bottom: 9px;
 }
 .poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .poster .none {
-  display: flex; align-items: center; justify-content: center; height: 100%;
-  padding: 12px; text-align: center; color: var(--muted); font-size: 12px;
+  display: flex; align-items: flex-end; height: 100%; padding: 10px;
+  color: var(--soft); font-size: 12px; line-height: 1.25;
 }
-.badge {
-  position: absolute; top: 7px; right: 7px; background: var(--accent);
-  color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .05em;
-  padding: 3px 6px; border-radius: 4px;
+.title { font-size: 14px; font-weight: 500; line-height: 1.3; }
+.title a { text-decoration: none; }
+.title a:hover { color: var(--brand); text-decoration: underline; }
+.series { font-size: 12.5px; color: var(--soft); margin-top: 2px; }
+/* Each showing is its own link: they are separate tickets, so a card with two
+   of them cannot have one destination. */
+.show {
+  display: block; font-size: 12.5px; color: var(--soft);
+  margin-top: 3px; text-decoration: none;
 }
-.name {
-  font-weight: 600; font-size: 14px; line-height: 1.3;
-  /* Two lines reserved so rows do not jag. Long repertory titles like "Star
-     Trek: The Motion Picture - The Director's Edition" simply take a third
-     rather than being cut -- the title is the whole point of the card. */
-  min-height: 2.6em;
-}
-.name a { color: inherit; text-decoration: none; }
-.name a:hover { color: var(--accent); text-decoration: underline; }
-.meta { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
-.series { color: var(--accent); font-size: 12px; margin-top: 3px; }
-.trailer {
-  display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
-  font-size: 12px; color: var(--muted); text-decoration: none;
-}
-.trailer:hover { color: var(--accent); }
-.empty { color: var(--muted); font-size: 14px; padding: 30px 0; }
-.tl { border-left: 2px solid var(--line); padding-left: 18px; margin-left: 4px; }
-.tl-day { margin-bottom: 18px; position: relative; }
-.tl-day::before {
-  content: ""; position: absolute; left: -24px; top: 6px; width: 9px; height: 9px;
-  border-radius: 50%; background: var(--accent);
-}
-.tl-date { font-size: 12px; color: var(--muted); letter-spacing: .04em; margin-bottom: 3px; }
-.tl-films a { color: inherit; text-decoration: none; }
-.tl-films a:hover { color: var(--accent); text-decoration: underline; }
+.show b { font-weight: 500; color: var(--ink); }
+.show:hover b { color: var(--brand); text-decoration: underline; }
+.tr { display: inline-block; font-size: 12px; margin-top: 6px; color: var(--soft); }
+.tr:hover { color: var(--brand); }
+
+.empty { color: var(--soft); padding: 44px 0; max-width: 52ch; }
 footer {
-  margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--line);
-  color: var(--muted); font-size: 12.5px;
+  margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule);
+  color: var(--soft); font-size: 12.5px; max-width: 66ch;
 }
-footer a { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .wrap { padding: 24px 16px 60px; }
+  .standfirst { font-size: 22px; }
+  .bar-in { padding: 12px 16px; gap: 12px; }
+  h1 { font-size: 17px; }
+  .logo { width: 62px; height: 25px; }
+  .logo img { width: 87px; height: 87px; }
+  .batch { grid-template-columns: 1fr; gap: 14px; padding: 20px 0; }
+  .head { display: flex; align-items: baseline; gap: 10px; }
+  .ago, .tally { margin: 0; }
+  .tally { margin-left: auto; }
+  .films { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 18px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body>
+
+<div class="bar">
+  <div class="bar-in">
+    <span class="logo"><img src="$logo" alt="Alamo Drafthouse"></span>
+    <div>
+      <h1>$masthead</h1>
+      <div class="venue">$venue</div>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
+
 <header>
-  <h1>$page_title</h1>
-  <div class="sub">$subtitle</div>
+  <p class="standfirst">$standfirst</p>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search a title or a series" autocomplete="off">
+    <label class="toggle"><input type="checkbox" id="events"> Special events only</label>
+  </div>
+  <div class="count" id="count"></div>
 </header>
 
-<div class="controls">
-  <input type="search" id="q" placeholder="Search titles and series..." autocomplete="off">
-  <label class="toggle"><input type="checkbox" id="events"> Special events only</label>
-  <label class="toggle"><input type="checkbox" id="fresh"> Added this week</label>
-</div>
-<div class="count" id="count"></div>
+<section id="added-wrap">
+  <h2>Newly added</h2>
+  <div id="added"></div>
+</section>
 
-<div id="slate"></div>
-
-<section id="timeline-wrap">
-  <h2>Recently added</h2>
-  <p class="note">When each title first appeared on the schedule, from the tracker's ledger.
-     Includes films whose run has since ended.</p>
-  <div class="tl" id="timeline"></div>
+<section id="soon-wrap">
+  <h2>One-off screenings ahead</h2>
+  <p class="lede">Single showings and programmed specials, soonest first. These are
+     the ones that sell out; a film with a month of showtimes is not here.</p>
+  <div id="soon"></div>
 </section>
 
 <footer>$footer</footer>
 </div>
 
 <script>
-const DATA = $data;
-const TIMELINE = $timeline;
+const ADDED = $added;
+const SOON = $soon;
 
-const slate = document.getElementById('slate');
-const tl = document.getElementById('timeline');
+const addedEl = document.getElementById('added');
+const soonEl = document.getElementById('soon');
+const addedWrap = document.getElementById('added-wrap');
+const soonWrap = document.getElementById('soon-wrap');
 const q = document.getElementById('q');
 const eventsOnly = document.getElementById('events');
-const freshOnly = document.getElementById('fresh');
 const count = document.getElementById('count');
 
-const STORE = 'alamo-slate';
-const TIERS = [
-  ['event', 'Special events', 'One-offs and series screenings. Seats go early.'],
-  ['regular', 'Regular releases', ''],
-  ['advance', 'Advance screenings', 'The film returns in a regular run; the merch does not.']
-];
-
-// Both filters are remembered: this is a page you come back to on a Friday
-// rather than land on once, and most visits want the same view as last time.
-let prefs = {events: false, fresh: false};
+const STORE = 'alamo-added';
+let prefs = {events: false};
 try { Object.assign(prefs, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch (e) {}
 eventsOnly.checked = !!prefs.events;
-freshOnly.checked = !!prefs.fresh;
 
 function save() {
-  try {
-    localStorage.setItem(STORE, JSON.stringify({
-      events: eventsOnly.checked, fresh: freshOnly.checked
-    }));
-  } catch (e) {}
+  try { localStorage.setItem(STORE, JSON.stringify({events: eventsOnly.checked})); } catch (e) {}
 }
 
 function esc(s) {
@@ -554,120 +749,143 @@ function esc(s) {
   ));
 }
 
-function card(f) {
-  const poster = f.poster
+// The date leads, because booking is the point. A run says where it ends; a
+// single screening says so, which is most of what this venue programs.
+function showLine(sh) {
+  const tail = sh.run
+    ? sh.shows + ' screenings through ' + sh.run
+    : (sh.shows === 1 ? 'one screening' : sh.shows + ' screenings');
+  // Date first, because booking is the point; what kind of showing it is rides
+  // along on the second line where it does not push the date around.
+  return '<a class="show" href="' + esc(sh.url) + '" rel="noopener">' +
+    '<b>' + esc(sh.date) + ', ' + esc(sh.time) + '</b><br>' +
+    esc(sh.note ? tail + ', ' + sh.note.toLowerCase() : tail) +
+    '</a>';
+}
+
+function film(f) {
+  const art = f.poster
     ? '<img loading="lazy" src="' + esc(f.poster) + '" alt="">'
     : '<div class="none">' + esc(f.title) + '</div>';
-  // Only the new ones get a badge. Badging all 78 would mark nothing.
-  const badge = f.new ? '<div class="badge">NEW</div>' : '';
-  const bits = [f.when];
-  bits.push(f.shows + (f.shows === 1 ? ' show' : ' shows'));
-  const trailer = f.trailer
-    ? '<a class="trailer" href="' + esc(f.trailer) + '" rel="noopener">&#9654; Trailer</a>'
-    : '';
-  return '<div class="card">' +
-    '<div class="poster">' + poster + badge + '</div>' +
-    '<div class="name"><a href="' + esc(f.url) + '" rel="noopener">' + esc(f.title) + '</a></div>' +
+  return '<div class="film">' +
+    '<div class="poster">' + art + '</div>' +
+    '<div class="title"><a href="' + esc(f.url) + '" rel="noopener">' +
+      esc(f.title) + '</a></div>' +
     (f.label ? '<div class="series">' + esc(f.label) + '</div>' : '') +
-    '<div class="meta">' + esc(bits.join(' \\u00b7 ')) + '</div>' +
-    trailer +
+    f.showings.map(showLine).join('') +
+    (f.trailer ? '<a class="tr" href="' + esc(f.trailer) + '" rel="noopener">Trailer</a>' : '') +
     '</div>';
+}
+
+function section(batches, keep) {
+  let html = '', shown = 0, total = 0;
+  for (const batch of batches) {
+    total += batch.films.length;
+    const films = batch.films.filter(keep);
+    shown += films.length;
+    if (!films.length) continue;
+    html += '<div class="batch"><div class="head">' +
+      '<div class="when">' + esc(batch.label) + '</div>' +
+      (batch.sub ? '<div class="ago">' + esc(batch.sub) + '</div>' : '') +
+      '<div class="tally">' + films.length +
+        (films.length === 1 ? ' film' : ' films') + '</div>' +
+      '</div><div class="films">' + films.map(film).join('') + '</div></div>';
+  }
+  return {html: html, shown: shown, total: total};
 }
 
 function render() {
   const term = q.value.trim().toLowerCase();
-  const shown = DATA.filter(f => {
+  const keep = f => {
     if (eventsOnly.checked && f.tier !== 'event') return false;
-    if (freshOnly.checked && !f.new) return false;
     if (!term) return true;
     return (f.title + ' ' + (f.label || '')).toLowerCase().includes(term);
-  });
+  };
 
-  let html = '';
-  for (const [tier, heading, note] of TIERS) {
-    const group = shown.filter(f => f.tier === tier);
-    if (!group.length) continue;
-    html += '<section><h2>' + heading + ' <span>' + group.length + '</span></h2>' +
-      (note ? '<p class="note">' + note + '</p>' : '') +
-      '<div class="grid">' + group.map(card).join('') + '</div></section>';
-  }
-  slate.innerHTML = html || '<p class="empty">Nothing matches that.</p>';
+  const a = section(ADDED, keep);
+  const soonFilms = SOON.filter(keep);
+  const b = {
+    html: soonFilms.length ? '<div class="films flat">' + soonFilms.map(film).join('') + '</div>' : '',
+    shown: soonFilms.length,
+    total: SOON.length,
+  };
 
-  const total = DATA.length;
-  count.textContent = shown.length === total
-    ? total + ' bookable now'
-    : shown.length + ' of ' + total + ' bookable';
-}
+  // A section with nothing in it is noise, not information -- hide the heading
+  // too rather than leaving a title over an empty space.
+  addedEl.innerHTML = a.html ||
+    '<p class="empty">Nothing new since the last check. The tracker looks every morning.</p>';
+  soonEl.innerHTML = b.html;
+  soonWrap.hidden = !b.html;
 
-function renderTimeline() {
-  tl.innerHTML = TIMELINE.map(day => {
-    const links = day.films.map(f =>
-      '<a href="' + esc(f.url) + '" rel="noopener">' + esc(f.title) + '</a>'
-    ).join(', ');
-    return '<div class="tl-day"><div class="tl-date">' + esc(day.date) + '</div>' +
-      '<div class="tl-films">' + links + '</div></div>';
-  }).join('') || '<p class="empty">No history yet.</p>';
+  const shown = a.shown + b.shown, total = a.total + b.total;
+  count.textContent = shown === total ? '' : shown + ' of ' + total + ' films';
 }
 
 q.addEventListener('input', render);
 eventsOnly.addEventListener('change', () => { save(); render(); });
-freshOnly.addEventListener('change', () => { save(); render(); });
 render();
-renderTimeline();
 </script>
 </body>
 </html>
 """)
 
 
-def render_html(cards, days, title, label, market, missing, has_key):
+def render_html(added, soon, title, label, market, missing, has_key, since=None):
     """Build the page. Data is injected as JSON and rendered client-side."""
-    events = sum(1 for c in cards if c["tier"] == "event")
-    fresh = sum(1 for c in cards if c["new"])
+    new_count = sum(len(b["films"]) for b in added)
+    soon_count = len(soon)
     calendar = f"https://drafthouse.com/{market}?showCalendar=true"
 
-    subtitle = (
-        f"{len(cards)} films bookable at {html.escape(label)} — "
-        f"{events} special event{'s' if events != 1 else ''}, "
-        f"{fresh} added in the last {NEW_DAYS} days. "
-        f'<a href="{calendar}" rel="noopener">Full DC Metro calendar</a>'
-    )
+    started = ""
+    if since:
+        when = dt.date.fromisoformat(since)
+        started = f" since {when.day} {when:%B}"
 
-    notes = [f"Built {dt.date.today():%d %b %Y} from the "
-             '<a href="https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area"'
-             ' rel="noopener">Alamo schedule API</a>.']
+    if new_count or soon_count:
+        standfirst = (
+            f"<b>{new_count}</b> films newly on sale{started}, and "
+            f"<b>{soon_count}</b> one-off screenings coming up."
+        )
+    else:
+        standfirst = "Nothing new, and nothing one-off on the schedule ahead."
+
+    notes = [
+        f"Checked every morning; last run {dt.date.today():%d %B %Y}. A film earns a"
+        " place here by being newly on sale or by screening only once — a wide release"
+        " playing all month is neither.",
+        f'For everything currently showing, <a href="{calendar}" rel="noopener">Alamo\'s'
+        " own calendar</a> is the place.",
+    ]
+    notes.append("Artwork is Alamo's own, for the booking they are actually selling.")
     if has_key:
         notes.append(
-            "Posters and trailers from "
-            '<a href="https://www.themoviedb.org/" rel="noopener">TMDB</a>.'
+            'Trailers from <a href="https://www.themoviedb.org/" rel="noopener">TMDB</a>'
+            + (f", which had no match for {len(missing)} of these — usually a festival,"
+               " a livestream or a one-off." if missing else ".")
         )
-        if missing:
-            # Alamo programs a lot of things a movie database has never heard
-            # of. Saying so is the difference between a known gap and a page
-            # that looks broken.
-            notes.append(
-                f"{len(missing)} title{'s' if len(missing) != 1 else ''} had no TMDB "
-                "match — mostly festivals, live events and one-offs."
-            )
     else:
-        notes.append(
-            "<strong>No TMDB key was set, so this build has no posters or "
-            "trailers.</strong>"
-        )
+        notes.append("No TMDB key was set for this build, so there are no trailer links.")
     notes.append(
         '<a href="https://github.com/txrunn/scripts/tree/main/alamo-drafthouse"'
-        ' rel="noopener">Source and the tracker that feeds it</a>.'
+        ' rel="noopener">How this is built</a>.'
+    )
+    notes.append(
+        "An unofficial personal tracker, not affiliated with or endorsed by Alamo"
+        " Drafthouse; their name and mark are theirs."
     )
 
     return PAGE.substitute(
         page_title=html.escape(title),
-        subtitle=subtitle,
+        masthead=html.escape(title),
+        venue=html.escape(label),
+        logo=LOGO,
+        standfirst=standfirst,
         footer=" ".join(notes),
         # "</" is escaped because a film title containing "</script>" would
         # otherwise close the block it is embedded in. Alamo writes these
-        # titles, so this is untrusted text. Same escape the disc inventory uses.
-        data=json.dumps(cards, ensure_ascii=False).replace("</", "<\\/"),
-        timeline=json.dumps(days, ensure_ascii=False).replace("</", "<\\/"),
+        # titles, so this is untrusted text.
+        added=json.dumps(added, ensure_ascii=False).replace("</", "<\\/"),
+        soon=json.dumps(soon, ensure_ascii=False).replace("</", "<\\/"),
     )
 
 
@@ -760,7 +978,7 @@ def build_parser():
                         help="ledger read for first-seen dates (default: ci-state/)")
     parser.add_argument("--cache", default=DEFAULT_CACHE)
     parser.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
-    parser.add_argument("--title", default="Alamo Bryant Street")
+    parser.add_argument("--title", default="Alamo DC New Movie Tracker")
     parser.add_argument("--refresh-all", action="store_true",
                         help="ignore the cache and re-look-up every title")
     parser.add_argument("--verify", action="store_true",
@@ -777,8 +995,8 @@ def main(argv=None):
         return mode_verify(api_key)
 
     if not api_key:
-        print("warning: TMDB_API_KEY is not set -- building without posters or trailers",
-              file=sys.stderr)
+        print("warning: TMDB_API_KEY is not set -- artwork still comes from Alamo, "
+              "but there will be no trailer links", file=sys.stderr)
 
     try:
         payload = (json.load(open(os.path.expanduser(args.from_file), encoding="utf-8"))
@@ -814,10 +1032,12 @@ def main(argv=None):
     looked_up, missing = enrich(films, cache, api_key, args.refresh_all,
                                 verbose=not args.quiet)
 
-    cards = assemble(films, ledger, cache, args.market)
-    days = timeline(ledger, args.market)
-    page = render_html(cards, days, args.title, label, args.market, missing,
-                       has_key=bool(api_key))
+    cards = assemble(films, ledger, cache, args.market,
+                     posters=posters_by_slug(presentations))
+    added = added_batches(cards)
+    soon = upcoming_batches(cards)
+    page = render_html(added, soon, args.title, label, args.market, missing,
+                       has_key=bool(api_key), since=baseline_date(ledger))
 
     out_dir = os.path.expanduser(args.out_dir)
     os.makedirs(out_dir, exist_ok=True)
@@ -828,9 +1048,10 @@ def main(argv=None):
     if api_key:
         save_json(args.cache, cache)
 
-    fresh = sum(1 for c in cards if c["new"])
-    print(f"{len(cards)} films written to {out_path}")
-    print(f"  {fresh} badged new, {looked_up} looked up, {len(missing)} without TMDB art")
+    new_count = sum(len(b["films"]) for b in added)
+    soon_count = len(soon)
+    print(f"{new_count} newly added + {soon_count} one-off screenings -> {out_path}")
+    print(f"  {looked_up} looked up, {len(missing)} without a TMDB trailer")
     return 0
 
 

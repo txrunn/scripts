@@ -328,48 +328,64 @@ entire notification path is one step, one secret, and no forge-specific API:
 
 **[txrunn.github.io/scripts/alamo/](https://txrunn.github.io/scripts/alamo/)**
 
-The issue and the push tell you what is *new*. The page tells you what is *on*,
-which is the question you actually have on a Friday. Everything currently
-bookable at Bryant Street as a poster grid, grouped by tier, with anything added
-in the last 7 days badged **NEW**, a search box, an events-only filter, and a
-timeline of when each title first appeared.
+Two things earn a place on it, and nothing else does:
 
-`build_site.py` builds it. The daily workflow rebuilds it on every run — not
-only on days something is new, because showtimes fall off the slate constantly
-and a page that is a week stale is worse than no page.
+1. **Newly added** — films the tracker watched go on sale, grouped by the
+   morning it spotted them, newest first.
+2. **One-off screenings ahead** — single showings and programmed specials,
+   soonest first. The things that sell out.
+
+A wide release playing all month is neither, so it is not there. That is the
+whole point: this is not a copy of Alamo's schedule, it is the answer to "what
+turned up, and when can I see it". For everything currently showing, Alamo's own
+calendar is one click away in the footer.
 
 ```powershell
-# Build it locally into site/
-python build_site.py
-
-# Is TMDB still shaped the way the builder expects?
-python build_site.py --verify
-
-# Ignore the cache and re-look-up every title (slow, ~80 requests)
-python build_site.py --refresh-all
+python build_site.py                # build it into site/
+python build_site.py --verify       # is TMDB still shaped as expected?
+python build_site.py --refresh-all  # ignore the cache, re-look-up every title
 ```
 
-### Posters and trailers
+### The baseline is not news
 
-From TMDB, via a `TMDB_API_KEY` secret the repo already has for the disc
-inventory. Results are cached in `cache/metadata.json` and committed back,
-because runners keep nothing and the slate is ~60 titles of which maybe two
-change on a given day.
+The tracker's first run records the entire slate and reports none of it. Those
+~42 films were simply playing the day tracking started, so the earliest date in
+the ledger is treated as a seed and excluded. Without that the page opens with
+forty films that are not new, which is the opposite of what it is for.
 
-**Without the key the page still builds** — no posters, no trailers, and a
-footer that says so. A page that quietly lost its artwork should not look like
-one that never had any.
+### One film, one card
 
-Titles TMDB has never heard of are cached as a *miss* so they are not looked up
-again every morning. Alamo programs a lot of those — CatVideoFest, Dismember the
-Alamo, Quote-Alongs — and re-querying them daily would be most of the request
-budget for no result. The footer counts them.
+Alamo books the same film more than once — dubbed and subtitled, a Family Party
+alongside a normal run — each under its own slug. Those collapse into a single
+card listing every showtime, so Princess Mononoke is one entry offering you both
+dates rather than two entries that look like a bug. The join is TMDB's id where
+there is one, and the format-stripped title otherwise.
 
-The matcher takes a trailing year in an Alamo title as a hint (`Nosferatu
-(1922)`) and scores rather than filters on it, so a festival-versus-release
-mismatch still finds the film. A title-only match with no year agreement is
-rejected outright: on a repertory slate full of remakes, guessing wrong is worse
-than showing no poster.
+### Artwork
+
+**Alamo's own**, from `show.posterImages` in the same schedule payload the
+tracker already fetches. Every presentation has one, including the festivals and
+livestreams TMDB has never heard of, and it is the art for the booking you are
+actually being sold — the Quote-Along key art, not the film's generic poster.
+The URLs are imgix, so the page asks for 340×510 rather than the 470KB original.
+
+TMDB is still used, for two smaller things: trailer links, and the id that joins
+two bookings of one film. Both are cached in `cache/metadata.json` and committed
+back, because runners keep nothing. **Without `TMDB_API_KEY` the page still has
+all its artwork** — it just loses the trailer links, and says so in the footer.
+
+### Look
+
+Alamo's own palette, taken from drafthouse.com: black `#090909`, the yellow
+`#f5b324` they put on everything you are meant to press, `#333` rules. Dark only,
+because the brand is dark and a light variant would be someone else's page.
+[Jost](https://fonts.google.com/specimen/Jost) stands in for Futura PT, which
+Alamo licenses and this cannot.
+
+The mark is Alamo's, inverted and cropped in CSS — the source art is solid black
+centred in a mostly transparent 2100px square, so as-is it is invisible on black
+and two thirds empty space. The footer says plainly that this is an unofficial
+personal tracker.
 
 ### How it gets published
 
@@ -378,14 +394,10 @@ has to be the only thing that does. `actions/deploy-pages` publishes an entire
 site from one artifact, so a second workflow uploading just its own page would
 delete everything else on its next run.
 
-So the split is: this workflow builds `alamo-drafthouse/site/` and commits it;
-`pages.yml` assembles that with `movie-collection/site/` and the landing page in
-`/site/`, and deploys the lot. Adding a third page means a directory and a row
-in `site/index.html`, not another deploy job.
-
-It triggers on `workflow_run` rather than `push` because a commit made by a job
-using `GITHUB_TOKEN` does not start another workflow — a `push` trigger would
-never fire for the runs that actually change something.
+So the split is: the daily workflow builds `alamo-drafthouse/site/` and commits
+it; `pages.yml` assembles that with `movie-collection/site/` and the landing page
+in `/site/`, and deploys the lot. It triggers on `workflow_run` because a commit
+made by a job using `GITHUB_TOKEN` does not start another workflow.
 
 Publishing is gated on a `PUBLISH_PAGES` repository variable. Unset, the page is
 still built and committed, so nothing depends on Pages being configured.
