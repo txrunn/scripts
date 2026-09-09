@@ -346,6 +346,17 @@ python build_site.py --verify       # is TMDB still shaped as expected?
 python build_site.py --refresh-all  # ignore the cache, re-look-up every title
 ```
 
+### The booking planner
+
+At the foot of the page, a month grid from today to the last one-off on the
+schedule. Days with a one-off screening are outlined and named — those are fixed
+points, they happen once. Click any day to cross it off, and what is left is
+where a film with a flexible run still fits, which is the actual problem when
+you are trying to see one film a day.
+
+Deliberately not saved. It is a scratchpad for the ten minutes you spend buying
+tickets, and a half-remembered plan from last week would be worse than none.
+
 ### The baseline is not news
 
 The tracker's first run records the entire slate and reports none of it. Those

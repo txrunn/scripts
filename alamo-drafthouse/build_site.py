@@ -481,6 +481,10 @@ def assemble(films, ledger, cache, market, posters=None, today=None):
         for b in group:
             showings.append({
                 "url": b["url"],
+                # The formatted date is for reading; the planner needs to do
+                # arithmetic, and reparsing "Sat 26 Sep" in the browser would
+                # guess at the year.
+                "iso": b["first"].date().isoformat(),
                 "note": variant_note(b["raw_title"], name, b["label"]) if shared else None,
                 "date": f"{b['first']:%a} {b['first'].day} {b['first']:%b}",
                 "time": clock(b["first"]),
@@ -688,6 +692,44 @@ section h2 + .batch, .lede + div > .batch:first-child { margin-top: 4px; }
 .tr:hover { color: var(--brand); }
 
 .empty { color: var(--soft); padding: 44px 0; max-width: 52ch; }
+
+.plan-tools { display: flex; align-items: center; gap: 14px; margin: 20px 0 6px; }
+#plan-clear {
+  font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
+  background: transparent; color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 2px;
+}
+#plan-clear:hover { border-color: var(--brand); color: var(--brand); }
+.plan-note { font-size: 12.5px; color: var(--soft); }
+.month { margin-top: 26px; }
+.month h3 {
+  margin: 0 0 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--brand);
+}
+.grid7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dow-head {
+  font-size: 10px; letter-spacing: 0.1em; color: var(--soft); text-align: center;
+  padding-bottom: 2px;
+}
+.cell {
+  min-height: 74px; border: 1px solid var(--rule); border-radius: 2px;
+  padding: 5px 6px; font-size: 11px; text-align: left; color: var(--ink);
+  background: transparent; font-family: inherit; cursor: pointer;
+  display: flex; flex-direction: column; gap: 3px; overflow: hidden;
+}
+.cell.void { border-color: transparent; cursor: default; }
+.cell.past { opacity: 0.3; cursor: default; }
+.cell .d { font-size: 13px; font-weight: 600; }
+.cell .ev { color: var(--brand); line-height: 1.25; }
+.cell.booked { border-color: var(--brand); }
+.cell.off { opacity: 0.42; }
+.cell.off .d, .cell.off .ev { text-decoration: line-through; }
+.cell:not(.void):not(.past):hover { border-color: var(--brand); }
+
+@media (max-width: 640px) {
+  .cell { min-height: 58px; font-size: 10px; padding: 4px; }
+  .cell .d { font-size: 12px; }
+}
 footer {
   margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule);
   color: var(--soft); font-size: 12.5px; max-width: 66ch;
@@ -745,12 +787,26 @@ footer {
   <div id="soon"></div>
 </section>
 
+<section id="plan-wrap">
+  <h2>Booking planner</h2>
+  <p class="lede">One-off screenings are fixed points — they only happen once, on the
+     day shown. Cross off the days you have taken so you can see where a film with a
+     flexible run still fits. Nothing here is saved; it is a scratchpad for while you
+     are buying tickets.</p>
+  <div class="plan-tools">
+    <button type="button" id="plan-clear">Clear</button>
+    <span class="plan-note" id="plan-count"></span>
+  </div>
+  <div id="cal"></div>
+</section>
+
 <footer>$footer</footer>
 </div>
 
 <script>
 const ADDED = $added;
 const SOON = $soon;
+const ALL_FILMS = [].concat(...ADDED.map(b => b.films), SOON);
 
 const addedEl = document.getElementById('added');
 const soonEl = document.getElementById('soon');
@@ -847,9 +903,84 @@ function render() {
   count.textContent = shown === total ? '' : shown + ' of ' + total + ' films';
 }
 
+// --- booking planner --------------------------------------------------------
+// Built from the data already on the page rather than a third payload: a day is
+// spoken for if a one-off screens on it, and everything else is yours to fill.
+const TODAY = '$today';
+const struck = new Set();
+
+function oneoffDays() {
+  const byDay = new Map();
+  for (const f of ALL_FILMS) {
+    if (!f.oneoff) continue;
+    for (const sh of f.showings) {
+      if (!byDay.has(sh.iso)) byDay.set(sh.iso, []);
+      byDay.get(sh.iso).push(f.title);
+    }
+  }
+  return byDay;
+}
+
+function renderCalendar() {
+  const events = oneoffDays();
+  const dates = [...events.keys()].sort();
+  const wrap = document.getElementById('cal');
+  if (!dates.length) { document.getElementById('plan-wrap').hidden = true; return; }
+
+  const start = new Date(TODAY + 'T00:00:00');
+  const end = new Date(dates[dates.length - 1] + 'T00:00:00');
+  const names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = '';
+
+  const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+  while (cursor <= end) {
+    const y = cursor.getFullYear(), m = cursor.getMonth();
+    const label = cursor.toLocaleDateString('en-GB', {month: 'long', year: 'numeric'});
+    const days = new Date(y, m + 1, 0).getDate();
+    // Monday-first, which is how a week of cinema reads.
+    let lead = (new Date(y, m, 1).getDay() + 6) % 7;
+    let cells = names.map(n => '<div class="dow-head">' + n + '</div>').join('');
+    for (let i = 0; i < lead; i++) cells += '<div class="cell void"></div>';
+    for (let d = 1; d <= days; d++) {
+      const iso = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      const evs = events.get(iso) || [];
+      const past = iso < TODAY;
+      const cls = ['cell'];
+      if (past) cls.push('past');
+      if (evs.length) cls.push('booked');
+      if (struck.has(iso)) cls.push('off');
+      cells += '<' + (past ? 'div' : 'button type="button"') + ' class="' + cls.join(' ') +
+        '" data-iso="' + iso + '"' + (past ? '' : ' aria-pressed="' + struck.has(iso) + '"') + '>' +
+        '<span class="d">' + d + '</span>' +
+        evs.slice(0, 2).map(t => '<span class="ev">' + esc(t) + '</span>').join('') +
+        (evs.length > 2 ? '<span class="ev">+' + (evs.length - 2) + ' more</span>' : '') +
+        '</' + (past ? 'div' : 'button') + '>';
+    }
+    html += '<div class="month"><h3>' + esc(label) + '</h3>' +
+      '<div class="grid7">' + cells + '</div></div>';
+    cursor.setMonth(m + 1);
+  }
+  wrap.innerHTML = html;
+  document.getElementById('plan-count').textContent =
+    struck.size ? struck.size + (struck.size === 1 ? ' day crossed off' : ' days crossed off') : '';
+}
+
+document.getElementById('cal').addEventListener('click', e => {
+  const cell = e.target.closest('.cell');
+  if (!cell || cell.classList.contains('void') || cell.classList.contains('past')) return;
+  const iso = cell.dataset.iso;
+  if (struck.has(iso)) struck.delete(iso); else struck.add(iso);
+  renderCalendar();
+});
+document.getElementById('plan-clear').addEventListener('click', () => {
+  struck.clear();
+  renderCalendar();
+});
+
 q.addEventListener('input', render);
 eventsOnly.addEventListener('change', () => { save(); render(); });
 render();
+renderCalendar();
 </script>
 </body>
 </html>
@@ -914,6 +1045,7 @@ def render_html(added, soon, title, label, market, has_key, since=None):
         page_title=html.escape(f"{tab} · Alamo Drafthouse"),
         masthead=html.escape(title),
         stamp=html.escape(build_stamp()),
+        today=venue_today().isoformat(),
         logo=LOGO,
         standfirst=standfirst,
         footer=" ".join(notes),
