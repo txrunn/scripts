@@ -9,6 +9,11 @@ name: Alamo new films
 # rather than by GitHub, so it survives a move to Forgejo, GitLab, or a cron
 # box unchanged -- only the secret has to come with it.
 #
+# It also rebuilds alamo-drafthouse/site/index.html -- the browsable version of
+# the same slate, published by .github/workflows/pages.yml. That runs every day
+# rather than only on days something is new, because the page answers "what is
+# on" and showtimes fall off it constantly.
+#
 # The ledger lives in the repo at alamo-drafthouse/ci-state/ and is committed
 # back on days something is added -- runners are ephemeral, so state has to
 # persist somewhere, and the repo doubles as an audit trail of what appeared
@@ -86,6 +91,17 @@ jobs:
           # blank in the log -- indistinguishable from a step that did nothing.
           [ -s "$RUNNER_TEMP/report.md" ] || echo "No new films since the last run."
 
+      # After the diff so today's first_seen dates are already written: the
+      # page's NEW badges then match the issue that is about to be opened.
+      - name: Build the browsable page
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: |
+          set -o pipefail
+          python alamo-drafthouse/build_site.py \
+            --from-file "$RUNNER_TEMP/raw.json" --quiet \
+            | tee "$RUNNER_TEMP/site.txt"
+
       - name: Decide whether to alert
         id: detect
         run: |
@@ -132,6 +148,8 @@ jobs:
             echo '```'
             echo
             echo "</details>"
+            echo
+            echo "[Browse the full slate](https://txrunn.github.io/scripts/alamo/)"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Open an issue for the new films
@@ -178,18 +196,32 @@ jobs:
             echo "title=$TITLE"
           } >> "$GITHUB_OUTPUT"
 
-      # Only on days something was added: the ledger's `seen` map is unchanged
-      # otherwise, and a daily no-op commit would bury real history.
-      - name: Commit the updated ledger
-        if: steps.detect.outputs.new == 'true' && inputs.test_alert != true
+      # The ledger, the page and the metadata cache in one commit. The page
+      # carries its build date so it changes most days, which is why this is no
+      # longer gated on there being something new -- but the ledger's `seen` map
+      # still only changes when a film is added, so `git log` over ci-state/
+      # remains a clean record of when each film went on sale rather than a
+      # daily no-op. The message names whichever is the news.
+      - name: Commit the ledger, the page and the cache
+        if: inputs.test_alert != true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add alamo-drafthouse/ci-state/dc-bryant-street.json
+          git add alamo-drafthouse/ci-state/dc-bryant-street.json \
+                  alamo-drafthouse/site alamo-drafthouse/cache
           if git diff --cached --quiet; then
-            echo "ledger unchanged, nothing to commit"
+            echo "nothing changed, nothing to commit"
           else
-            git commit -m "Record new Bryant Street films seen on $(date -u +%Y-%m-%d)"
+            if [ "${{ steps.detect.outputs.new }}" = "true" ]; then
+              MSG="Record new Bryant Street films seen on $(date -u +%Y-%m-%d)"
+            else
+              MSG="Rebuild the Bryant Street page ($(date -u +%Y-%m-%d))"
+            fi
+            git commit -m "$MSG"
+            # The scheduled run and a same-day dispatch can race for the same
+            # push; rebasing is safe here because everything staged above is
+            # regenerated output, never a hand edit.
+            git pull --rebase --autostash -q origin main || true
             git push
           fi
 

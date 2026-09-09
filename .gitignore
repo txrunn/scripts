@@ -169,6 +169,9 @@ venv.bak/
 
 # mkdocs documentation
 /site
+# ...but this repo has no mkdocs, and /site is the Pages landing page.
+# The directory has to be un-ignored before git will look inside it.
+!/site/
 
 # mypy
 .mypy_cache/

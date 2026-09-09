@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alamo Bryant Street</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f6f5f3; --panel: #ffffff; --ink: #16150f; --muted: #6d6a61;
+  --line: #e2ded6; --accent: #b4441f; --chip: #efece6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131211; --panel: #1c1b19; --ink: #ece9e2; --muted: #97928a;
+    --line: #2c2a27; --accent: #e0713f; --chip: #262421;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 40px 20px 80px; }
+header { border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 26px; }
+h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+.sub { color: var(--muted); font-size: 14px; }
+.sub a { color: var(--accent); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 8px; }
+input[type=search] {
+  font: inherit; padding: 9px 12px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--panel); color: var(--ink);
+  flex: 1 1 260px; min-width: 0;
+}
+.toggle {
+  display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+  font-size: 13.5px; color: var(--muted); cursor: pointer; user-select: none;
+  white-space: nowrap;
+}
+.toggle input { margin: 0; cursor: pointer; accent-color: var(--accent); }
+.count { color: var(--muted); font-size: 13px; margin-bottom: 26px; }
+section { margin-bottom: 40px; }
+h2 {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--muted); font-weight: 600; margin: 0 0 6px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+}
+h2 span { color: var(--accent); }
+h2 + .note { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+.grid {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+}
+.card { display: flex; flex-direction: column; min-width: 0; }
+.poster {
+  position: relative; aspect-ratio: 2/3; border-radius: 8px; overflow: hidden;
+  background: var(--chip); border: 1px solid var(--line); margin-bottom: 9px;
+}
+.poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.poster .none {
+  display: flex; align-items: center; justify-content: center; height: 100%;
+  padding: 12px; text-align: center; color: var(--muted); font-size: 12px;
+}
+.badge {
+  position: absolute; top: 7px; right: 7px; background: var(--accent);
+  color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .05em;
+  padding: 3px 6px; border-radius: 4px;
+}
+.name {
+  font-weight: 600; font-size: 14px; line-height: 1.3;
+  /* Two lines reserved so rows do not jag. Long repertory titles like "Star
+     Trek: The Motion Picture - The Director's Edition" simply take a third
+     rather than being cut -- the title is the whole point of the card. */
+  min-height: 2.6em;
+}
+.name a { color: inherit; text-decoration: none; }
+.name a:hover { color: var(--accent); text-decoration: underline; }
+.meta { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.series { color: var(--accent); font-size: 12px; margin-top: 3px; }
+.trailer {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+  font-size: 12px; color: var(--muted); text-decoration: none;
+}
+.trailer:hover { color: var(--accent); }
+.empty { color: var(--muted); font-size: 14px; padding: 30px 0; }
+.tl { border-left: 2px solid var(--line); padding-left: 18px; margin-left: 4px; }
+.tl-day { margin-bottom: 18px; position: relative; }
+.tl-day::before {
+  content: ""; position: absolute; left: -24px; top: 6px; width: 9px; height: 9px;
+  border-radius: 50%; background: var(--accent);
+}
+.tl-date { font-size: 12px; color: var(--muted); letter-spacing: .04em; margin-bottom: 3px; }
+.tl-films a { color: inherit; text-decoration: none; }
+.tl-films a:hover { color: var(--accent); text-decoration: underline; }
+footer {
+  margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 12.5px;
+}
+footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Alamo Bryant Street</h1>
+  <div class="sub">59 films bookable at DC Bryant Street — 28 special events, 9 added in the last 7 days. <a href="https://drafthouse.com/dc-metro-area?showCalendar=true" rel="noopener">Full DC Metro calendar</a></div>
+</header>
+
+<div class="controls">
+  <input type="search" id="q" placeholder="Search titles and series..." autocomplete="off">
+  <label class="toggle"><input type="checkbox" id="events"> Special events only</label>
+  <label class="toggle"><input type="checkbox" id="fresh"> Added this week</label>
+</div>
+<div class="count" id="count"></div>
+
+<div id="slate"></div>
+
+<section id="timeline-wrap">
+  <h2>Recently added</h2>
+  <p class="note">When each title first appeared on the schedule, from the tracker's ledger.
+     Includes films whose run has since ended.</p>
+  <div class="tl" id="timeline"></div>
+</section>
+
+<footer>Built 08 Sep 2026 from the <a href="https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area" rel="noopener">Alamo schedule API</a>. <strong>No TMDB key was set, so this build has no posters or trailers.</strong> <a href="https://github.com/txrunn/scripts/tree/main/alamo-drafthouse" rel="noopener">Source and the tracker that feeds it</a>.</footer>
+</div>
+
+<script>
+const DATA = [{"slug": "the-odyssey", "title": "The Odyssey", "url": "https://drafthouse.com/dc-metro-area/show/the-odyssey", "tier": "regular", "label": null, "when": "Tue Sep 8 – Wed Sep 9", "shows": 4, "sort": "2026-09-08T21:25:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "spider-man-brand-new-day", "title": "Spider-Man: Brand New Day", "url": "https://drafthouse.com/dc-metro-area/show/spider-man-brand-new-day", "tier": "regular", "label": null, "when": "Tue Sep 8 – Wed Sep 9", "shows": 4, "sort": "2026-09-08T21:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "onslaught", "title": "Onslaught", "url": "https://drafthouse.com/dc-metro-area/show/onslaught", "tier": "regular", "label": null, "when": "Tue Sep 8 – Wed Sep 9", "shows": 5, "sort": "2026-09-08T21:40:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-27", "new": false}, {"slug": "teenage-sex-and-death-at-camp-miasma", "title": "Teenage Sex and Death at Camp Miasma", "url": "https://drafthouse.com/dc-metro-area/show/teenage-sex-and-death-at-camp-miasma", "tier": "regular", "label": null, "when": "Tue Sep 8 – Wed Sep 9", "shows": 2, "sort": "2026-09-08T21:40:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "the-dog-stars", "title": "The Dog Stars", "url": "https://drafthouse.com/dc-metro-area/show/the-dog-stars", "tier": "regular", "label": null, "when": "Tue Sep 8 – Wed Sep 9", "shows": 4, "sort": "2026-09-08T22:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "by-any-means", "title": "By Any Means", "url": "https://drafthouse.com/dc-metro-area/show/by-any-means", "tier": "regular", "label": null, "when": "Tue Sep 8 – Wed Sep 9", "shows": 6, "sort": "2026-09-08T22:40:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-01", "new": false}, {"slug": "coyote-vs-acme", "title": "Coyote vs. ACME", "url": "https://drafthouse.com/dc-metro-area/show/coyote-vs-acme", "tier": "regular", "label": null, "when": "Tue Sep 8 – Thu Sep 10", "shows": 7, "sort": "2026-09-08T22:55:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-26", "new": false}, {"slug": "tony", "title": "Tony", "url": "https://drafthouse.com/dc-metro-area/show/tony", "tier": "regular", "label": null, "when": "Wed Sep 9 – Thu Sep 10", "shows": 2, "sort": "2026-09-09T13:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "catvideofest-2026", "title": "CatVideoFest 2026", "url": "https://drafthouse.com/dc-metro-area/show/catvideofest-2026", "tier": "event", "label": "Special event", "when": "Wed Sep 9, 1:25 PM", "shows": 1, "sort": "2026-09-09T13:25:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "hope-2026", "title": "Hope (2026)", "url": "https://drafthouse.com/dc-metro-area/show/hope-2026", "tier": "regular", "label": null, "when": "Wed Sep 9 – Sun Sep 13", "shows": 7, "sort": "2026-09-09T16:10:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "film-club-taxi-driver", "title": "Taxi Driver", "url": "https://drafthouse.com/dc-metro-area/show/film-club-taxi-driver", "tier": "event", "label": "Film Club", "when": "Wed Sep 9, 7:00 PM", "shows": 1, "sort": "2026-09-09T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "practical-magic-2", "title": "Practical Magic 2", "url": "https://drafthouse.com/dc-metro-area/show/practical-magic-2", "tier": "regular", "label": null, "when": "Thu Sep 10 – Sun Sep 13", "shows": 16, "sort": "2026-09-10T15:45:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "dire-duplicity", "title": "Dire Duplicity", "url": "https://drafthouse.com/dc-metro-area/show/dire-duplicity", "tier": "regular", "label": null, "when": "Thu Sep 10, 7:45 PM", "shows": 1, "sort": "2026-09-10T19:45:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "the-twilight-saga-twilight-2008-fan-event", "title": "Twilight (2008)", "url": "https://drafthouse.com/dc-metro-area/show/the-twilight-saga-twilight-2008-fan-event", "tier": "event", "label": "Fan event", "when": "Sat Sep 12, 3:30 PM", "shows": 1, "sort": "2026-09-12T15:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "the-doors", "title": "The Doors", "url": "https://drafthouse.com/dc-metro-area/show/the-doors", "tier": "regular", "label": null, "when": "Sun Sep 13, 11:15 AM", "shows": 1, "sort": "2026-09-13T11:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "angel-heart", "title": "Angel Heart", "url": "https://drafthouse.com/dc-metro-area/show/angel-heart", "tier": "regular", "label": null, "when": "Sun Sep 13, 2:45 PM", "shows": 1, "sort": "2026-09-13T14:45:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "epic-sunday-the-dark-knight-rises", "title": "The Dark Knight Rises", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-the-dark-knight-rises", "tier": "event", "label": "EPIC Sunday", "when": "Sun Sep 13, 6:00 PM", "shows": 1, "sort": "2026-09-13T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "memento", "title": "Memento", "url": "https://drafthouse.com/dc-metro-area/show/memento", "tier": "regular", "label": null, "when": "Mon Sep 14, 7:00 PM", "shows": 2, "sort": "2026-09-14T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "first-blood", "title": "First Blood", "url": "https://drafthouse.com/dc-metro-area/show/first-blood", "tier": "regular", "label": null, "when": "Tue Sep 15, 7:15 PM", "shows": 1, "sort": "2026-09-15T19:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "everything-everywhere-all-at-once", "title": "Everything Everywhere All At Once", "url": "https://drafthouse.com/dc-metro-area/show/everything-everywhere-all-at-once", "tier": "regular", "label": null, "when": "Tue Sep 15, 7:30 PM", "shows": 1, "sort": "2026-09-15T19:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-01", "new": false}, {"slug": "film-club-amadeus", "title": "Amadeus", "url": "https://drafthouse.com/dc-metro-area/show/film-club-amadeus", "tier": "event", "label": "Film Club", "when": "Wed Sep 16, 7:00 PM", "shows": 1, "sort": "2026-09-16T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-27", "new": false}, {"slug": "resident-evil-2026", "title": "Resident Evil (2026)", "url": "https://drafthouse.com/dc-metro-area/show/resident-evil-2026", "tier": "regular", "label": null, "when": "Thu Sep 17 – Tue Sep 22", "shows": 17, "sort": "2026-09-17T16:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-01", "new": false}, {"slug": "livestream-q-a-the-weight", "title": "The Weight", "url": "https://drafthouse.com/dc-metro-area/show/livestream-q-a-the-weight", "tier": "event", "label": "Livestream Q&A", "when": "Thu Sep 17, 9:00 PM", "shows": 1, "sort": "2026-09-17T21:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-01", "new": false}, {"slug": "live-q-a-ernie-emma", "title": "Ernie & Emma", "url": "https://drafthouse.com/dc-metro-area/show/live-q-a-ernie-emma", "tier": "event", "label": "Live Q&A", "when": "Fri Sep 18, 10:15 PM", "shows": 1, "sort": "2026-09-18T22:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "spy-kids", "title": "Spy Kids", "url": "https://drafthouse.com/dc-metro-area/show/spy-kids", "tier": "regular", "label": null, "when": "Sat Sep 19, 12:45 PM", "shows": 1, "sort": "2026-09-19T12:45:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "the-twilight-saga-the-twilight-saga-new-moon-fan-screening", "title": "The Twilight Saga: New Moon", "url": "https://drafthouse.com/dc-metro-area/show/the-twilight-saga-the-twilight-saga-new-moon-fan-screening", "tier": "event", "label": "Fan screening", "when": "Sat Sep 19, 3:30 PM", "shows": 1, "sort": "2026-09-19T15:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "sad-girl-cinema-club-my-sassy-girl", "title": "My Sassy Girl", "url": "https://drafthouse.com/dc-metro-area/show/sad-girl-cinema-club-my-sassy-girl", "tier": "event", "label": "Sad Girl Cinema Club", "when": "Sun Sep 20, 11:45 AM", "shows": 1, "sort": "2026-09-20T11:45:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "quote-along-monty-python-and-the-holy-grail", "title": "Monty Python and the Holy Grail", "url": "https://drafthouse.com/dc-metro-area/show/quote-along-monty-python-and-the-holy-grail", "tier": "event", "label": "Quote-Alongs", "when": "Sun Sep 20, 4:00 PM", "shows": 1, "sort": "2026-09-20T16:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "epic-sunday-dunkirk", "title": "Dunkirk", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-dunkirk", "tier": "event", "label": "EPIC Sunday", "when": "Sun Sep 20, 6:00 PM", "shows": 1, "sort": "2026-09-20T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "crunchyroll-anime-night-sneak-peek-9-21-2026", "title": "Crunchyroll Anime Night Sneak Peek (9/21/2026)", "url": "https://drafthouse.com/dc-metro-area/show/crunchyroll-anime-night-sneak-peek-9-21-2026", "tier": "event", "label": "Anime Night", "when": "Mon Sep 21, 7:15 PM", "shows": 1, "sort": "2026-09-21T19:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "basic-instinct", "title": "Basic Instinct", "url": "https://drafthouse.com/dc-metro-area/show/basic-instinct", "tier": "regular", "label": null, "when": "Tue Sep 22, 7:15 PM", "shows": 1, "sort": "2026-09-22T19:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "film-club-network", "title": "Network", "url": "https://drafthouse.com/dc-metro-area/show/film-club-network", "tier": "event", "label": "Film Club", "when": "Wed Sep 23, 7:00 PM", "shows": 1, "sort": "2026-09-23T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "forgotten-island", "title": "Forgotten Island", "url": "https://drafthouse.com/dc-metro-area/show/forgotten-island", "tier": "regular", "label": null, "when": "Thu Sep 24 – Sun Sep 27", "shows": 7, "sort": "2026-09-24T15:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-08", "new": true}, {"slug": "primetime", "title": "Primetime", "url": "https://drafthouse.com/dc-metro-area/show/primetime", "tier": "regular", "label": null, "when": "Thu Sep 24 – Sun Sep 27", "shows": 8, "sort": "2026-09-24T17:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-05", "new": true}, {"slug": "family-party-forgotten-island", "title": "Forgotten Island", "url": "https://drafthouse.com/dc-metro-area/show/family-party-forgotten-island", "tier": "event", "label": "Family Parties", "when": "Sat Sep 26, 11:15 AM", "shows": 1, "sort": "2026-09-26T11:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-08", "new": true}, {"slug": "special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026", "title": "Princess Mononoke (Dubbed)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026", "tier": "event", "label": "Special event", "when": "Sat Sep 26, 11:55 AM", "shows": 1, "sort": "2026-09-26T11:55:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-05", "new": true}, {"slug": "nacho-libre", "title": "Nacho Libre", "url": "https://drafthouse.com/dc-metro-area/show/nacho-libre", "tier": "regular", "label": null, "when": "Sat Sep 26, 3:30 PM", "shows": 1, "sort": "2026-09-26T15:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "queer-film-theory-101-the-birdcage", "title": "The Birdcage", "url": "https://drafthouse.com/dc-metro-area/show/queer-film-theory-101-the-birdcage", "tier": "event", "label": "Queer Film Theory 101", "when": "Sun Sep 27, 11:45 AM", "shows": 1, "sort": "2026-09-27T11:45:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "epic-sunday-interstellar", "title": "Interstellar", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-interstellar", "tier": "event", "label": "EPIC Sunday", "when": "Sun Sep 27, 1:55 PM", "shows": 2, "sort": "2026-09-27T13:55:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "special-event-princess-mononoke-subtitled-studio-ghibli-fest-2026", "title": "Princess Mononoke (Subtitled)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-princess-mononoke-subtitled-studio-ghibli-fest-2026", "tier": "event", "label": "Special event", "when": "Mon Sep 28, 6:00 PM", "shows": 1, "sort": "2026-09-28T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-05", "new": true}, {"slug": "destroy-all-monsters", "title": "Destroy All Monsters", "url": "https://drafthouse.com/dc-metro-area/show/destroy-all-monsters", "tier": "regular", "label": null, "when": "Mon Sep 28, 7:00 PM", "shows": 1, "sort": "2026-09-28T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "terror-tuesday-michael-manns-manhunter-the-final-cut", "title": "Michael Mann's Manhunter: The Final Cut", "url": "https://drafthouse.com/dc-metro-area/show/terror-tuesday-michael-manns-manhunter-the-final-cut", "tier": "event", "label": "Terror Tuesday", "when": "Tue Sep 29, 7:00 PM", "shows": 1, "sort": "2026-09-29T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "verity", "title": "Verity", "url": "https://drafthouse.com/dc-metro-area/show/verity", "tier": "regular", "label": null, "when": "Thu Oct 1 – Sun Oct 4", "shows": 9, "sort": "2026-10-01T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-04", "new": true}, {"slug": "linkin-park-unshatter", "title": "LINKIN PARK: UNSHATTER", "url": "https://drafthouse.com/dc-metro-area/show/linkin-park-unshatter", "tier": "regular", "label": null, "when": "Sat Oct 3, 2:15 PM", "shows": 1, "sort": "2026-10-03T14:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "mean-girls-movie-party", "title": "Mean Girls (2004)", "url": "https://drafthouse.com/dc-metro-area/show/mean-girls-movie-party", "tier": "event", "label": "Movie Parties", "when": "Sat Oct 3, 4:00 PM", "shows": 1, "sort": "2026-10-03T16:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "tenet", "title": "TENET", "url": "https://drafthouse.com/dc-metro-area/show/tenet", "tier": "regular", "label": null, "when": "Sun Oct 4, 3:30 PM", "shows": 1, "sort": "2026-10-04T15:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "epic-sunday-tenet", "title": "TENET", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-tenet", "tier": "event", "label": "EPIC Sunday", "when": "Sun Oct 4, 6:00 PM", "shows": 1, "sort": "2026-10-04T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "live-score-nosferatu-1922-w-invincibles-czars", "title": "Nosferatu (1922)", "url": "https://drafthouse.com/dc-metro-area/show/live-score-nosferatu-1922-w-invincibles-czars", "tier": "event", "label": "Live Score", "when": "Tue Oct 6, 7:00 PM", "shows": 1, "sort": "2026-10-06T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-02", "new": true}, {"slug": "queen-budapest", "title": "Queen Budapest", "url": "https://drafthouse.com/dc-metro-area/show/queen-budapest", "tier": "regular", "label": null, "when": "Wed Oct 7 – Sat Oct 10", "shows": 2, "sort": "2026-10-07T19:15:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "epic-sunday-the-thing-1982", "title": "The Thing (1982)", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-the-thing-1982", "tier": "event", "label": "EPIC Sunday", "when": "Sun Oct 11, 6:00 PM", "shows": 1, "sort": "2026-10-11T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "special-event-spirited-away-dubbed-studio-ghibli-fest-2026", "title": "Spirited Away (Dubbed)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-spirited-away-dubbed-studio-ghibli-fest-2026", "tier": "event", "label": "Special event", "when": "Sat Oct 17, 11:00 AM", "shows": 1, "sort": "2026-10-17T11:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-05", "new": true}, {"slug": "epic-sunday-the-shining", "title": "The Shining", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-the-shining", "tier": "event", "label": "EPIC Sunday", "when": "Sun Oct 18, 6:00 PM", "shows": 1, "sort": "2026-10-18T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "special-event-spirited-away-subtitled-studio-ghibli-fest-2026", "title": "Spirited Away (Subtitled)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-spirited-away-subtitled-studio-ghibli-fest-2026", "tier": "event", "label": "Special event", "when": "Mon Oct 19, 7:00 PM", "shows": 1, "sort": "2026-10-19T19:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-05", "new": true}, {"slug": "dismember-the-alamo-2026-dc-area", "title": "Dismember the Alamo 2026 - DC Area", "url": "https://drafthouse.com/dc-metro-area/show/dismember-the-alamo-2026-dc-area", "tier": "regular", "label": null, "when": "Sat Oct 24, 12:00 PM", "shows": 1, "sort": "2026-10-24T12:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-09-01", "new": false}, {"slug": "fallen-angels-by-noel-coward", "title": "Fallen Angels by Noël Coward", "url": "https://drafthouse.com/dc-metro-area/show/fallen-angels-by-noel-coward", "tier": "regular", "label": null, "when": "Sun Oct 25, 3:30 PM", "shows": 1, "sort": "2026-10-25T15:30:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "epic-sunday-kill-bill-the-whole-bloody-affair", "title": "Kill Bill: The Whole Bloody Affair", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-kill-bill-the-whole-bloody-affair", "tier": "event", "label": "EPIC Sunday", "when": "Sun Nov 1, 5:00 PM", "shows": 1, "sort": "2026-11-01T17:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "advance-screening-dune-part-three-the-big-show-insider-screening", "title": "Dune: Part Three", "url": "https://drafthouse.com/dc-metro-area/show/advance-screening-dune-part-three-the-big-show-insider-screening", "tier": "event", "label": "Advance Screenings", "when": "Tue Dec 15, 6:00 PM", "shows": 1, "sort": "2026-12-15T18:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "avengers-doomsday", "title": "Avengers: Doomsday", "url": "https://drafthouse.com/dc-metro-area/show/avengers-doomsday", "tier": "regular", "label": null, "when": "Thu Dec 17 – Wed Dec 23", "shows": 39, "sort": "2026-12-17T13:00:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}, {"slug": "dune-part-three", "title": "Dune: Part Three", "url": "https://drafthouse.com/dc-metro-area/show/dune-part-three", "tier": "regular", "label": null, "when": "Thu Dec 17 – Wed Dec 23", "shows": 13, "sort": "2026-12-17T16:55:00", "poster": null, "trailer": null, "year": null, "seen": "2026-08-25", "new": false}];
+const TIMELINE = [{"date": "2026-09-08", "films": [{"title": "Forgotten Island", "url": "https://drafthouse.com/dc-metro-area/show/family-party-forgotten-island"}, {"title": "Forgotten Island", "url": "https://drafthouse.com/dc-metro-area/show/forgotten-island"}]}, {"date": "2026-09-05", "films": [{"title": "Primetime", "url": "https://drafthouse.com/dc-metro-area/show/primetime"}, {"title": "Princess Mononoke (Dubbed)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026"}, {"title": "Princess Mononoke (Subtitled)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-princess-mononoke-subtitled-studio-ghibli-fest-2026"}, {"title": "Spirited Away (Dubbed)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-spirited-away-dubbed-studio-ghibli-fest-2026"}, {"title": "Spirited Away (Subtitled)", "url": "https://drafthouse.com/dc-metro-area/show/special-event-spirited-away-subtitled-studio-ghibli-fest-2026"}]}, {"date": "2026-09-04", "films": [{"title": "Verity", "url": "https://drafthouse.com/dc-metro-area/show/verity"}]}, {"date": "2026-09-02", "films": [{"title": "Nosferatu (1922)", "url": "https://drafthouse.com/dc-metro-area/show/live-score-nosferatu-1922-w-invincibles-czars"}]}, {"date": "2026-09-01", "films": [{"title": "By Any Means", "url": "https://drafthouse.com/dc-metro-area/show/by-any-means"}, {"title": "Dismember the Alamo 2026 - DC Area", "url": "https://drafthouse.com/dc-metro-area/show/dismember-the-alamo-2026-dc-area"}, {"title": "EVERYTHING EVERYWHERE ALL AT ONCE", "url": "https://drafthouse.com/dc-metro-area/show/everything-everywhere-all-at-once"}, {"title": "Resident Evil (2026)", "url": "https://drafthouse.com/dc-metro-area/show/resident-evil-2026"}, {"title": "The Weight", "url": "https://drafthouse.com/dc-metro-area/show/livestream-q-a-the-weight"}]}, {"date": "2026-08-27", "films": [{"title": "Amadeus", "url": "https://drafthouse.com/dc-metro-area/show/film-club-amadeus"}, {"title": "Buddy (2026)", "url": "https://drafthouse.com/dc-metro-area/show/buddy-2026"}, {"title": "Onslaught", "url": "https://drafthouse.com/dc-metro-area/show/onslaught"}]}, {"date": "2026-08-26", "films": [{"title": "Butthole Surfers: The Hole Truth and Nothing Butt", "url": "https://drafthouse.com/dc-metro-area/show/butthole-surfers-the-hole-truth-and-nothing-butt"}, {"title": "Coyote Vs. ACME", "url": "https://drafthouse.com/dc-metro-area/show/coyote-vs-acme"}]}, {"date": "2026-08-25", "films": [{"title": "Angel Heart", "url": "https://drafthouse.com/dc-metro-area/show/angel-heart"}, {"title": "Avengers: Doomsday", "url": "https://drafthouse.com/dc-metro-area/show/avengers-doomsday"}, {"title": "Basic Instinct", "url": "https://drafthouse.com/dc-metro-area/show/basic-instinct"}, {"title": "Butthole Surfers: The Hole Truth and Nothing Butt", "url": "https://drafthouse.com/dc-metro-area/show/live-q-a-butthole-surfers-the-hole-truth-and-nothing-butt"}, {"title": "CatVideoFest 2026", "url": "https://drafthouse.com/dc-metro-area/show/catvideofest-2026"}, {"title": "Crunchyroll Anime Night Sneak Peek (9/21/2026)", "url": "https://drafthouse.com/dc-metro-area/show/crunchyroll-anime-night-sneak-peek-9-21-2026"}, {"title": "Destroy All Monsters", "url": "https://drafthouse.com/dc-metro-area/show/destroy-all-monsters"}, {"title": "Dire Duplicity", "url": "https://drafthouse.com/dc-metro-area/show/dire-duplicity"}, {"title": "Dune: Part Three", "url": "https://drafthouse.com/dc-metro-area/show/advance-screening-dune-part-three-the-big-show-insider-screening"}, {"title": "Dune: Part Three", "url": "https://drafthouse.com/dc-metro-area/show/dune-part-three"}, {"title": "Dunkirk", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-dunkirk"}, {"title": "Ernie & Emma", "url": "https://drafthouse.com/dc-metro-area/show/live-q-a-ernie-emma"}, {"title": "Fallen Angels by Noël Coward", "url": "https://drafthouse.com/dc-metro-area/show/fallen-angels-by-noel-coward"}, {"title": "First Blood", "url": "https://drafthouse.com/dc-metro-area/show/first-blood"}, {"title": "GHOST: 2 Big To Rig", "url": "https://drafthouse.com/dc-metro-area/show/ghost-2-big-to-rig"}, {"title": "HARRY POTTER AND THE SORCERER'S STONE", "url": "https://drafthouse.com/dc-metro-area/show/harry-potter-and-the-sorcerers-stone"}, {"title": "Hope (2026)", "url": "https://drafthouse.com/dc-metro-area/show/advance-screening-hope-2026-the-big-show-early-access"}, {"title": "Hope (2026)", "url": "https://drafthouse.com/dc-metro-area/show/hope-2026"}, {"title": "Inception", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-inception"}, {"title": "Insidious: Out of the Further", "url": "https://drafthouse.com/dc-metro-area/show/insidious-out-of-the-further"}, {"title": "Interstellar", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-interstellar"}, {"title": "Katy Perry: The Lifetimes Tour - Live From Paris", "url": "https://drafthouse.com/dc-metro-area/show/katy-perry-the-lifetimes-tour-live-from-paris"}, {"title": "Kill Bill: The Whole Bloody Affair", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-kill-bill-the-whole-bloody-affair"}, {"title": "LINKIN PARK: UNSHATTER", "url": "https://drafthouse.com/dc-metro-area/show/linkin-park-unshatter"}, {"title": "Mean Girls (2004)", "url": "https://drafthouse.com/dc-metro-area/show/mean-girls-movie-party"}, {"title": "Memento", "url": "https://drafthouse.com/dc-metro-area/show/memento"}, {"title": "Michael Mann's Manhunter: The Final Cut", "url": "https://drafthouse.com/dc-metro-area/show/terror-tuesday-michael-manns-manhunter-the-final-cut"}, {"title": "Monty Python and the Holy Grail", "url": "https://drafthouse.com/dc-metro-area/show/quote-along-monty-python-and-the-holy-grail"}, {"title": "Mothra vs. Godzilla", "url": "https://drafthouse.com/dc-metro-area/show/mothra-vs-godzilla"}, {"title": "My Sassy Girl", "url": "https://drafthouse.com/dc-metro-area/show/sad-girl-cinema-club-my-sassy-girl"}, {"title": "Nacho Libre", "url": "https://drafthouse.com/dc-metro-area/show/nacho-libre"}, {"title": "Network", "url": "https://drafthouse.com/dc-metro-area/show/film-club-network"}, {"title": "Paw Patrol: The Dino Movie", "url": "https://drafthouse.com/dc-metro-area/show/paw-patrol-the-dino-movie"}, {"title": "Practical Magic 2", "url": "https://drafthouse.com/dc-metro-area/show/practical-magic-2"}, {"title": "Queen Budapest", "url": "https://drafthouse.com/dc-metro-area/show/queen-budapest"}, {"title": "Rear Window", "url": "https://drafthouse.com/dc-metro-area/show/film-club-rear-window"}, {"title": "Rear Window", "url": "https://drafthouse.com/dc-metro-area/show/rear-window"}, {"title": "Spider-Man: Brand New Day", "url": "https://drafthouse.com/dc-metro-area/show/spider-man-brand-new-day"}, {"title": "Spy Kids", "url": "https://drafthouse.com/dc-metro-area/show/spy-kids"}, {"title": "Star Trek II: The Wrath of Khan", "url": "https://drafthouse.com/dc-metro-area/show/special-event-star-trek-ii-the-wrath-of-khan-space-seed"}, {"title": "Star Trek III: The Search for Spock", "url": "https://drafthouse.com/dc-metro-area/show/special-event-star-trek-iii-the-search-for-spock-amok-time"}, {"title": "Star Trek IV: The Voyage Home", "url": "https://drafthouse.com/dc-metro-area/show/special-event-star-trek-iv-the-voyage-home-the-city-on-the-edge-of-forever"}, {"title": "Star Trek: The Genesis Trilogy", "url": "https://drafthouse.com/dc-metro-area/show/star-trek-the-genesis-trilogy"}, {"title": "Star Trek: The Motion Picture - Director's Edition", "url": "https://drafthouse.com/dc-metro-area/show/special-event-star-trek-the-motion-picture-directors-edition-the-changeling"}, {"title": "TENET", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-tenet"}, {"title": "TENET", "url": "https://drafthouse.com/dc-metro-area/show/tenet"}, {"title": "Taxi Driver", "url": "https://drafthouse.com/dc-metro-area/show/film-club-taxi-driver"}, {"title": "Teenage Sex and Death at Camp Miasma", "url": "https://drafthouse.com/dc-metro-area/show/teenage-sex-and-death-at-camp-miasma"}, {"title": "Terminator 2: Judgment Day 35th Anniversary", "url": "https://drafthouse.com/dc-metro-area/show/terminator-2-judgment-day-35th-anniversary"}, {"title": "The Birdcage", "url": "https://drafthouse.com/dc-metro-area/show/queer-film-theory-101-the-birdcage"}, {"title": "The Dark Knight", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-the-dark-knight"}, {"title": "The Dark Knight Rises", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-the-dark-knight-rises"}, {"title": "The Dog Stars", "url": "https://drafthouse.com/dc-metro-area/show/advance-screening-the-dog-stars"}, {"title": "The Dog Stars", "url": "https://drafthouse.com/dc-metro-area/show/the-dog-stars"}, {"title": "The Doors", "url": "https://drafthouse.com/dc-metro-area/show/the-doors"}, {"title": "The End of Oak Street", "url": "https://drafthouse.com/dc-metro-area/show/the-end-of-oak-street"}, {"title": "The Faculty", "url": "https://drafthouse.com/dc-metro-area/show/terror-tuesday-the-faculty"}, {"title": "The Fast and the Furious: 25th Anniversary", "url": "https://drafthouse.com/dc-metro-area/show/the-fast-and-the-furious-25th-anniversary"}, {"title": "The Furious", "url": "https://drafthouse.com/dc-metro-area/show/film-club-the-furious"}, {"title": "The Odyssey", "url": "https://drafthouse.com/dc-metro-area/show/the-odyssey"}, {"title": "The Outsiders: The Complete Novel", "url": "https://drafthouse.com/dc-metro-area/show/movie-party-the-outsiders-the-complete-novel"}, {"title": "The Shining", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-the-shining"}, {"title": "The Thing (1982)", "url": "https://drafthouse.com/dc-metro-area/show/epic-sunday-the-thing-1982"}, {"title": "The Twilight Saga: New Moon", "url": "https://drafthouse.com/dc-metro-area/show/the-twilight-saga-the-twilight-saga-new-moon-fan-screening"}, {"title": "Tony", "url": "https://drafthouse.com/dc-metro-area/show/tony"}, {"title": "Toxic: A Fairy Tale for Grown-Ups", "url": "https://drafthouse.com/dc-metro-area/show/toxic-a-fairy-tale-for-grown-ups"}, {"title": "Twilight (2008)", "url": "https://drafthouse.com/dc-metro-area/show/the-twilight-saga-twilight-2008-fan-event"}]}];
+
+const slate = document.getElementById('slate');
+const tl = document.getElementById('timeline');
+const q = document.getElementById('q');
+const eventsOnly = document.getElementById('events');
+const freshOnly = document.getElementById('fresh');
+const count = document.getElementById('count');
+
+const STORE = 'alamo-slate';
+const TIERS = [
+  ['event', 'Special events', 'One-offs and series screenings. Seats go early.'],
+  ['regular', 'Regular releases', ''],
+  ['advance', 'Advance screenings', 'The film returns in a regular run; the merch does not.']
+];
+
+// Both filters are remembered: this is a page you come back to on a Friday
+// rather than land on once, and most visits want the same view as last time.
+let prefs = {events: false, fresh: false};
+try { Object.assign(prefs, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch (e) {}
+eventsOnly.checked = !!prefs.events;
+freshOnly.checked = !!prefs.fresh;
+
+function save() {
+  try {
+    localStorage.setItem(STORE, JSON.stringify({
+      events: eventsOnly.checked, fresh: freshOnly.checked
+    }));
+  } catch (e) {}
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+
+function card(f) {
+  const poster = f.poster
+    ? '<img loading="lazy" src="' + esc(f.poster) + '" alt="">'
+    : '<div class="none">' + esc(f.title) + '</div>';
+  // Only the new ones get a badge. Badging all 78 would mark nothing.
+  const badge = f.new ? '<div class="badge">NEW</div>' : '';
+  const bits = [f.when];
+  bits.push(f.shows + (f.shows === 1 ? ' show' : ' shows'));
+  const trailer = f.trailer
+    ? '<a class="trailer" href="' + esc(f.trailer) + '" rel="noopener">&#9654; Trailer</a>'
+    : '';
+  return '<div class="card">' +
+    '<div class="poster">' + poster + badge + '</div>' +
+    '<div class="name"><a href="' + esc(f.url) + '" rel="noopener">' + esc(f.title) + '</a></div>' +
+    (f.label ? '<div class="series">' + esc(f.label) + '</div>' : '') +
+    '<div class="meta">' + esc(bits.join(' \u00b7 ')) + '</div>' +
+    trailer +
+    '</div>';
+}
+
+function render() {
+  const term = q.value.trim().toLowerCase();
+  const shown = DATA.filter(f => {
+    if (eventsOnly.checked && f.tier !== 'event') return false;
+    if (freshOnly.checked && !f.new) return false;
+    if (!term) return true;
+    return (f.title + ' ' + (f.label || '')).toLowerCase().includes(term);
+  });
+
+  let html = '';
+  for (const [tier, heading, note] of TIERS) {
+    const group = shown.filter(f => f.tier === tier);
+    if (!group.length) continue;
+    html += '<section><h2>' + heading + ' <span>' + group.length + '</span></h2>' +
+      (note ? '<p class="note">' + note + '</p>' : '') +
+      '<div class="grid">' + group.map(card).join('') + '</div></section>';
+  }
+  slate.innerHTML = html || '<p class="empty">Nothing matches that.</p>';
+
+  const total = DATA.length;
+  count.textContent = shown.length === total
+    ? total + ' bookable now'
+    : shown.length + ' of ' + total + ' bookable';
+}
+
+function renderTimeline() {
+  tl.innerHTML = TIMELINE.map(day => {
+    const links = day.films.map(f =>
+      '<a href="' + esc(f.url) + '" rel="noopener">' + esc(f.title) + '</a>'
+    ).join(', ');
+    return '<div class="tl-day"><div class="tl-date">' + esc(day.date) + '</div>' +
+      '<div class="tl-films">' + links + '</div></div>';
+  }).join('') || '<p class="empty">No history yet.</p>';
+}
+
+q.addEventListener('input', render);
+eventsOnly.addEventListener('change', () => { save(); render(); });
+freshOnly.addEventListener('change', () => { save(); render(); });
+render();
+renderTimeline();
+</script>
+</body>
+</html>

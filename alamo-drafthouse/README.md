@@ -324,6 +324,74 @@ entire notification path is one step, one secret, and no forge-specific API:
 
 ---
 
+## The webpage
+
+**[txrunn.github.io/scripts/alamo/](https://txrunn.github.io/scripts/alamo/)**
+
+The issue and the push tell you what is *new*. The page tells you what is *on*,
+which is the question you actually have on a Friday. Everything currently
+bookable at Bryant Street as a poster grid, grouped by tier, with anything added
+in the last 7 days badged **NEW**, a search box, an events-only filter, and a
+timeline of when each title first appeared.
+
+`build_site.py` builds it. The daily workflow rebuilds it on every run — not
+only on days something is new, because showtimes fall off the slate constantly
+and a page that is a week stale is worse than no page.
+
+```powershell
+# Build it locally into site/
+python build_site.py
+
+# Is TMDB still shaped the way the builder expects?
+python build_site.py --verify
+
+# Ignore the cache and re-look-up every title (slow, ~80 requests)
+python build_site.py --refresh-all
+```
+
+### Posters and trailers
+
+From TMDB, via a `TMDB_API_KEY` secret the repo already has for the disc
+inventory. Results are cached in `cache/metadata.json` and committed back,
+because runners keep nothing and the slate is ~60 titles of which maybe two
+change on a given day.
+
+**Without the key the page still builds** — no posters, no trailers, and a
+footer that says so. A page that quietly lost its artwork should not look like
+one that never had any.
+
+Titles TMDB has never heard of are cached as a *miss* so they are not looked up
+again every morning. Alamo programs a lot of those — CatVideoFest, Dismember the
+Alamo, Quote-Alongs — and re-querying them daily would be most of the request
+budget for no result. The footer counts them.
+
+The matcher takes a trailing year in an Alamo title as a hint (`Nosferatu
+(1922)`) and scores rather than filters on it, so a festival-versus-release
+mismatch still finds the film. A title-only match with no year agreement is
+rejected outright: on a repertory slate full of remakes, guessing wrong is worse
+than showing no poster.
+
+### How it gets published
+
+`.github/workflows/pages.yml` owns the Pages deploy for the whole repo, and it
+has to be the only thing that does. `actions/deploy-pages` publishes an entire
+site from one artifact, so a second workflow uploading just its own page would
+delete everything else on its next run.
+
+So the split is: this workflow builds `alamo-drafthouse/site/` and commits it;
+`pages.yml` assembles that with `movie-collection/site/` and the landing page in
+`/site/`, and deploys the lot. Adding a third page means a directory and a row
+in `site/index.html`, not another deploy job.
+
+It triggers on `workflow_run` rather than `push` because a commit made by a job
+using `GITHUB_TOKEN` does not start another workflow — a `push` trigger would
+never fire for the runs that actually change something.
+
+Publishing is gated on a `PUBLISH_PAGES` repository variable. Unset, the page is
+still built and committed, so nothing depends on Pages being configured.
+
+---
+
 ## Options
 
 | Flag | Purpose |
@@ -491,6 +559,7 @@ $d.sessions | Group-Object status | Select-Object Name, Count
 - [Schedule endpoint](https://drafthouse.com/s/mother/v2/schedule/market/dc-metro-area) — raw JSON
 
 **This repo**
+- [The page](https://txrunn.github.io/scripts/alamo/) — the slate, browsable
 - [Actions runs](https://github.com/txrunn/scripts/actions) — history and job summaries
 - [Issues](https://github.com/txrunn/scripts/issues) — where new-film alerts land
 - `git log alamo-drafthouse/ci-state/` — when each film went on sale

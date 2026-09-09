@@ -1,0 +1,105 @@
+name: Pages
+
+# The single thing that deploys to GitHub Pages.
+#
+# actions/deploy-pages publishes an entire site from one artifact, so a workflow
+# that uploads only its own page silently deletes every other page on the next
+# deploy. That is why publishing does not live in the workflows that build the
+# pages: they each commit their own site/ directory, and this assembles all of
+# them from the checkout. Adding a third page means adding a directory below and
+# a row in site/index.html -- not another deploy job.
+#
+# workflow_run is the trigger because a push made by a job using GITHUB_TOKEN
+# does not start another workflow. The content workflows commit their page as
+# github-actions[bot], so a `push` trigger alone would never fire for the runs
+# that actually change something.
+#
+# Publishing is gated on a PUBLISH_PAGES repository variable so the content
+# workflows work from the first run without Pages being configured:
+#   Settings -> Pages -> Source: GitHub Actions
+#   Settings -> Secrets and variables -> Actions -> Variables -> PUBLISH_PAGES=true
+
+on:
+  workflow_run:
+    workflows: ["Movie collection", "Alamo new films"]
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "movie-collection/site/**"
+      - "alamo-drafthouse/site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  # Not cancel-in-progress: a half-finished Pages deploy is worse than a queued
+  # one, and these take seconds.
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Assemble and deploy
+    # A failed build has nothing new worth publishing, and republishing the last
+    # good pages on every red run makes the deploy history lie about what
+    # succeeded.
+    if: >-
+      vars.PUBLISH_PAGES == 'true' &&
+      (github.event_name != 'workflow_run' ||
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      # workflow_run checks out the default branch by default, which is what we
+      # want -- but only after the triggering run's commit has landed, so ref is
+      # pinned to main explicitly rather than left to the event payload.
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Assemble the site
+        run: |
+          set -euo pipefail
+          STAGE="$RUNNER_TEMP/pages"
+          mkdir -p "$STAGE"
+
+          # The landing page is a committed file rather than a heredoc so that
+          # adding a page is a normal edit someone can preview locally.
+          cp site/index.html "$STAGE/index.html"
+
+          # Each page gets a named sub-path; the root belongs to the index.
+          # A page whose directory is missing is skipped rather than fatal, so
+          # one half-built section cannot take the whole site offline.
+          publish() {
+            local src="$1" dest="$2"
+            if [ ! -f "$src/index.html" ]; then
+              echo "::warning::$src/index.html is missing -- skipping /$dest/"
+              return
+            fi
+            mkdir -p "$STAGE/$dest"
+            cp -R "$src/." "$STAGE/$dest/"
+            rm -f "$STAGE/$dest/.gitkeep"
+          }
+
+          publish alamo-drafthouse/site alamo
+          publish movie-collection/site blu-ray-discs
+
+          echo "Publishing:"
+          find "$STAGE" -type f | sort | sed 's|^|  |'
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ runner.temp }}/pages
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v5
