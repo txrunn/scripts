@@ -49,6 +49,10 @@ DEFAULT_STATE = os.path.join(SCRIPT_DIR, "ci-state", "dc-bryant-street.json")
 DEFAULT_CACHE = os.path.join(SCRIPT_DIR, "cache", "metadata.json")
 DEFAULT_OUT_DIR = os.path.join(SCRIPT_DIR, "site")
 
+# Where the page is published. Only the link-preview tags need it -- og:url has
+# to be absolute, and a relative one makes the card fall back to a bare link.
+SITE_URL = "https://txrunn.github.io/scripts/alamo/"
+
 TMDB_API = "https://api.themoviedb.org/3"
 YOUTUBE_WATCH = "https://www.youtube.com/watch?v={key}"
 
@@ -648,6 +652,81 @@ def recent_summary(added):
     return "Last found: " + "; then ".join(parts) + "."
 
 
+def card_description(added, soon, since=None):
+    """The sentence a link preview shows under the title.
+
+    Plain text: the standfirst on the page carries <b> tags, and a meta
+    attribute renders them literally. Leads with the counts, then names the
+    most recent arrivals -- the counts say how much, the names say whether it
+    is worth opening.
+    """
+    new_count = sum(len(b["films"]) for b in added)
+    started = ""
+    if since:
+        when = dt.date.fromisoformat(since)
+        started = f" since {when.day} {when:%B}"
+
+    if not new_count and not soon:
+        return "Nothing newly on sale at DC Bryant Street right now."
+
+    # Each clause is dropped when its count is zero rather than rendered as
+    # "0 films", which reads like the page is broken.
+    parts = []
+    if new_count:
+        parts.append(f"{new_count} film{'' if new_count == 1 else 's'} newly on sale{started}")
+    if soon:
+        parts.append(f"{len(soon)} limited run{'' if len(soon) == 1 else 's'} coming up")
+    head = " and ".join(parts) + "."
+
+    summary = recent_summary(added)
+    return f"{head} {summary}".strip()
+
+
+def card_image(added, soon):
+    """Poster for the preview card, or None.
+
+    The newest arrival, falling back to the soonest limited run -- whatever the
+    page leads with is what the card should show. Posters are cached at w342,
+    which is fine for a thumbnail but soft as a card image, so ask TMDB for the
+    same file at w780; the path is the only part that identifies it.
+    """
+    for film in [f for b in added for f in b["films"]] + list(soon):
+        poster = film.get("poster")
+        if poster:
+            return poster.replace("/w342/", "/w780/")
+    return None
+
+
+def social_tags(url, title, description, image):
+    """Open Graph and Twitter card tags.
+
+    twitter:card is `summary`, not `summary_large_image`: the only art we have
+    is a portrait poster, and a wide card centre-crops it to a band across the
+    middle of someone's face. A summary card shows it whole, beside the text.
+    """
+    tags = [
+        ("og:type", "website"),
+        ("og:site_name", "Alamo DC Bryant Street tracker"),
+        ("og:title", title),
+        ("og:description", description),
+        ("og:url", url),
+        ("twitter:card", "summary"),
+        ("twitter:title", title),
+        ("twitter:description", description),
+    ]
+    if image:
+        tags += [("og:image", image), ("twitter:image", image),
+                 ("og:image:alt", "Poster for the most recent arrival")]
+
+    # og:* is a property, twitter:* a name. Getting this wrong is the usual
+    # reason a card silently does not render.
+    out = []
+    for key, value in tags:
+        attr = "property" if key.startswith("og:") else "name"
+        out.append(f'<meta {attr}="{key}" content="{html.escape(value, quote=True)}">')
+    return "\n".join(out)
+
+
 # --- Page --------------------------------------------------------------------
 
 
@@ -657,6 +736,7 @@ PAGE = string.Template("""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>$page_title</title>
+$social
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAYFBMVEX0siMHCAjqqyK4hxynexoyJwyacRlKOA8ZFQmMaBdZQxHLlB4jHAtzVhTVnCBmTBPCjh7coSGAXxY/MA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA87wXQAAAAIHRSTlP//////////////////////////wAAAAAAAAAAAAAAALESzYUAAAH0SURBVHja7VXRjuMgDMQYxxgCJL3//9cb0/ZUurtS7+EeTspIbWGwx46N0xAuXLhw4cK/Ryw50wNZ0kculTe7tTFKKapZbEs8kWyQAqWM0ZrT/Tv3G+WcRWRaltHi62kaD10V2ZGaxjf3KplSfGPnfnLxja9Cv+rCZeXTf3t36/iU6v0pdP9Ep6Ysa14EqLojC5HWEGXn6a5EXr6WC4SSZJ4WebhEpVVgOyO4WfIYiZLnIXPPYTi5YVndAr3REM9tFcg7yjJIOp7OQp4CRpmRhLoAife0ohs9pkwVSa6PkA1pCaKFDRW+CxRIIascGppINOCnsIhB/dj2RUBgCz9jbiRYeA2UGjMyj41an2wt1FCa3Y9NFgGVFuPj5rlpMUO4OyAwPAIEGKeaYVGb6CJQ5Oa1a2YFx9MPAmrWIDCoeOe8nm1GqAECZRXANqbkzU6MBRA4+S0AWdPhTZnHNRnHp8cLjI74V6N2eIWX2aNsCLJV60c9jM2nyOpRN8xSOO3ghAUjiw3WqEN5D9gLytrKyKalaS8sGKjSmg4twVpqIkUt64ZLWyl9mccYEm5GsopAKZ2BT88AkbGz0JEBeOOKb56mX1Hp4yo0+ZYW2Vb8EeSVN9p+eInJ/gIhvb+QcBv3BWKfJdrl+U5s11/EhQsXLvwn+A0WDhGl39if1wAAAABJRU5ErkJggg==">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1091,7 +1171,7 @@ renderCalendar();
 """)
 
 
-def render_html(added, soon, title, label, market, has_key, since=None):
+def render_html(added, soon, title, label, market, has_key, since=None, site_url=SITE_URL):
     """Build the page. Data is injected as JSON and rendered client-side."""
     new_count = sum(len(b["films"]) for b in added)
     soon_count = len(soon)
@@ -1146,8 +1226,19 @@ def render_html(added, soon, title, label, market, has_key, since=None):
     today_count = sum(len(b["films"]) for b in added if b["label"] == "Today")
     tab = f"{today_count} new today · {title}" if today_count else title
 
+    # The card title is the tab title without the trailing brand: a preview
+    # already shows the site name on its own line, so repeating it there costs
+    # room that a film name could have used.
+    social = social_tags(
+        url=site_url,
+        title=tab,
+        description=card_description(added, soon, since),
+        image=card_image(added, soon),
+    )
+
     return PAGE.substitute(
         page_title=html.escape(f"{tab} · Alamo Drafthouse"),
+        social=social,
         masthead=html.escape(title),
         stamp=html.escape(build_stamp()),
         summary=html.escape(recent_summary(added)),
@@ -1255,6 +1346,8 @@ def build_parser():
     # Same name the issues and the phone notifications use, so the whole flow
     # calls this one thing by one name.
     parser.add_argument("--title", default="New at Bryant Street")
+    parser.add_argument("--site-url", default=SITE_URL,
+                        help="canonical URL, used by the link-preview tags")
     parser.add_argument("--refresh-all", action="store_true",
                         help="ignore the cache and re-look-up every title")
     parser.add_argument("--verify", action="store_true",
@@ -1314,7 +1407,8 @@ def main(argv=None):
     added = added_batches(cards)
     soon = upcoming_batches(cards)
     page = render_html(added, soon, args.title, label, args.market,
-                       has_key=bool(api_key), since=baseline_date(ledger))
+                       has_key=bool(api_key), since=baseline_date(ledger),
+                       site_url=args.site_url)
 
     out_dir = os.path.expanduser(args.out_dir)
     os.makedirs(out_dir, exist_ok=True)

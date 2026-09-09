@@ -557,3 +557,85 @@ class JsonIoTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestSocialCard(unittest.TestCase):
+    """A pasted link should unfurl into a card, not sit there as a bare URL."""
+
+    def batch(self, *films):
+        return [{"label": "Today", "sub": "", "films": list(films)}]
+
+    def film(self, title, poster=None, trailer=None):
+        return {"title": title, "poster": poster, "trailer": trailer}
+
+    def test_og_uses_property_and_twitter_uses_name(self):
+        """The usual reason a card silently fails to render."""
+        tags = build_site.social_tags("https://x/", "T", "D", None)
+        self.assertIn('<meta property="og:title" content="T">', tags)
+        self.assertIn('<meta name="twitter:title" content="T">', tags)
+
+    def test_required_tags_are_all_present(self):
+        tags = build_site.social_tags("https://x/", "T", "D", "https://img/p.jpg")
+        for key in ("og:type", "og:site_name", "og:title", "og:description",
+                    "og:url", "og:image", "twitter:card", "twitter:image"):
+            with self.subTest(key=key):
+                self.assertIn(f'"{key}"', tags)
+
+    def test_image_tags_are_omitted_when_there_is_no_poster(self):
+        """Half a card beats a card with a broken image in it."""
+        tags = build_site.social_tags("https://x/", "T", "D", None)
+        self.assertNotIn("og:image", tags)
+        self.assertNotIn("twitter:image", tags)
+
+    def test_quotes_in_a_title_cannot_break_out_of_the_attribute(self):
+        tags = build_site.social_tags("https://x/", 'The "Burbs', "D", None)
+        self.assertNotIn('content="The "Burbs"', tags)
+        self.assertIn("&quot;", tags)
+
+    def test_card_is_a_summary_not_a_wide_crop(self):
+        """Only art available is a portrait poster; a wide card crops a band."""
+        tags = build_site.social_tags("https://x/", "T", "D", "https://img/p.jpg")
+        self.assertIn('content="summary"', tags)
+        self.assertNotIn("summary_large_image", tags)
+
+    def test_poster_is_upgraded_from_thumbnail_width(self):
+        added = self.batch(self.film("A", poster="https://image.tmdb.org/t/p/w342/x.jpg"))
+        self.assertEqual(build_site.card_image(added, []),
+                         "https://image.tmdb.org/t/p/w780/x.jpg")
+
+    def test_image_falls_back_to_a_limited_run_when_nothing_is_new(self):
+        soon = [self.film("B", poster="https://image.tmdb.org/t/p/w342/y.jpg")]
+        self.assertEqual(build_site.card_image([], soon),
+                         "https://image.tmdb.org/t/p/w780/y.jpg")
+
+    def test_image_skips_films_that_have_no_poster(self):
+        added = self.batch(self.film("A"), self.film("B", poster="https://image.tmdb.org/t/p/w342/z.jpg"))
+        self.assertEqual(build_site.card_image(added, []),
+                         "https://image.tmdb.org/t/p/w780/z.jpg")
+
+    def test_no_poster_anywhere_yields_no_image(self):
+        self.assertIsNone(build_site.card_image(self.batch(self.film("A")), []))
+
+    def test_description_is_plain_text(self):
+        """The on-page standfirst carries <b>; an attribute renders it literally."""
+        desc = build_site.card_description(self.batch(self.film("A")), [], since="2026-08-25")
+        self.assertNotIn("<", desc)
+        self.assertIn("1 film newly on sale since 25 August", desc)
+
+    def test_description_names_the_recent_arrivals(self):
+        desc = build_site.card_description(self.batch(self.film("Nosferatu")), [])
+        self.assertIn("Nosferatu", desc)
+
+    def test_description_says_so_when_there_is_nothing(self):
+        self.assertIn("Nothing newly on sale", build_site.card_description([], []))
+
+    def test_description_never_says_zero_films(self):
+        """"0 films newly on sale" reads like the page is broken."""
+        desc = build_site.card_description([], [self.film("A"), self.film("B")])
+        self.assertNotIn("0 film", desc)
+        self.assertEqual(desc, "2 limited runs coming up.")
+
+    def test_description_pluralises_both_clauses(self):
+        one = build_site.card_description(self.batch(self.film("A")), [self.film("B")])
+        self.assertEqual(one, "1 film newly on sale and 1 limited run coming up. "
+                              "Last found: A, today.")

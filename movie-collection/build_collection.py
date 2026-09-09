@@ -52,6 +52,10 @@ DEFAULT_CACHE = os.path.join(SCRIPT_DIR, "cache", "metadata.json")
 DEFAULT_LEDGER = os.path.join(SCRIPT_DIR, "cache", "build.json")
 DEFAULT_OUT_DIR = os.path.join(SCRIPT_DIR, "site")
 
+# Where the page is published. Only the link-preview tags use it -- og:url has
+# to be absolute or the card falls back to a bare link.
+SITE_URL = "https://txrunn.github.io/scripts/blu-ray-discs/"
+
 TMDB_API = "https://api.themoviedb.org/3"
 # w342 is the smallest poster that still looks right at the card size below;
 # w500 quadruples the page weight for no visible gain at 190px wide.
@@ -754,6 +758,7 @@ PAGE = string.Template("""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>$page_title</title>
+$social
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+IDxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjE1IiBmaWxsPSIjYjQ0NDFmIi8+IDxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y2ZjVmMyIgc3Ryb2tlLXdpZHRoPSIxLjUiIG9wYWNpdHk9Ii41NSIvPiA8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSI0IiBmaWxsPSIjZjZmNWYzIi8+PC9zdmc+">
 <style>
 :root {
@@ -1248,8 +1253,30 @@ def render_html(shelf, blocks, title, embedded=None):
         len(blocks),
     )
 
+    # Link-preview tags, so pasting the URL unfurls into a card rather than a
+    # bare link. No og:image: the posters on this page are inlined as data:
+    # URIs, and an unfurler needs a URL it can fetch. Title and description
+    # alone still render a card everywhere.
+    social = "\n".join(
+        '<meta {}="{}" content="{}">'.format(
+            "property" if key.startswith("og:") else "name", key,
+            html.escape(value, quote=True),
+        )
+        for key, value in (
+            ("og:type", "website"),
+            ("og:site_name", "scripts"),
+            ("og:title", title),
+            ("og:description", summary),
+            ("og:url", SITE_URL),
+            ("twitter:card", "summary"),
+            ("twitter:title", title),
+            ("twitter:description", summary),
+        )
+    )
+
     return PAGE.substitute(
         page_title=html.escape(title),
+        social=social,
         summary=html.escape(summary),
         # </script> inside a JSON string would close the block early; the rest
         # is ordinary JSON and safe between script tags.
