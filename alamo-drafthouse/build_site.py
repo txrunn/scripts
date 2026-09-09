@@ -1,24 +1,31 @@
 #!/usr/bin/env python3
-"""Render the DC Bryant Street slate as a browsable page.
+"""Render what has just gone on sale at DC Bryant Street.
 
-The tracker tells you what is *new*. This tells you what is *on*, which is a
-different question and the one you have when you are deciding what to see this
-week. Everything currently bookable, grouped by tier, with the recent arrivals
-badged and a timeline of when each one turned up.
+Two things earn a place on the page and nothing else does: films the tracker
+watched go on sale, newest morning first, and limited runs coming up. A wide
+release playing all month is neither, which is the whole point -- Alamo already
+publishes their schedule and does it better than this would.
 
-Posters and trailers come from TMDB and are cached in cache/metadata.json,
-because runners keep nothing between jobs and the slate is ~80 films of which
-maybe two change on a given day. A title TMDB has never heard of -- and Alamo
-programs plenty of those, from CatVideoFest to Dismember the Alamo -- is cached
-as a miss so it is not looked up again every morning.
+"Limited" is a programmed special, or a last remaining date, or a short run that
+has not opened yet. That last clause is what keeps a blockbuster down to its
+final three showtimes off a page about things you can miss.
+
+Every booking of one film collapses into a single card carrying all its
+showtimes, so Princess Mononoke is one entry offering the dubbed and the
+subtitled date rather than two entries that look like a bug.
+
+Artwork is Alamo's own, out of the same schedule payload the tracker already
+fetches -- every presentation has one, including the festivals and livestreams a
+film database has never heard of. TMDB supplies only trailer links and the id
+that joins two bookings, cached in cache/metadata.json because runners keep
+nothing between jobs.
 
     python build_site.py                    # fetch, enrich, write site/
     python build_site.py --verify           # is TMDB still shaped as expected?
     python build_site.py --refresh-all      # ignore the cache, re-look-up all
 
-TMDB_API_KEY is required. Without it the page still builds, with no posters and
-no trailers, and says so in the footer -- a page that quietly lost its artwork
-should not look like a page that never had any.
+TMDB_API_KEY is optional. Without it the page keeps all its artwork and loses
+only the trailer links, and says so in the footer.
 """
 
 import argparse
@@ -1213,7 +1220,7 @@ def mode_verify(api_key):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description="Render the Bryant Street slate as a browsable page.",
+        description="Render what has just gone on sale at Bryant Street.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--market", default=alamo.MARKET_SLUG)
