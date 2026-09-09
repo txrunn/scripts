@@ -586,10 +586,6 @@ a { color: inherit; }
   width: 112px; height: 112px;
 }
 h1 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
-.venue {
-  font-size: 11px; font-weight: 500; letter-spacing: 0.18em;
-  text-transform: uppercase; opacity: 0.72; margin-top: 1px;
-}
 header { margin-bottom: 30px; }
 .standfirst {
   margin: 12px 0 0; font-size: 25px; font-weight: 400; line-height: 1.25;
@@ -689,10 +685,7 @@ footer {
 <div class="bar">
   <div class="bar-in">
     <span class="logo"><img src="$logo" alt="Alamo Drafthouse"></span>
-    <div>
-      <h1>$masthead</h1>
-      <div class="venue">$venue</div>
-    </div>
+    <h1>$masthead</h1>
   </div>
 </div>
 
@@ -875,9 +868,10 @@ def render_html(added, soon, title, label, market, missing, has_key, since=None)
     )
 
     return PAGE.substitute(
-        page_title=html.escape(title),
+        # The tab needs to stand on its own in a bookmark list; the masthead has
+        # the logo beside it and does not need to say Alamo twice.
+        page_title=html.escape(f"{title} · Alamo Drafthouse"),
         masthead=html.escape(title),
-        venue=html.escape(label),
         logo=LOGO,
         standfirst=standfirst,
         footer=" ".join(notes),
@@ -978,7 +972,9 @@ def build_parser():
                         help="ledger read for first-seen dates (default: ci-state/)")
     parser.add_argument("--cache", default=DEFAULT_CACHE)
     parser.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
-    parser.add_argument("--title", default="Alamo DC New Movie Tracker")
+    # Same name the issues and the phone notifications use, so the whole flow
+    # calls this one thing by one name.
+    parser.add_argument("--title", default="New at Bryant Street")
     parser.add_argument("--refresh-all", action="store_true",
                         help="ignore the cache and re-look-up every title")
     parser.add_argument("--verify", action="store_true",
