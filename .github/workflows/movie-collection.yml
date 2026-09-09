@@ -110,7 +110,23 @@ jobs:
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
             git commit -m "Rebuild the collection page ($(date -u +%Y-%m-%d))"
-            git push
+            # Rebasing is safe because everything staged above is regenerated
+            # output, never a hand edit. It has to be a loop: pull-then-push is
+            # not atomic, so losing the race once says nothing about the next
+            # attempt. Optimistic first -- the common case is no contention.
+            pushed=""
+            for attempt in 1 2 3; do
+              if git push; then
+                pushed=yes
+                break
+              fi
+              echo "push rejected (attempt $attempt) -- rebasing onto the new tip"
+              git pull --rebase --autostash -q origin main
+            done
+            if [ -z "$pushed" ]; then
+              echo "could not push after 3 attempts"
+              exit 1
+            fi
           fi
 
       - name: Write the run summary

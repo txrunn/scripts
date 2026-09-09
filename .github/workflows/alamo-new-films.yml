@@ -218,11 +218,23 @@ jobs:
               MSG="Rebuild the Bryant Street page ($(date -u +%Y-%m-%d))"
             fi
             git commit -m "$MSG"
-            # The scheduled run and a same-day dispatch can race for the same
-            # push; rebasing is safe here because everything staged above is
-            # regenerated output, never a hand edit.
-            git pull --rebase --autostash -q origin main || true
-            git push
+            # Rebasing is safe because everything staged above is regenerated
+            # output, never a hand edit. It has to be a loop: pull-then-push is
+            # not atomic, so losing the race once says nothing about the next
+            # attempt. Optimistic first -- the common case is no contention.
+            pushed=""
+            for attempt in 1 2 3; do
+              if git push; then
+                pushed=yes
+                break
+              fi
+              echo "push rejected (attempt $attempt) -- rebasing onto the new tip"
+              git pull --rebase --autostash -q origin main
+            done
+            if [ -z "$pushed" ]; then
+              echo "could not push after 3 attempts"
+              exit 1
+            fi
           fi
 
       # Last, deliberately. The issue is already open and the ledger has already
