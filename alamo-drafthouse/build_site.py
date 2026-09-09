@@ -682,18 +682,31 @@ def card_description(added, soon, since=None):
     return f"{head} {summary}".strip()
 
 
+# Poster size for the link-preview card. The page asks Alamo for 340x510,
+# which is right for a grid tile and soft as the only image in a card, so the
+# card asks the same CDN for the same art at double.
+CARD_W, CARD_H = POSTER_W * 2, POSTER_H * 2
+
+
 def card_image(added, soon):
     """Poster for the preview card, or None.
 
     The newest arrival, falling back to the soonest limited run -- whatever the
-    page leads with is what the card should show. Posters are cached at w342,
-    which is fine for a thumbnail but soft as a card image, so ask TMDB for the
-    same file at w780; the path is the only part that identifies it.
+    page leads with is what the card should show.
+
+    Alamo's image CDN takes the dimensions as query parameters, the same way
+    poster_uri sets them, so this re-asks for a bigger crop of the same file
+    rather than upscaling a thumbnail.
     """
     for film in [f for b in added for f in b["films"]] + list(soon):
         poster = film.get("poster")
-        if poster:
-            return poster.replace("/w342/", "/w780/")
+        if not poster:
+            continue
+        poster = re.sub(r"([?&])w=\d+", r"\g<1>w=%d" % CARD_W, poster)
+        poster = re.sub(r"([?&])h=\d+", r"\g<1>h=%d" % CARD_H, poster)
+        # TMDB paths encode the width instead, and older cache entries hold
+        # them. Harmless where it does not match.
+        return poster.replace("/w342/", "/w780/")
     return None
 
 

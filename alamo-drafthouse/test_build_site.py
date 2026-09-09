@@ -598,7 +598,20 @@ class TestSocialCard(unittest.TestCase):
         self.assertIn('content="summary"', tags)
         self.assertNotIn("summary_large_image", tags)
 
-    def test_poster_is_upgraded_from_thumbnail_width(self):
+    def test_alamo_poster_is_re_requested_at_card_size(self):
+        """The live poster comes from Alamo's CDN, sized by query parameters."""
+        url = ("https://img-assets.drafthouse.com/images/shows/cars/poster.jpg"
+               "?auto=compress&fit=clip&h=510&q=80&w=340")
+        got = build_site.card_image(self.batch(self.film("A", poster=url)), [])
+        self.assertIn("w=%d" % build_site.CARD_W, got)
+        self.assertIn("h=%d" % build_site.CARD_H, got)
+        self.assertNotIn("w=340", got)
+        self.assertNotIn("h=510", got)
+
+    def test_card_size_is_bigger_than_the_grid_tile(self):
+        self.assertGreater(build_site.CARD_W, build_site.POSTER_W)
+
+    def test_tmdb_poster_is_upgraded_from_thumbnail_width(self):
         added = self.batch(self.film("A", poster="https://image.tmdb.org/t/p/w342/x.jpg"))
         self.assertEqual(build_site.card_image(added, []),
                          "https://image.tmdb.org/t/p/w780/x.jpg")
