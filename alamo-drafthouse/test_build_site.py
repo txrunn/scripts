@@ -441,10 +441,21 @@ class BatchTests(unittest.TestCase):
         cards = self._cards({}, films)
         self.assertEqual(build_site.upcoming_batches(cards, today=self.TODAY), [])
 
-    def test_upcoming_respects_the_horizon(self):
-        films = {"a": film("A", hours=[24 * 400])}
-        cards = self._cards({}, films)
-        self.assertEqual(build_site.upcoming_batches(cards, today=self.TODAY), [])
+    def test_a_distant_one_off_is_still_listed(self):
+        # There was a ten-week cutoff and it hid exactly one film: December's
+        # advance screening of Dune, which is the thing you most want a
+        # quarter's notice of. Being limited is the bound, not the calendar.
+        films = {"a": film("A", hours=[24 * 100])}
+        out = build_site.upcoming_batches(self._cards({}, films), today=self.TODAY)
+        self.assertEqual([c["title"] for c in out], ["A"])
+
+    def test_an_advance_screening_counts_however_it_runs(self):
+        # The film comes back; the early date and its merch do not.
+        films = {"a": film("A", alamo.TIER_ADVANCE, hours=list(range(0, 24 * 8, 24)),
+                           count=8)}
+        cards = build_site.assemble(films, {"_seed": {"first_seen": "2026-08-01"}}, {},
+                                    "m", today=self.TODAY)
+        self.assertTrue(cards[0]["oneoff"])
 
     def test_every_upcoming_card_carries_its_own_date(self):
         # This section is a flat run, so the date has to live on the card --

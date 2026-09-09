@@ -355,11 +355,16 @@ python build_site.py --refresh-all  # ignore the cache, re-look-up every title
 
 ### The booking planner
 
-At the foot of the page, a month grid from today to the last one-off on the
-schedule. Days with a one-off screening are outlined and named — those are fixed
-points, they happen once. Click any day to cross it off, and what is left is
-where a film with a flexible run still fits, which is the actual problem when
-you are trying to see one film a day.
+At the foot of the page, a month grid from today to the last limited run on the
+schedule. Days carrying one are outlined and named. Click any day to cross it
+off, and what is left is where a film with a flexible run still fits, which is
+the actual problem when you are trying to see one film a day.
+
+A title marked **+1** plays on that many other days too, so that day is movable;
+a title on its own is your only chance. Counted in days rather than showings —
+TENET plays twice on one afternoon and that is still one evening of yours. The
+case this exists for is Dune's advance screening: 15 December or, without the
+merch, the 17th.
 
 Deliberately not saved. It is a scratchpad for the ten minutes you spend buying
 tickets, and a half-remembered plan from last week would be worse than none.

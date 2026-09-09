@@ -533,8 +533,10 @@ def assemble(films, ledger, cache, market, posters=None, opens=None, today=None)
             # The seed batch is not an arrival: those films were simply playing
             # the day tracking started.
             "fresh": bool(added) and added != seeded,
-            # What sells out. A programmed special always; a last remaining
-            # screening always; and a short run that has not opened yet.
+            # What sells out. A programmed special or an advance screening
+            # always -- the film comes back but the early date does not, and the
+            # merch with it. A last remaining screening always. And a short run
+            # that has not opened yet.
             #
             # The opening date is what keeps Spider-Man out. Down to three dates
             # it looks limited by count alone, but it has been in general release
@@ -542,7 +544,7 @@ def assemble(films, ledger, cache, market, posters=None, opens=None, today=None)
             # which also plays twice and opens next week. Both are short. Only
             # one of them is news.
             "oneoff": (
-                lead["tier"] == "event"
+                lead["tier"] in ("event", "advance")
                 or total == 1
                 or (lead["opens"] is not None
                     and lead["opens"] >= today.isoformat()
@@ -583,21 +585,24 @@ def added_batches(cards, today=None):
     return out
 
 
-def upcoming_batches(cards, today=None, weeks=10):
+def upcoming_batches(cards, today=None):
     """Limited runs ahead, soonest first.
 
     Skips anything already listed as newly added -- it is the same film and the
     page would be telling you twice. Long runs never qualify: a wide release
     playing for a month is not something you can miss.
+
+    No distance cutoff. There was a ten-week one and it was hiding exactly one
+    film: the December advance screening of Dune, which is the single thing on
+    this slate you would most want a quarter's notice of. Being limited is
+    already the bound -- 33 films qualify at any distance -- and Alamo's own
+    schedule window is the other.
     """
     today = today or venue_today()
-    horizon = today + dt.timedelta(weeks=weeks)
 
     out = []
     for card in cards:
         if card["fresh"] or not card["oneoff"]:
-            continue
-        if dt.date.fromisoformat(card["day"]) > horizon:
             continue
         out.append(card)
 
@@ -804,6 +809,7 @@ section h2 + .batch, .lede + div > .batch:first-child { margin-top: 4px; }
 .cell.past { opacity: 0.3; cursor: default; }
 .cell .d { font-size: 13px; font-weight: 600; }
 .cell .ev { color: var(--brand); line-height: 1.25; }
+.cell .more { color: var(--soft); margin-left: 3px; }
 .cell.booked { border-color: var(--brand); }
 .cell.off { opacity: 0.42; }
 .cell.off .d, .cell.off .ev { text-decoration: line-through; }
@@ -874,10 +880,11 @@ footer {
 
 <section id="plan-wrap">
   <h2>Booking planner</h2>
-  <p class="lede">A limited run is close to a fixed point — miss the two or three
-     dates shown and it is gone. Cross off the days you have taken so you can see where
-     a film with a month of showtimes still fits. Nothing here is saved; it is a
-     scratchpad for while you are buying tickets.</p>
+  <p class="lede">A limited run is close to a fixed point — miss the dates shown and
+     it is gone. A title marked <b>+1</b> plays on that many other days too, so it is
+     movable; a title on its own is your only chance. Cross off the days you have taken
+     to see where a film with a month of showtimes still fits. Nothing here is saved;
+     it is a scratchpad for while you are buying tickets.</p>
   <div class="plan-tools">
     <button type="button" id="plan-clear">Clear</button>
     <span class="plan-note" id="plan-count"></span>
@@ -998,9 +1005,15 @@ function oneoffDays() {
   const byDay = new Map();
   for (const f of ALL_FILMS) {
     if (!f.oneoff) continue;
-    for (const sh of f.showings) {
-      if (!byDay.has(sh.iso)) byDay.set(sh.iso, []);
-      byDay.get(sh.iso).push(f.title);
+    // Counted in days, not showings: TENET plays twice on one afternoon and
+    // that is still one evening of yours. A film with other *days* is movable
+    // rather than fixed -- the difference between "book this or never" and
+    // "book this or the 17th". Dune's advance screening is the case that
+    // matters: catch it early or see it two days later without the merch.
+    const days = [...new Set(f.showings.map(sh => sh.iso))];
+    for (const iso of days) {
+      if (!byDay.has(iso)) byDay.set(iso, []);
+      byDay.get(iso).push({title: f.title, others: days.length - 1});
     }
   }
   return byDay;
@@ -1037,7 +1050,9 @@ function renderCalendar() {
       cells += '<' + (past ? 'div' : 'button type="button"') + ' class="' + cls.join(' ') +
         '" data-iso="' + iso + '"' + (past ? '' : ' aria-pressed="' + struck.has(iso) + '"') + '>' +
         '<span class="d">' + d + '</span>' +
-        evs.slice(0, 2).map(t => '<span class="ev">' + esc(t) + '</span>').join('') +
+        evs.slice(0, 2).map(e => '<span class="ev">' + esc(e.title) +
+          (e.others ? '<span class="more">+' + e.others + '</span>' : '') +
+          '</span>').join('') +
         (evs.length > 2 ? '<span class="ev">+' + (evs.length - 2) + ' more</span>' : '') +
         '</' + (past ? 'div' : 'button') + '>';
     }
