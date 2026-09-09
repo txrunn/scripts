@@ -229,7 +229,16 @@ jobs:
                 break
               fi
               echo "push rejected (attempt $attempt) -- rebasing onto the new tip"
-              git pull --rebase --autostash -q origin main
+              # -X theirs makes the commit being replayed win, which during a
+              # rebase is this run's. Two runs both regenerate these files, so
+              # they conflict on content every time -- and there is no merge to
+              # perform: a freshly built page is simply the correct one. Without
+              # this the rebase stops on a conflict and the retry loop spins.
+              if ! git pull --rebase -X theirs --autostash -q origin main; then
+                git rebase --abort >/dev/null 2>&1 || true
+                echo "could not rebase onto the new tip"
+                break
+              fi
             done
             if [ -z "$pushed" ]; then
               echo "could not push after 3 attempts"
