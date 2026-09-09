@@ -391,18 +391,29 @@ def group_key(slug, title, cache):
     return "title:%s" % split_year(title)[0].lower()
 
 
-def build_stamp():
-    """When this page was built, in the cinema's clock where we can get it.
+def venue_now():
+    """Now, in the cinema's clock where we can get it.
 
-    The runner is UTC and the cinema is not, and "checked 07:47" is misleading
-    if you are standing in DC. zoneinfo needs the tzdata the runner has and a
-    bare Windows checkout does not, so it falls back to UTC and says which.
+    The runner is UTC and the cinema is not. Left on UTC, a build at 23:53 EDT
+    stamps itself 8 September and then files that evening's arrivals under
+    "Yesterday", because the runner's date has already rolled over. Every day
+    boundary on this page comes from here. zoneinfo needs tzdata the runner has
+    and a bare Windows checkout may not, so it falls back to UTC.
     """
     try:
         from zoneinfo import ZoneInfo
-        now = dt.datetime.now(ZoneInfo("America/New_York"))
+        return dt.datetime.now(ZoneInfo("America/New_York"))
     except Exception:
-        now = dt.datetime.now(dt.timezone.utc)
+        return dt.datetime.now(dt.timezone.utc)
+
+
+def venue_today():
+    """Today's date at the cinema, which is the one the page reckons in."""
+    return venue_now().date()
+
+
+def build_stamp():
+    now = venue_now()
     zone = now.strftime("%Z") or "UTC"
     return f"{now.day} {now:%b}, {clock(now)} {zone}"
 
@@ -430,7 +441,7 @@ def assemble(films, ledger, cache, market, posters=None, today=None):
     appear) and `oneoff` (it screens once, or it is a programmed special), and
     the two sections of the page choose from those.
     """
-    today = today or dt.date.today()
+    today = today or venue_today()
     seeded = baseline_date(ledger)
     posters = posters or {}
 
@@ -505,7 +516,7 @@ def assemble(films, ledger, cache, market, posters=None, today=None):
 
 def added_batches(cards, today=None):
     """Newly-added films grouped into the mornings they arrived, newest first."""
-    today = today or dt.date.today()
+    today = today or venue_today()
     groups = {}
     for card in cards:
         if not card["fresh"]:
@@ -533,7 +544,7 @@ def upcoming_batches(cards, today=None, weeks=10):
     page would be telling you twice. Long runs never qualify: a wide release
     playing for a month is not something you can miss.
     """
-    today = today or dt.date.today()
+    today = today or venue_today()
     horizon = today + dt.timedelta(weeks=weeks)
 
     out = []
