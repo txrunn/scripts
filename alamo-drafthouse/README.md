@@ -360,11 +360,14 @@ schedule. Days carrying one are outlined and named. Click any day to cross it
 off, and what is left is where a film with a flexible run still fits, which is
 the actual problem when you are trying to see one film a day.
 
-A title marked **+1** plays on that many other days too, so that day is movable;
-a title on its own is your only chance. Counted in days rather than showings —
-TENET plays twice on one afternoon and that is still one evening of yours. The
-case this exists for is Dune's advance screening: 15 December or, without the
-merch, the 17th.
+Each film sits on its **first** date only. A title marked **+1** also plays that
+many other days, so that day is movable; a title on its own is your only chance.
+You see a film once, so putting Dune on both the 15th and the 17th read as two
+commitments when it is one — and the first date is the whole point of an advance
+screening anyway. The film's card in the section above lists every date.
+
+Counted in days rather than showings: TENET plays twice on one afternoon and
+that is still one evening of yours.
 
 Deliberately not saved. It is a scratchpad for the ten minutes you spend buying
 tickets, and a half-remembered plan from last week would be worse than none.

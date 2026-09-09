@@ -881,10 +881,11 @@ footer {
 <section id="plan-wrap">
   <h2>Booking planner</h2>
   <p class="lede">A limited run is close to a fixed point — miss the dates shown and
-     it is gone. A title marked <b>+1</b> plays on that many other days too, so it is
-     movable; a title on its own is your only chance. Cross off the days you have taken
-     to see where a film with a month of showtimes still fits. Nothing here is saved;
-     it is a scratchpad for while you are buying tickets.</p>
+     it is gone. Each film sits on its first date; a title marked <b>+1</b> also plays
+     that many other days, so it is movable, while a title on its own is your only
+     chance. Cross off the days you have taken to see where a film with a month of
+     showtimes still fits. Nothing here is saved; it is a scratchpad for while you are
+     buying tickets.</p>
   <div class="plan-tools">
     <button type="button" id="plan-clear">Clear</button>
     <span class="plan-note" id="plan-count"></span>
@@ -1005,16 +1006,18 @@ function oneoffDays() {
   const byDay = new Map();
   for (const f of ALL_FILMS) {
     if (!f.oneoff) continue;
+    // The earliest date only, marked with how many other days it plays. You
+    // will see a film once, so putting Dune on both the 15th and the 17th read
+    // as two commitments when it is one -- and the whole point of an advance
+    // screening is the first date anyway. The marker is what says the day is
+    // movable; the film's card upstairs lists every date.
+    //
     // Counted in days, not showings: TENET plays twice on one afternoon and
-    // that is still one evening of yours. A film with other *days* is movable
-    // rather than fixed -- the difference between "book this or never" and
-    // "book this or the 17th". Dune's advance screening is the case that
-    // matters: catch it early or see it two days later without the merch.
-    const days = [...new Set(f.showings.map(sh => sh.iso))];
-    for (const iso of days) {
-      if (!byDay.has(iso)) byDay.set(iso, []);
-      byDay.get(iso).push({title: f.title, others: days.length - 1});
-    }
+    // that is still one evening of yours.
+    const days = [...new Set(f.showings.map(sh => sh.iso))].sort();
+    const first = days[0];
+    if (!byDay.has(first)) byDay.set(first, []);
+    byDay.get(first).push({title: f.title, others: days.length - 1});
   }
   return byDay;
 }
