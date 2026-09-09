@@ -279,12 +279,19 @@ class AssembleTests(unittest.TestCase):
     TODAY = dt.date(2026, 9, 10)
     SEED = "2026-08-01"
 
-    def _cards(self, ledger, films=None, cache=None, posters=None):
+    SOON = "2026-09-20"   # an opening date still ahead of TODAY
+    OPEN = "2026-08-01"   # already in general release
+
+    def _cards(self, ledger, films=None, cache=None, posters=None, opens=None):
         films = films or {"a": film("Taxi Driver", alamo.TIER_EVENT, "Film Club")}
         ledger = dict(ledger)
         ledger.setdefault("_seed", {"first_seen": self.SEED})
         return build_site.assemble(films, ledger, cache or {}, "m",
-                                   posters=posters, today=self.TODAY)
+                                   posters=posters, opens=opens, today=self.TODAY)
+
+    def _limited(self, shows, tier=alamo.TIER_REGULAR, opens=None):
+        films = {"a": film("X", tier, hours=list(range(0, 24 * shows, 24)), count=shows)}
+        return self._cards({}, films=films, opens={"a": opens})[0]["oneoff"]
 
     def test_a_later_arrival_is_fresh(self):
         self.assertTrue(self._cards({"a": {"first_seen": "2026-09-09"}})[0]["fresh"])
@@ -300,21 +307,29 @@ class AssembleTests(unittest.TestCase):
         cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR)})
         self.assertTrue(cards[0]["oneoff"])
 
-    def test_a_couple_of_screenings_still_counts_as_limited(self):
-        # "Screens once" was too literal: Spirited Away plays twice, dubbed and
-        # subtitled, and is no less easy to miss than a single showing.
+    def test_a_short_run_not_yet_open_is_limited(self):
+        # Spirited Away plays twice, dubbed and subtitled, and Memento twice next
+        # week. "Screens once" was too literal for both.
         for n in (2, 3, build_site.LIMITED_SHOWS):
-            cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR,
-                                                     hours=list(range(0, 24 * n, 24)),
-                                                     count=n)})
-            self.assertTrue(cards[0]["oneoff"], "%d screenings should be limited" % n)
+            self.assertTrue(self._limited(n, opens=self.SOON),
+                            "%d screenings, not yet open, should be limited" % n)
 
     def test_one_past_the_threshold_is_a_run(self):
-        n = build_site.LIMITED_SHOWS + 1
-        cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR,
-                                                 hours=list(range(0, 24 * n, 24)),
-                                                 count=n)})
-        self.assertFalse(cards[0]["oneoff"])
+        self.assertFalse(self._limited(build_site.LIMITED_SHOWS + 1, opens=self.SOON))
+
+    def test_a_wide_release_running_out_of_dates_is_not_limited(self):
+        # The Spider-Man case, and the whole reason the opening date is consulted:
+        # down to three dates it looks limited by count, but it has been in
+        # general release for a month and is not news.
+        self.assertFalse(self._limited(3, opens=None))
+        self.assertFalse(self._limited(3, opens=self.OPEN))
+
+    def test_a_last_remaining_screening_is_always_limited(self):
+        # Even for a wide release: one date left is one date left.
+        self.assertTrue(self._limited(1, opens=None))
+
+    def test_a_programmed_special_is_limited_however_it_runs(self):
+        self.assertTrue(self._limited(3, tier=alamo.TIER_EVENT, opens=None))
 
     def test_a_long_run_is_not_a_oneoff(self):
         # The Spider-Man case: a wide release playing all month is not something

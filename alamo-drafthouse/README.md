@@ -332,11 +332,15 @@ Two things earn a place on it, and nothing else does:
 
 1. **Newly added** — films the tracker watched go on sale, grouped by the
    morning it spotted them, newest first.
-2. **Limited runs ahead** — films screening no more than four times, and
-   programmed specials whatever their count, soonest first. The things that sell
-   out. "Screens once" was too literal: Spirited Away plays twice, dubbed and
-   subtitled, and is no less easy to miss. The slate breaks cleanly at four —
-   49 of 59 films are under it and the next ones up are 13, 16, 17 and 39.
+2. **Limited runs ahead** — soonest first. The things that sell out. A film
+   qualifies if it is a programmed special, or has one date left, or has a short
+   run (four screenings or fewer) that **has not opened yet**.
+
+   That last clause is doing real work. Spider-Man: Brand New Day down to three
+   dates looks limited by count alone, but it has been in general release for a
+   month; Memento also plays twice and opens next week. Both are short, only one
+   is news. Alamo gives a film in general release no `openingDateClt`, which is
+   exactly the distinction.
 
 A wide release playing all month is neither, so it is not there. That is the
 whole point: this is not a copy of Alamo's schedule, it is the answer to "what

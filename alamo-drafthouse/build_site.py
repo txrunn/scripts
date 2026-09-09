@@ -180,6 +180,21 @@ def poster_for(show):
     return uri
 
 
+def openings_by_slug(presentations):
+    """slug -> the date Alamo says it opens, or None if it is already playing.
+
+    This is what separates a repertory one-off from a blockbuster running out of
+    showtimes. Both can be down to three dates; only one of them is news. A film
+    already in general release has no opening date left to give.
+    """
+    out = {}
+    for presentation in presentations:
+        slug = presentation.get("slug")
+        if slug:
+            out[slug] = presentation.get("openingDateClt")
+    return out
+
+
 def posters_by_slug(presentations):
     """slug -> poster URL, for every presentation that has one."""
     out = {}
@@ -436,7 +451,7 @@ def baseline_date(ledger):
     return min(dates) if dates else None
 
 
-def assemble(films, ledger, cache, market, posters=None, today=None):
+def assemble(films, ledger, cache, market, posters=None, opens=None, today=None):
     """One card per film, carrying every booking of it.
 
     A film Alamo listed twice -- dubbed and subtitled, or a Family Party
@@ -450,6 +465,7 @@ def assemble(films, ledger, cache, market, posters=None, today=None):
     today = today or venue_today()
     seeded = baseline_date(ledger)
     posters = posters or {}
+    opens = opens or {}
 
     bookings = {}
     for slug, film in films.items():
@@ -468,6 +484,7 @@ def assemble(films, ledger, cache, market, posters=None, today=None):
             "first": first,
             "run": None if len(days) == 1 else f"{last.day} {last:%b}",
             "shows": film["session_count"],
+            "opens": opens.get(slug),
             "poster": posters.get(slug),
             "trailer": meta.get("trailer"),
             "year": meta.get("year"),
@@ -509,10 +526,21 @@ def assemble(films, ledger, cache, market, posters=None, today=None):
             # The seed batch is not an arrival: those films were simply playing
             # the day tracking started.
             "fresh": bool(added) and added != seeded,
-            # What sells out: a handful of showings, or a programmed special
-            # whatever its count. "Screens once" was too literal -- Spirited Away
-            # plays twice and is no less easy to miss.
-            "oneoff": total <= LIMITED_SHOWS or lead["tier"] == "event",
+            # What sells out. A programmed special always; a last remaining
+            # screening always; and a short run that has not opened yet.
+            #
+            # The opening date is what keeps Spider-Man out. Down to three dates
+            # it looks limited by count alone, but it has been in general release
+            # for a month and Alamo gives it no opening date -- unlike Memento,
+            # which also plays twice and opens next week. Both are short. Only
+            # one of them is news.
+            "oneoff": (
+                lead["tier"] == "event"
+                or total == 1
+                or (lead["opens"] is not None
+                    and lead["opens"] >= today.isoformat()
+                    and total <= LIMITED_SHOWS)
+            ),
             "showings": showings,
             "day": lead["first"].date().isoformat(),
             "sort": lead["first"].isoformat(),
@@ -1255,7 +1283,8 @@ def main(argv=None):
                                 verbose=not args.quiet)
 
     cards = assemble(films, ledger, cache, args.market,
-                     posters=posters_by_slug(presentations))
+                     posters=posters_by_slug(presentations),
+                     opens=openings_by_slug(presentations))
     added = added_batches(cards)
     soon = upcoming_batches(cards)
     page = render_html(added, soon, args.title, label, args.market,
