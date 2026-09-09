@@ -300,6 +300,22 @@ class AssembleTests(unittest.TestCase):
         cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR)})
         self.assertTrue(cards[0]["oneoff"])
 
+    def test_a_couple_of_screenings_still_counts_as_limited(self):
+        # "Screens once" was too literal: Spirited Away plays twice, dubbed and
+        # subtitled, and is no less easy to miss than a single showing.
+        for n in (2, 3, build_site.LIMITED_SHOWS):
+            cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR,
+                                                     hours=list(range(0, 24 * n, 24)),
+                                                     count=n)})
+            self.assertTrue(cards[0]["oneoff"], "%d screenings should be limited" % n)
+
+    def test_one_past_the_threshold_is_a_run(self):
+        n = build_site.LIMITED_SHOWS + 1
+        cards = self._cards({}, films={"a": film("X", alamo.TIER_REGULAR,
+                                                 hours=list(range(0, 24 * n, 24)),
+                                                 count=n)})
+        self.assertFalse(cards[0]["oneoff"])
+
     def test_a_long_run_is_not_a_oneoff(self):
         # The Spider-Man case: a wide release playing all month is not something
         # you can miss, and it is why the page is not just the schedule.
@@ -422,6 +438,32 @@ class BatchTests(unittest.TestCase):
         out = build_site.upcoming_batches(self._cards({}, films), today=self.TODAY)
         self.assertEqual([c["showings"][0]["date"] for c in out],
                          ["Thu 10 Sep", "Fri 11 Sep"])
+
+
+class SummaryTests(unittest.TestCase):
+    """The header names what turned up, which is the question you arrive with."""
+
+    def _batches(self, *groups):
+        return [{"label": lbl, "sub": sub, "films": [{"title": t} for t in titles]}
+                for lbl, sub, titles in groups]
+
+    def test_names_the_two_most_recent_batches(self):
+        out = build_site.recent_summary(self._batches(
+            ("Today", "", ["A"]), ("Fri 4 Sep", "4 days ago", ["B", "C"]),
+            ("Mon 1 Sep", "7 days ago", ["D"])))
+        self.assertEqual(out, "Last found: A, today; then B and C, 4 days ago.")
+
+    def test_caps_a_long_batch(self):
+        out = build_site.recent_summary(self._batches(
+            ("Today", "", ["A", "B", "C", "D", "E"])))
+        self.assertIn("A, B, C and 2 others, today", out)
+
+    def test_nothing_added_says_nothing(self):
+        self.assertEqual(build_site.recent_summary([]), "")
+
+    def test_one_title_reads_plainly(self):
+        self.assertEqual(build_site.name_list(["A"]), "A")
+        self.assertEqual(build_site.name_list(["A", "B"]), "A and B")
 
 
 class RenderTests(unittest.TestCase):

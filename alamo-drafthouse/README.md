@@ -332,8 +332,11 @@ Two things earn a place on it, and nothing else does:
 
 1. **Newly added** — films the tracker watched go on sale, grouped by the
    morning it spotted them, newest first.
-2. **One-off screenings ahead** — single showings and programmed specials,
-   soonest first. The things that sell out.
+2. **Limited runs ahead** — films screening no more than four times, and
+   programmed specials whatever their count, soonest first. The things that sell
+   out. "Screens once" was too literal: Spirited Away plays twice, dubbed and
+   subtitled, and is no less easy to miss. The slate breaks cleanly at four —
+   49 of 59 films are under it and the next ones up are 13, 16, 17 and 39.
 
 A wide release playing all month is neither, so it is not there. That is the
 whole point: this is not a copy of Alamo's schedule, it is the answer to "what

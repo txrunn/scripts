@@ -65,6 +65,12 @@ THROTTLE = 0.06
 # get round to booking something, and matches how often the slate turns over.
 NEW_DAYS = 7
 
+# What counts as limited rather than a run. The slate breaks cleanly here: 49 of
+# 59 films screen four times or fewer and the next ones up are 13, 16, 17 and 39
+# -- the wide releases you cannot miss. Spirited Away's two showings, dubbed and
+# subtitled, are as gone-in-a-blink as a single one.
+LIMITED_SHOWS = 4
+
 # Trailing "(2026)" in an Alamo title is a real year hint -- they use it to
 # disambiguate remakes, which is exactly when TMDB search needs the help.
 YEAR_SUFFIX = re.compile(r"^(.*?)\s*\((\d{4})\)\s*$")
@@ -503,9 +509,10 @@ def assemble(films, ledger, cache, market, posters=None, today=None):
             # The seed batch is not an arrival: those films were simply playing
             # the day tracking started.
             "fresh": bool(added) and added != seeded,
-            # What sells out. A single screening is the plain case; a programmed
-            # special is one too even when it runs dubbed and subtitled.
-            "oneoff": total == 1 or lead["tier"] == "event",
+            # What sells out: a handful of showings, or a programmed special
+            # whatever its count. "Screens once" was too literal -- Spirited Away
+            # plays twice and is no less easy to miss.
+            "oneoff": total <= LIMITED_SHOWS or lead["tier"] == "event",
             "showings": showings,
             "day": lead["first"].date().isoformat(),
             "sort": lead["first"].isoformat(),
@@ -542,7 +549,7 @@ def added_batches(cards, today=None):
 
 
 def upcoming_batches(cards, today=None, weeks=10):
-    """One-off screenings ahead, soonest first.
+    """Limited runs ahead, soonest first.
 
     Skips anything already listed as newly added -- it is the same film and the
     page would be telling you twice. Long runs never qualify: a wide release
@@ -563,6 +570,42 @@ def upcoming_batches(cards, today=None, weeks=10):
     # so grouping by day would say it twice and stretch 29 films down 20 rows.
     out.sort(key=lambda c: c["sort"])
     return out
+
+
+def name_list(names, cap=3):
+    """"A, B and C", or "A, B and 4 others" past the cap."""
+    if not names:
+        return ""
+    if len(names) > cap:
+        rest = len(names) - cap
+        return ", ".join(names[:cap]) + f" and {rest} other" + ("s" if rest != 1 else "")
+    if len(names) == 1:
+        return names[0]
+    return ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def when_phrase(batch):
+    """"today", "yesterday", "4 days ago" -- however the batch labelled itself."""
+    label = batch["label"]
+    if label in ("Today", "Yesterday"):
+        return label.lower()
+    return batch["sub"] or label
+
+
+def recent_summary(added):
+    """The two most recent arrivals, named, with how long ago.
+
+    The counts above say how much; this says what, which is the question you
+    actually arrive with. Two batches because one is often a single film and
+    tells you nothing about whether it has been a quiet week.
+    """
+    if not added:
+        return ""
+    parts = []
+    for batch in added[:2]:
+        names = name_list([f["title"] for f in batch["films"]])
+        parts.append(f"{names}, {when_phrase(batch)}")
+    return "Last found: " + "; then ".join(parts) + "."
 
 
 # --- Page --------------------------------------------------------------------
@@ -627,6 +670,11 @@ header { margin-bottom: 30px; }
   letter-spacing: -0.02em; max-width: 34ch;
 }
 .standfirst b { font-weight: 600; color: var(--brand); }
+.summary {
+  margin: 10px 0 0; font-size: 13.5px; color: var(--soft); max-width: 62ch;
+  line-height: 1.5;
+}
+.summary:empty { display: none; }
 .controls { display: flex; flex-wrap: wrap; gap: 9px; margin: 24px 0 0; }
 input[type=search] {
   font: inherit; padding: 9px 12px; border: 1px solid var(--rule);
@@ -768,6 +816,7 @@ footer {
 
 <header>
   <p class="standfirst">$standfirst</p>
+  <p class="summary">$summary</p>
   <div class="controls">
     <input type="search" id="q" placeholder="Search a title or a series" autocomplete="off">
     <label class="toggle"><input type="checkbox" id="events"> Special events only</label>
@@ -781,18 +830,19 @@ footer {
 </section>
 
 <section id="soon-wrap">
-  <h2>One-off screenings ahead</h2>
-  <p class="lede">Single showings and programmed specials, soonest first. These are
-     the ones that sell out; a film with a month of showtimes is not here.</p>
+  <h2>Limited runs ahead</h2>
+  <p class="lede">Films screening a handful of times, and programmed specials, soonest
+     first. These are the ones that sell out; a wide release playing all month is not
+     here.</p>
   <div id="soon"></div>
 </section>
 
 <section id="plan-wrap">
   <h2>Booking planner</h2>
-  <p class="lede">One-off screenings are fixed points — they only happen once, on the
-     day shown. Cross off the days you have taken so you can see where a film with a
-     flexible run still fits. Nothing here is saved; it is a scratchpad for while you
-     are buying tickets.</p>
+  <p class="lede">A limited run is close to a fixed point — miss the two or three
+     dates shown and it is gone. Cross off the days you have taken so you can see where
+     a film with a month of showtimes still fits. Nothing here is saved; it is a
+     scratchpad for while you are buying tickets.</p>
   <div class="plan-tools">
     <button type="button" id="plan-clear">Clear</button>
     <span class="plan-note" id="plan-count"></span>
@@ -1006,14 +1056,15 @@ def render_html(added, soon, title, label, market, has_key, since=None):
     if new_count or soon_count:
         standfirst = (
             f"<b>{new_count}</b> films newly on sale{started}, and "
-            f"<b>{soon_count}</b> one-off screenings coming up."
+            f"<b>{soon_count}</b> limited runs coming up."
         )
     else:
-        standfirst = "Nothing new, and nothing one-off on the schedule ahead."
+        standfirst = "Nothing new, and nothing on a limited run ahead."
 
     notes = [
-        "Checked every morning. A film earns a place here by being newly on sale or"
-        " by screening only once — a wide release playing all month is neither.",
+        "Checked every morning. A film earns a place here by being newly on sale or by"
+        f" screening no more than {LIMITED_SHOWS} times — a wide release playing all"
+        " month is neither.",
         f'For everything currently showing, <a href="{calendar}" rel="noopener">Alamo\'s'
         " own calendar</a> is the place.",
     ]
@@ -1045,6 +1096,7 @@ def render_html(added, soon, title, label, market, has_key, since=None):
         page_title=html.escape(f"{tab} · Alamo Drafthouse"),
         masthead=html.escape(title),
         stamp=html.escape(build_stamp()),
+        summary=html.escape(recent_summary(added)),
         today=venue_today().isoformat(),
         logo=LOGO,
         standfirst=standfirst,
@@ -1220,7 +1272,7 @@ def main(argv=None):
 
     new_count = sum(len(b["films"]) for b in added)
     soon_count = len(soon)
-    print(f"{new_count} newly added + {soon_count} one-off screenings -> {out_path}")
+    print(f"{new_count} newly added + {soon_count} limited runs -> {out_path}")
     print(f"  {looked_up} looked up, {len(missing)} without a TMDB trailer")
     return 0
 
