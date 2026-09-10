@@ -264,6 +264,14 @@
     "v": 2,
     "year": "2026"
   },
+  "guest-selects-ghost-dog-the-way-of-the-samurai": {
+    "checked": "2026-09-10",
+    "tmdb_id": 4816,
+    "tmdb_title": "Ghost Dog: The Way of the Samurai",
+    "trailer": "https://www.youtube.com/watch?v=ZhR6jWWpUj0",
+    "v": 2,
+    "year": "1999"
+  },
   "halloween-1978": {
     "checked": "2026-09-09",
     "tmdb_id": 948,
@@ -644,5 +652,13 @@
     "trailer": "https://www.youtube.com/watch?v=sF03ZFt8t8w",
     "v": 2,
     "year": "1966"
+  },
+  "your-mother-your-mother-your-mother": {
+    "checked": "2026-09-10",
+    "tmdb_id": 1437396,
+    "tmdb_title": "Your Mother Your Mother Your Mother",
+    "trailer": "https://www.youtube.com/watch?v=uEcoV-ngH38",
+    "v": 2,
+    "year": "2026"
   }
 }

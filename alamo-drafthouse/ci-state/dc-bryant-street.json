@@ -160,6 +160,10 @@
       "first_seen": "2026-08-25",
       "title": "GHOST: 2 Big To Rig"
     },
+    "guest-selects-ghost-dog-the-way-of-the-samurai": {
+      "first_seen": "2026-09-10",
+      "title": "Ghost Dog: The Way of the Samurai"
+    },
     "halloween-1978": {
       "first_seen": "2026-09-09",
       "title": "Halloween (1978)"
@@ -411,8 +415,12 @@
     "weird-wednesday-manos-the-hands-of-fate": {
       "first_seen": "2026-09-09",
       "title": "Manos: The Hands of Fate"
+    },
+    "your-mother-your-mother-your-mother": {
+      "first_seen": "2026-09-10",
+      "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-09T22:58:53",
+  "updated": "2026-09-10T16:53:47",
   "version": 1
 }
