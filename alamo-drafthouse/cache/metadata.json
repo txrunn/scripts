@@ -297,6 +297,14 @@
     "v": 2,
     "year": "2026"
   },
+  "if-i-go-will-they-miss-me": {
+    "checked": "2026-09-15",
+    "tmdb_id": 1596248,
+    "tmdb_title": "If I Go Will They Miss Me",
+    "trailer": "https://www.youtube.com/watch?v=aej2y_BBBFs",
+    "v": 2,
+    "year": "2026"
+  },
   "linkin-park-unshatter": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/kHNrz7DBVPrtyMhJxmBm2poS2l9.jpg",
@@ -305,6 +313,11 @@
     "trailer": "https://www.youtube.com/watch?v=K9Lpxc7bVTM",
     "v": 2,
     "year": "2026"
+  },
+  "live-q-a-dakar-dream": {
+    "checked": "2026-09-15",
+    "tmdb_id": null,
+    "v": 2
   },
   "live-q-a-ernie-emma": {
     "checked": "2026-09-09",
