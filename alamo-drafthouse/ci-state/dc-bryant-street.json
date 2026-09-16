@@ -60,6 +60,10 @@
       "first_seen": "2026-08-25",
       "title": "Crunchyroll Anime Night Sneak Peek (9/21/2026)"
     },
+    "crunchyroll-anime-nights-yuri-on-ice-subtitled-10th-anniversary": {
+      "first_seen": "2026-09-16",
+      "title": "Yuri!!! on Ice (Subtitled)"
+    },
     "destroy-all-monsters": {
       "first_seen": "2026-08-25",
       "title": "Destroy All Monsters"
@@ -163,6 +167,10 @@
     "ghost-in-the-shell-dubbed": {
       "first_seen": "2026-09-12",
       "title": "Ghost in the Shell (Dubbed)"
+    },
+    "godzilla-vs-megalon": {
+      "first_seen": "2026-09-16",
+      "title": "Godzilla vs. Megalon"
     },
     "guest-selects-ghost-dog-the-way-of-the-samurai": {
       "first_seen": "2026-09-10",
@@ -433,6 +441,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-15T17:28:54",
+  "updated": "2026-09-16T17:28:15",
   "version": 1
 }

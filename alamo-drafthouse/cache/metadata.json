@@ -96,6 +96,11 @@
     "tmdb_id": null,
     "v": 2
   },
+  "crunchyroll-anime-nights-yuri-on-ice-subtitled-10th-anniversary": {
+    "checked": "2026-09-16",
+    "tmdb_id": null,
+    "v": 2
+  },
   "destroy-all-monsters": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/24r1hsRisfUidwLF67J0iMuWh7p.jpg",
@@ -271,6 +276,14 @@
     "trailer": "https://www.youtube.com/watch?v=xTPvnQ2wDlI",
     "v": 2,
     "year": "2017"
+  },
+  "godzilla-vs-megalon": {
+    "checked": "2026-09-16",
+    "tmdb_id": 39264,
+    "tmdb_title": "Godzilla vs. Megalon",
+    "trailer": null,
+    "v": 2,
+    "year": "1973"
   },
   "guest-selects-ghost-dog-the-way-of-the-samurai": {
     "checked": "2026-09-10",
