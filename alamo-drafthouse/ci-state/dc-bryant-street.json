@@ -80,9 +80,17 @@
       "first_seen": "2026-08-25",
       "title": "Dune: Part Three"
     },
+    "epic-sunday-django-unchained": {
+      "first_seen": "2026-09-18",
+      "title": "Django Unchained"
+    },
     "epic-sunday-dunkirk": {
       "first_seen": "2026-08-25",
       "title": "Dunkirk"
+    },
+    "epic-sunday-grindhouse": {
+      "first_seen": "2026-09-18",
+      "title": "Grindhouse"
     },
     "epic-sunday-inception": {
       "first_seen": "2026-08-25",
@@ -167,6 +175,10 @@
     "ghost-in-the-shell-dubbed": {
       "first_seen": "2026-09-12",
       "title": "Ghost in the Shell (Dubbed)"
+    },
+    "ginger-snaps": {
+      "first_seen": "2026-09-18",
+      "title": "Ginger Snaps"
     },
     "godzilla-vs-megalon": {
       "first_seen": "2026-09-16",
@@ -368,6 +380,10 @@
       "first_seen": "2026-08-25",
       "title": "Terminator 2: Judgment Day 35th Anniversary"
     },
+    "terror-tuesday-in-the-mouth-of-madness-2": {
+      "first_seen": "2026-09-18",
+      "title": "In the Mouth of Madness"
+    },
     "terror-tuesday-michael-manns-manhunter-the-final-cut": {
       "first_seen": "2026-08-25",
       "title": "Michael Mann's Manhunter: The Final Cut"
@@ -441,6 +457,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-17T17:28:12",
+  "updated": "2026-09-18T16:56:52",
   "version": 1
 }

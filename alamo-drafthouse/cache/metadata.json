@@ -133,6 +133,14 @@
     "v": 2,
     "year": "2026"
   },
+  "epic-sunday-django-unchained": {
+    "checked": "2026-09-18",
+    "tmdb_id": 68718,
+    "tmdb_title": "Django Unchained",
+    "trailer": "https://www.youtube.com/watch?v=_iH0UBYDI4g",
+    "v": 2,
+    "year": "2012"
+  },
   "epic-sunday-dunkirk": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/b4Oe15CGLL61Ped0RAS9JpqdmCt.jpg",
@@ -141,6 +149,14 @@
     "trailer": "https://www.youtube.com/watch?v=F-eMt3SrfFU",
     "v": 2,
     "year": "2017"
+  },
+  "epic-sunday-grindhouse": {
+    "checked": "2026-09-18",
+    "tmdb_id": 285923,
+    "tmdb_title": "Grindhouse",
+    "trailer": "https://www.youtube.com/watch?v=j1cjXKdox0M",
+    "v": 2,
+    "year": "2007"
   },
   "epic-sunday-interstellar": {
     "checked": "2026-09-09",
@@ -276,6 +292,14 @@
     "trailer": "https://www.youtube.com/watch?v=xTPvnQ2wDlI",
     "v": 2,
     "year": "2017"
+  },
+  "ginger-snaps": {
+    "checked": "2026-09-18",
+    "tmdb_id": 9871,
+    "tmdb_title": "Ginger Snaps",
+    "trailer": "https://www.youtube.com/watch?v=lRXT1J0kqdY",
+    "v": 2,
+    "year": "2000"
   },
   "godzilla-vs-megalon": {
     "checked": "2026-09-16",
@@ -578,6 +602,14 @@
     "trailer": "https://www.youtube.com/watch?v=LdOM0x0XDMo",
     "v": 2,
     "year": "2020"
+  },
+  "terror-tuesday-in-the-mouth-of-madness-2": {
+    "checked": "2026-09-18",
+    "tmdb_id": 2654,
+    "tmdb_title": "In the Mouth of Madness",
+    "trailer": "https://www.youtube.com/watch?v=AlugldzO9zY",
+    "v": 2,
+    "year": "1995"
   },
   "terror-tuesday-michael-manns-manhunter-the-final-cut": {
     "checked": "2026-09-09",
