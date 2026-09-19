@@ -73,6 +73,22 @@
     "tmdb_id": null,
     "v": 2
   },
+  "casino-royale": {
+    "checked": "2026-09-19",
+    "tmdb_id": 36557,
+    "tmdb_title": "Casino Royale",
+    "trailer": "https://www.youtube.com/watch?v=U4NT78c-pYs",
+    "v": 2,
+    "year": "2006"
+  },
+  "casper": {
+    "checked": "2026-09-19",
+    "tmdb_id": 8839,
+    "tmdb_title": "Casper",
+    "trailer": "https://www.youtube.com/watch?v=kRX7PPqbKaQ",
+    "v": 2,
+    "year": "1995"
+  },
   "catvideofest-2026": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/wXgqFo84RwEt6cRIe24BCjBPqPS.jpg",
@@ -514,6 +530,14 @@
     "v": 2,
     "year": "2026"
   },
+  "sad-girl-cinema-club-a-tale-of-two-sisters": {
+    "checked": "2026-09-19",
+    "tmdb_id": 4552,
+    "tmdb_title": "A Tale of Two Sisters",
+    "trailer": "https://www.youtube.com/watch?v=anF5XiN8QY8",
+    "v": 2,
+    "year": "2003"
+  },
   "sad-girl-cinema-club-my-sassy-girl": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/i964xFDEMwZ5uaweParv8ItBfbJ.jpg",
@@ -649,6 +673,14 @@
     "trailer": "https://www.youtube.com/watch?v=RbiOaaE2RGg",
     "v": 2,
     "year": "1987"
+  },
+  "the-mummy-1999": {
+    "checked": "2026-09-19",
+    "tmdb_id": 564,
+    "tmdb_title": "The Mummy",
+    "trailer": "https://www.youtube.com/watch?v=OGOBz4t7OXs",
+    "v": 2,
+    "year": "1999"
   },
   "the-odyssey": {
     "checked": "2026-09-09",

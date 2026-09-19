@@ -48,6 +48,14 @@
       "first_seen": "2026-09-09",
       "title": "Cars: 20th Anniversary"
     },
+    "casino-royale": {
+      "first_seen": "2026-09-19",
+      "title": "Casino Royale (2006)"
+    },
+    "casper": {
+      "first_seen": "2026-09-19",
+      "title": "Casper"
+    },
     "catvideofest-2026": {
       "first_seen": "2026-08-25",
       "title": "CatVideoFest 2026"
@@ -316,6 +324,10 @@
       "first_seen": "2026-09-01",
       "title": "Resident Evil (2026)"
     },
+    "sad-girl-cinema-club-a-tale-of-two-sisters": {
+      "first_seen": "2026-09-19",
+      "title": "A Tale of Two Sisters"
+    },
     "sad-girl-cinema-club-my-sassy-girl": {
       "first_seen": "2026-08-25",
       "title": "My Sassy Girl"
@@ -416,6 +428,10 @@
       "first_seen": "2026-09-09",
       "title": "THE LOST BOYS"
     },
+    "the-mummy-1999": {
+      "first_seen": "2026-09-19",
+      "title": "The Mummy (1999)"
+    },
     "the-odyssey": {
       "first_seen": "2026-08-25",
       "title": "The Odyssey"
@@ -457,6 +473,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-18T16:56:52",
+  "updated": "2026-09-19T16:13:58",
   "version": 1
 }
