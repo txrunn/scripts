@@ -251,6 +251,14 @@
     "v": 2,
     "year": "2026"
   },
+  "fan-event-street-fighter-2026-the-big-show-bonus-round-fan-event": {
+    "checked": "2026-09-21",
+    "tmdb_id": 1153576,
+    "tmdb_title": "Street Fighter",
+    "trailer": "https://www.youtube.com/watch?v=Xt4X4FvXk2A",
+    "v": 2,
+    "year": "2026"
+  },
   "film-club-amadeus": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/gQRfiyfGvr1az0quaYyMram3Aqt.jpg",
@@ -513,6 +521,14 @@
     "v": 2,
     "year": "1975"
   },
+  "rammstein-live-in-mexico-city": {
+    "checked": "2026-09-21",
+    "tmdb_id": 1753205,
+    "tmdb_title": "Rammstein - Live in Mexico City",
+    "trailer": null,
+    "v": 2,
+    "year": "2026"
+  },
   "repo-the-genetic-opera": {
     "checked": "2026-09-09",
     "tmdb_id": 14353,
@@ -609,6 +625,14 @@
     "v": 2,
     "year": "2001"
   },
+  "street-fighter-2026": {
+    "checked": "2026-09-21",
+    "tmdb_id": 1153576,
+    "tmdb_title": "Street Fighter",
+    "trailer": "https://www.youtube.com/watch?v=Xt4X4FvXk2A",
+    "v": 2,
+    "year": "2026"
+  },
   "teenage-sex-and-death-at-camp-miasma": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/nLsFnXifieSTqSeWxjXSS8RvaUZ.jpg",
@@ -688,6 +712,14 @@
     "tmdb_id": 1368337,
     "tmdb_title": "The Odyssey",
     "trailer": "https://www.youtube.com/watch?v=Mzw2ttJD2qQ",
+    "v": 2,
+    "year": "2026"
+  },
+  "the-social-reckoning": {
+    "checked": "2026-09-21",
+    "tmdb_id": 1281331,
+    "tmdb_title": "The Social Reckoning",
+    "trailer": "https://www.youtube.com/watch?v=gM4LkaXwGuY",
     "v": 2,
     "year": "2026"
   },

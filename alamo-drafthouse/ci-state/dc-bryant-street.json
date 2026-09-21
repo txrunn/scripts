@@ -144,6 +144,10 @@
       "first_seen": "2026-09-08",
       "title": "Forgotten Island"
     },
+    "fan-event-street-fighter-2026-the-big-show-bonus-round-fan-event": {
+      "first_seen": "2026-09-21",
+      "title": "Street Fighter (2026)"
+    },
     "film-club-amadeus": {
       "first_seen": "2026-08-27",
       "title": "Amadeus"
@@ -312,6 +316,10 @@
       "first_seen": "2026-08-25",
       "title": "Monty Python and the Holy Grail"
     },
+    "rammstein-live-in-mexico-city": {
+      "first_seen": "2026-09-21",
+      "title": "Rammstein - Live in Mexico City"
+    },
     "rear-window": {
       "first_seen": "2026-08-25",
       "title": "Rear Window"
@@ -380,6 +388,10 @@
       "first_seen": "2026-08-25",
       "title": "Star Trek: The Genesis Trilogy"
     },
+    "street-fighter-2026": {
+      "first_seen": "2026-09-21",
+      "title": "Street Fighter (2026)"
+    },
     "teenage-sex-and-death-at-camp-miasma": {
       "first_seen": "2026-08-25",
       "title": "Teenage Sex and Death at Camp Miasma"
@@ -436,6 +448,10 @@
       "first_seen": "2026-08-25",
       "title": "The Odyssey"
     },
+    "the-social-reckoning": {
+      "first_seen": "2026-09-21",
+      "title": "The Social Reckoning"
+    },
     "the-texas-chainsaw-massacre-1974": {
       "first_seen": "2026-09-09",
       "title": "The Texas Chain Saw Massacre (1974)"
@@ -473,6 +489,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-20T16:41:12",
+  "updated": "2026-09-21T18:28:50",
   "version": 1
 }
