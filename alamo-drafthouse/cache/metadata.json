@@ -268,10 +268,26 @@
     "v": 2,
     "year": "1984"
   },
+  "film-club-amores-perros-25th-anniversary": {
+    "checked": "2026-09-22",
+    "tmdb_id": 55,
+    "tmdb_title": "Amores Perros",
+    "trailer": "https://www.youtube.com/watch?v=_P29GF_NbDc",
+    "v": 2,
+    "year": "2000"
+  },
   "film-club-event-horizon": {
     "checked": "2026-09-09",
     "tmdb_id": null,
     "v": 2
+  },
+  "film-club-ghost-in-the-cell-2": {
+    "checked": "2026-09-22",
+    "tmdb_id": 1393326,
+    "tmdb_title": "Ghost in the Cell",
+    "trailer": "https://www.youtube.com/watch?v=57BSZWpCi3E",
+    "v": 2,
+    "year": "2026"
   },
   "film-club-network": {
     "checked": "2026-09-09",

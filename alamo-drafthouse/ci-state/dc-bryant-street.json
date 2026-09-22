@@ -152,9 +152,17 @@
       "first_seen": "2026-08-27",
       "title": "Amadeus"
     },
+    "film-club-amores-perros-25th-anniversary": {
+      "first_seen": "2026-09-22",
+      "title": "Amores Perros"
+    },
     "film-club-event-horizon": {
       "first_seen": "2026-09-09",
       "title": "FILM CLUB: EVENT HORIZON"
+    },
+    "film-club-ghost-in-the-cell-2": {
+      "first_seen": "2026-09-22",
+      "title": "Ghost in the Cell"
     },
     "film-club-network": {
       "first_seen": "2026-08-25",
@@ -489,6 +497,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-21T18:28:50",
+  "updated": "2026-09-22T13:29:40",
   "version": 1
 }
