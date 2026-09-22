@@ -194,6 +194,30 @@ class TestEmbedImage(unittest.TestCase):
         self.assertEqual(stored["image"], "https://e/t.jpg")
 
 
+class TestSourceOutage(unittest.TestCase):
+    def test_site_failure_degrades_instead_of_crashing(self):
+        # escapefromtarkov.com sits behind a WAF that has returned 403 to
+        # datacenter IPs. Losing it must cost hotfixes, not the whole run --
+        # Steam is still up and still worth notifying from.
+        import urllib.error
+
+        real = tpn.fetch_site_patches
+        try:
+            def boom(pages=1):
+                raise urllib.error.HTTPError("u", 403, "Forbidden", {}, None)
+            tpn.fetch_site_patches = boom
+            items, err = tpn.fetch_site_patches_safe()
+        finally:
+            tpn.fetch_site_patches = real
+        self.assertEqual(items, [])
+        self.assertIn("403", err)
+
+    def test_steam_alone_still_produces_patches(self):
+        merged = tpn.merge_sources(
+            [], [steam_item("7", "Patch 1.1.5.0", "[p]Notes.[/p]")])
+        self.assertEqual([m["title"] for m in merged], ["Patch 1.1.5.0"])
+
+
 class TestPage(unittest.TestCase):
     def test_sanitiser_strips_active_content(self):
         # Bodies are Battlestate's HTML, inlined into a page we serve. They are

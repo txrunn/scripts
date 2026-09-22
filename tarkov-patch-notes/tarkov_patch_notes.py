@@ -52,6 +52,20 @@ STEAM_BUILD = "https://api.steamcmd.net/v1/info/{appid}"
 SITE_ROOT = "https://www.escapefromtarkov.com"
 CLAN_IMAGE_BASE = "https://clan.cloudflare.steamstatic.com/images/"
 USER_AGENT = "tarkov-patch-notes (+https://github.com/txrunn/scripts)"
+# escapefromtarkov.com sits behind a WAF that returns 403 to a bare urllib
+# request from a datacenter IP -- it works from a laptop and fails from a
+# GitHub runner. These are the headers its own news page sends when it calls
+# the endpoint, so the request looks like what the site expects rather than
+# something it has never seen. Two requests every five minutes.
+SITE_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.escapefromtarkov.com/news",
+}
 
 SITE_PAGES = 2       # 20 patches a page; 2 is plenty of overlap for a poll
 # Deep enough that a Steam-only patch does not age out of the window before it
@@ -94,17 +108,24 @@ SITE_DIR = ROOT / "site"
 # --------------------------------------------------------------------------
 
 
-def http_get(url: str, timeout: int = 30) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+def http_get(url: str, timeout: int = 30, headers: dict | None = None) -> bytes:
+    req = urllib.request.Request(url, headers=headers or {"User-Agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
 
 def fetch_site_patches(pages: int = SITE_PAGES) -> list[dict]:
-    """Patch notes from Battlestate's own site, newest first."""
+    """Patch notes from Battlestate's own site, newest first.
+
+    Returns [] rather than raising if the site is unreachable. Losing this
+    source costs the hotfixes it alone files as patch notes, but Steam still
+    carries most patches, and a Discord notification from the source that is
+    still up beats no run at all. The caller reports the degradation.
+    """
     out: list[dict] = []
     for page in range(1, pages + 1):
-        payload = json.loads(http_get(SITE_LIST.format(type=SITE_PATCH_TYPE, page=page)))
+        payload = json.loads(http_get(
+            SITE_LIST.format(type=SITE_PATCH_TYPE, page=page), headers=SITE_HEADERS))
         rows = payload.get("list") or []
         for row in rows:
             out.append(
@@ -126,6 +147,13 @@ def fetch_site_patches(pages: int = SITE_PAGES) -> list[dict]:
         if len(rows) < 20:
             break
     return out
+
+
+def fetch_site_patches_safe(pages: int = SITE_PAGES) -> tuple[list[dict], str | None]:
+    try:
+        return fetch_site_patches(pages), None
+    except (urllib.error.URLError, ValueError, TimeoutError) as exc:
+        return [], str(exc)
 
 
 def fetch_steam_news(count: int = STEAM_COUNT) -> list[dict]:
@@ -803,7 +831,11 @@ def main(argv: list[str] | None = None) -> int:
                          "then exit without writing anything.")
     args = ap.parse_args(argv)
 
-    site = fetch_site_patches()
+    site, site_error = fetch_site_patches_safe()
+    if site_error:
+        print(f"  ! escapefromtarkov.com unavailable ({site_error}); "
+              f"continuing with Steam only. Hotfixes it alone files as patch "
+              f"notes will be missed until it returns.", file=sys.stderr)
     steam = fetch_steam_news()
     patches = merge_sources(site, steam)
     print(f"Sources: {len(site)} site patch notes, {len(steam)} Steam announcements "
