@@ -126,6 +126,14 @@
     "v": 2,
     "year": "1968"
   },
+  "digger": {
+    "checked": "2026-09-22",
+    "tmdb_id": 1248832,
+    "tmdb_title": "Digger",
+    "trailer": "https://www.youtube.com/watch?v=Pd4Olzi0HEc",
+    "v": 2,
+    "year": "2026"
+  },
   "dire-duplicity": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/jN5J4x2KzA9v8qtt2TnTTqCh5BY.jpg",
@@ -248,6 +256,14 @@
     "tmdb_id": 1465063,
     "tmdb_title": "Forgotten Island",
     "trailer": "https://www.youtube.com/watch?v=a8RHqN93qfo",
+    "v": 2,
+    "year": "2026"
+  },
+  "fan-event-digger-the-big-show-fan-event": {
+    "checked": "2026-09-22",
+    "tmdb_id": 1248832,
+    "tmdb_title": "Digger",
+    "trailer": "https://www.youtube.com/watch?v=Pd4Olzi0HEc",
     "v": 2,
     "year": "2026"
   },
