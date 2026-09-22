@@ -12,6 +12,7 @@ deployed by [one workflow](.github/workflows/pages.yml).
 |---|---|
 | [**New at Bryant Street**](https://txrunn.github.io/scripts/alamo/) | Films that have just gone on sale at Alamo DC Bryant Street, newest morning first, plus the one-off screenings coming up. Deliberately not a copy of Alamo's schedule. |
 | [**4K disc inventory**](https://txrunn.github.io/scripts/blu-ray-discs/) | The physical media shelf, with posters, ratings and box-set contents. |
+| [**Tarkov patch notes**](https://txrunn.github.io/scripts/tarkov/) | Every Escape from Tarkov patch and hotfix, newest first, filterable by version. Two RSS feeds alongside it. |
 
 ## The scripts
 
@@ -19,4 +20,5 @@ deployed by [one workflow](.github/workflows/pages.yml).
 |---|---|
 | [`alamo-drafthouse/`](alamo-drafthouse/) | Daily check for movies newly bookable at Alamo DC Bryant Street, so Season Pass seats get caught early. Runs as a [GitHub Action](.github/workflows/alamo-new-films.yml), opens an issue, pushes a phone notification, and rebuilds [the page](https://txrunn.github.io/scripts/alamo/). |
 | [`movie-collection/`](movie-collection/) | Builds [a browsable page](https://txrunn.github.io/scripts/blu-ray-discs/) and a verified CSV of the 4K/Blu-ray shelf from a plain-text inventory. Add a line, push, and the [GitHub Action](.github/workflows/movie-collection.yml) looks up only the new titles and rebuilds the page. |
+| [`tarkov-patch-notes/`](tarkov-patch-notes/) | Escape from Tarkov patch notes as [a page](https://txrunn.github.io/scripts/tarkov/), two RSS feeds and a Discord push. Merges Battlestate's own site with Steam, because neither has every patch, and watches the Steam build id for hotfixes that ship before the notes. Polls on a [GitHub Action](.github/workflows/tarkov-patch-notes.yml). |
 | [`gaming-services-toggle/`](gaming-services-toggle/) | Installs Microsoft Gaming Services and the Xbox Identity Provider before a Forza Horizon session and removes them properly afterwards, instead of leaving two background services running all the time. Fixes "Invalid Gaming Services Detected" on a debloated Windows. |

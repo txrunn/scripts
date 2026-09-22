@@ -21,7 +21,7 @@ name: Pages
 
 on:
   workflow_run:
-    workflows: ["Movie collection", "Alamo new films"]
+    workflows: ["Movie collection", "Alamo new films", "Tarkov patch notes"]
     types: [completed]
   push:
     branches: [main]
@@ -29,6 +29,7 @@ on:
       - "site/**"
       - "movie-collection/site/**"
       - "alamo-drafthouse/site/**"
+      - "tarkov-patch-notes/site/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -91,6 +92,7 @@ jobs:
 
           publish alamo-drafthouse/site alamo
           publish movie-collection/site blu-ray-discs
+          publish tarkov-patch-notes/site tarkov
 
           echo "Publishing:"
           find "$STAGE" -type f | sort | sed 's|^|  |'

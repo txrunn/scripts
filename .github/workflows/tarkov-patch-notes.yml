@@ -1,0 +1,137 @@
+name: Tarkov patch notes
+
+# Checks for new Escape from Tarkov patch notes and pushes them to Discord,
+# and rebuilds the RSS feeds under tarkov-patch-notes/site/.
+#
+# Three sources, because none of them alone is complete: Battlestate's own site
+# API (category "Patch Notes", which is where hotfixes show up correctly
+# titled), Steam app 3932890 (which carries patches the site does not file
+# under that category), and the Steam build id (which changes when the client
+# updates, usually before any notes are published). See the script docstring.
+#
+# One secret:
+#   DISCORD_WEBHOOK_URL   Discord -> Channel settings -> Integrations ->
+#                         Webhooks -> New Webhook -> Copy URL
+# Without it the feeds are still built and committed; only the Discord push is
+# skipped, so the workflow is useful before the secret exists.
+#
+# The ledger lives at tarkov-patch-notes/ci-state/state.json and is committed
+# back whenever something changes -- runners keep nothing between jobs, so the
+# record of what has already been posted has to persist somewhere. Idle polls
+# write nothing at all, so the commit history stays readable as a log of actual
+# patches rather than one commit every five minutes.
+#
+# That commit is load-bearing for a second reason. GitHub disables scheduled
+# workflows in a PUBLIC repository after 60 days with no repository activity,
+# and only new commits reset that timer. Patches alone would not be enough:
+# the gap between them has a median of 26 days but reaches 159, and hit 62 as
+# recently as 2025 -- past the cutoff, so the watcher would have switched
+# itself off during a content drought and gone quiet exactly when nothing
+# looked wrong. What saves it is site/all.xml, which tracks every Steam
+# announcement, not just patches: median two days between those, worst case
+# thirty. Dropping the all.xml feed to "simplify" would reintroduce the
+# failure silently.
+#
+# Publishing to Pages is .github/workflows/pages.yml's job. It watches this
+# workflow by name via workflow_run, not by the push: a commit made with
+# GITHUB_TOKEN does not start another workflow, so a push trigger would never
+# fire for the runs that actually change the page. Renaming this workflow means
+# updating the list there.
+
+on:
+  schedule:
+    # Two schedules, because Battlestate ship on a clear pattern. Across all
+    # 104 patches on record, 94% land Mon-Fri and not one has ever been
+    # published between 22:00 and 04:00 UTC -- they go out during Moscow
+    # office hours, median 07:00 UTC, with Thursday the most common day.
+    #
+    # So: poll hard through the window where patches actually happen...
+    - cron: "2-57/5 5-21 * * 1-5"
+    # ...and hourly the rest of the time, as a safety net for the weekend
+    # patch and the one that breaks the pattern. The hourly run also fires
+    # inside the window; the concurrency group below absorbs the overlap.
+    - cron: "23 * * * *"
+    #
+    # Both are deliberately off the top of the hour. GitHub: "The schedule
+    # event can be delayed during periods of high loads [...] High load times
+    # include the start of every hour. If the load is sufficiently high
+    # enough, some queued jobs may be dropped." So :00 is the worst minute to
+    # ask for, which is why the five-minute pass runs at :02,:07,... and the
+    # safety net at :23 rather than :00.
+    #
+    # Five minutes is GitHub's documented floor and scheduled runs are
+    # best-effort regardless, so in practice a patch reaches Discord 5-20
+    # minutes after publication in-hours. The client-build ping usually
+    # arrives before the notes anyway.
+  workflow_dispatch:
+    inputs:
+      post_existing:
+        description: "Post the whole backlog to Discord (normally seeded silently)"
+        type: boolean
+        default: false
+      verify_only:
+        description: "Only check both source APIs and report, changing nothing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: tarkov-patch-notes
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    name: Check for patch notes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # Guards the conversion and de-duplication logic. A regression here is
+      # silent: the feed still builds, it just posts a patch twice or drops
+      # one, which is only noticed long after the fact.
+      - name: Run tests
+        run: python -m unittest discover -s tarkov-patch-notes -t tarkov-patch-notes
+
+      - name: Check for new patch notes
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          FEED_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/tarkov
+        run: |
+          set -o pipefail
+          ARGS=""
+          [ "${{ inputs.post_existing }}" = "true" ] && ARGS="$ARGS --post-existing"
+          [ "${{ inputs.verify_only }}" = "true" ] && ARGS="$ARGS --verify"
+          python tarkov-patch-notes/tarkov_patch_notes.py $ARGS \
+            | tee "$RUNNER_TEMP/report.txt"
+
+      # Nothing to commit on an idle poll: the script only rewrites a file when
+      # its bytes actually change.
+      - name: Commit the feeds and the ledger
+        if: ${{ inputs.verify_only != true }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tarkov-patch-notes/site tarkov-patch-notes/ci-state
+          if git diff --cached --quiet; then
+            echo "Nothing changed -- no commit."
+          else
+            git commit -m "Tarkov patch notes: update feeds ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git push
+          fi
+
+      - name: Write the run summary
+        if: always()
+        run: |
+          {
+            echo '```'
+            cat "$RUNNER_TEMP/report.txt" 2>/dev/null || echo "(the check did not run)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
