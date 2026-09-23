@@ -589,18 +589,29 @@ def mark_latest(cards, today=None):
     """Flag the films the most recent check turned up, if that was today.
 
     Every film one run finds shares a `found_at` to the second, so the newest
-    value identifies a run exactly rather than approximately. Gated on today
-    because "just in" is a lie about something found on Friday.
+    value identifies a run exactly. Where no film has one yet -- the ledger only
+    started keeping a clock recently, and 131 entries predate it -- this falls
+    back to the day. Less precise than a run, but a badge you can see beats a
+    badge waiting on data that will not exist until the next film turns up.
+
+    Gated on today either way, because "just in" is a lie about something found
+    on Friday.
     """
     today = today or venue_today()
     stamps = [c["found_at"] for c in cards if c.get("found_at")]
-    if not stamps:
+    key = "found_at" if stamps else "added"
+    values = stamps or [c["added"] for c in cards if c.get("added")]
+    if not values:
         return None
-    newest = max(stamps)
-    if newest[:10] != today.isoformat():
+
+    newest = max(values)
+    # `<` rather than `!=`: a stamp written by the UTC runner before the job was
+    # pinned can be dated tomorrow, and it has still only just turned up. Same
+    # clamp the batch grouping makes, for the same reason.
+    if newest[:10] < today.isoformat():
         return None
     for card in cards:
-        card["latest"] = card.get("found_at") == newest
+        card["latest"] = card.get(key) == newest
     return newest
 
 

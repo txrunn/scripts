@@ -580,14 +580,28 @@ class DiscoveryOrderTests(unittest.TestCase):
         cards = self._cards({"a": self.LATEST}, today=dt.date(2026, 9, 23))
         self.assertFalse(any(c["latest"] for c in cards))
 
-    def test_a_ledger_with_no_clock_still_works(self):
-        # Everything recorded before found_at existed sorts last and is unbadged.
-        films = {"a": film("A")}
-        ledger = {"a": {"first_seen": "2026-09-22"}, "_s": {"first_seen": "2026-08-01"}}
+    def test_a_ledger_with_no_clock_falls_back_to_the_day(self):
+        # 131 entries predate found_at. Gating the badge on a clock none of them
+        # have made the feature invisible until the next film turned up, which
+        # is indistinguishable from not building it.
+        films = {"a": film("A"), "b": film("B")}
+        ledger = {"a": {"first_seen": "2026-09-22"},     # today
+                  "b": {"first_seen": "2026-09-20"},     # older
+                  "_s": {"first_seen": "2026-08-01"}}
         cards = build_site.assemble(films, ledger, {}, "m", today=self.TODAY)
-        self.assertIsNone(build_site.mark_latest(cards, today=self.TODAY))
-        self.assertIsNone(cards[0]["found_at"])
-        self.assertFalse(cards[0]["latest"])
+        build_site.mark_latest(cards, today=self.TODAY)
+        self.assertEqual([c["title"] for c in cards if c["latest"]], ["A"])
+
+    def test_a_clock_anywhere_wins_over_the_day(self):
+        # Mixed ledger: the clock-bearing film was found later by definition, so
+        # the badge stays run-precise rather than reverting to a whole day.
+        films = {"a": film("A"), "b": film("B")}
+        ledger = {"a": {"first_seen": "2026-09-22", "found_at": self.LATEST},
+                  "b": {"first_seen": "2026-09-22"},
+                  "_s": {"first_seen": "2026-08-01"}}
+        cards = build_site.assemble(films, ledger, {}, "m", today=self.TODAY)
+        build_site.mark_latest(cards, today=self.TODAY)
+        self.assertEqual([c["title"] for c in cards if c["latest"]], ["A"])
 
     def test_the_badge_reaches_the_page_only_when_earned(self):
         cards = self._cards({"a": self.LATEST})
