@@ -628,11 +628,17 @@ def added_batches(cards, today=None):
         # lexicographically, so min() is the clamp.
         groups.setdefault(min(card["added"], today.isoformat()), []).append(card)
 
-    # Newest find first inside a day: the date alone cannot order two arrivals
-    # eight hours apart, and the one that just turned up is the one you have not
-    # seen. Anything recorded before the ledger kept a clock sorts last.
+    # Newest find first inside a day: the one that just turned up is the one you
+    # have not seen. Falls back to the date exactly as the badge does -- keying
+    # on found_at alone left every pre-clock entry tied on "" and sorting by
+    # title, which interleaved tonight's finds with this morning's.
+    #
+    # Two stable passes: title ascending, then discovery descending, so films
+    # found in the same run read alphabetically rather than backwards.
     for films in groups.values():
-        films.sort(key=lambda c: (c.get("found_at") or "", c["title"]), reverse=True)
+        films.sort(key=lambda c: c["title"])
+        films.sort(key=lambda c: c.get("found_at") or c.get("added") or "",
+                   reverse=True)
 
     out = []
     for date in sorted(groups, reverse=True):

@@ -565,6 +565,23 @@ class DiscoveryOrderTests(unittest.TestCase):
         build_site.mark_latest(cards, today=today or self.TODAY)
         return cards
 
+    def test_ordering_falls_back_to_the_date_like_the_badge(self):
+        # Keying on found_at alone tied every pre-clock entry on "" and sorted
+        # by title, interleaving tonight's finds with this morning's.
+        films = {"a": film("Zebra"), "b": film("Apple")}
+        ledger = {"a": {"first_seen": "2026-09-22"},   # later
+                  "b": {"first_seen": "2026-09-20"},   # earlier
+                  "_s": {"first_seen": "2026-08-01"}}
+        cards = build_site.assemble(films, ledger, {}, "m", today=self.TODAY)
+        out = build_site.added_batches(cards, today=self.TODAY)
+        self.assertEqual([f["title"] for b in out for f in b["films"]],
+                         ["ZEBRA".title(), "Apple"])
+
+    def test_films_from_one_run_read_alphabetically(self):
+        cards = self._cards({"b": self.LATEST, "a": self.LATEST})
+        out = build_site.added_batches(cards, today=self.TODAY)
+        self.assertEqual([f["title"] for f in out[0]["films"]], ["A", "B"])
+
     def test_newest_find_leads_the_day(self):
         cards = self._cards({"a": self.MORNING, "b": self.LATEST})
         out = build_site.added_batches(cards, today=self.TODAY)
