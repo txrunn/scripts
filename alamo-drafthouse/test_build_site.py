@@ -418,6 +418,15 @@ class BatchTests(unittest.TestCase):
         out = build_site.added_batches(cards, today=self.TODAY)
         self.assertEqual([b["label"] for b in out], ["Today", "Yesterday", "Tue 8 Sep"])
 
+    def test_a_ledger_dated_ahead_of_today_still_reads_sanely(self):
+        # The runner was UTC while the page reckoned in the venue's clock, so
+        # films found at 22:37 EDT were stamped tomorrow and rendered as
+        # "-1 days ago". The job is pinned now; this is the belt.
+        films = {"a": film("A")}
+        cards = self._cards({"a": {"first_seen": "2026-09-11"}}, films)
+        out = build_site.added_batches(cards, today=self.TODAY)
+        self.assertEqual([(b["label"], b["sub"]) for b in out], [("Today", "")])
+
     def test_the_seed_batch_never_appears(self):
         films = {"a": film("A")}
         cards = self._cards({"a": {"first_seen": "2026-08-01"}}, films)

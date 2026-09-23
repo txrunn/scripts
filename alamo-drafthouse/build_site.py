@@ -592,7 +592,11 @@ def added_batches(cards, today=None):
     for date in sorted(groups, reverse=True):
         when = dt.date.fromisoformat(date)
         delta = (today - when).days
-        if delta == 0:
+        if delta <= 0:
+            # A ledger written in a timezone ahead of the venue's can date an
+            # arrival tomorrow -- that is how "-1 days ago" reached the page.
+            # The job is pinned to the venue's clock now, but a stamp from
+            # before that should still read as what it is: it has just turned up.
             label, sub = "Today", ""
         elif delta == 1:
             label, sub = "Yesterday", f"{when:%a} {when.day} {when:%b}"

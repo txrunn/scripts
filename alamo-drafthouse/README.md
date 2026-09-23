@@ -382,6 +382,19 @@ file alone when nothing was added.
 
 Undo either and the schedule becomes 24 commits a day.
 
+### Everything reckons dates in the cinema's clock
+
+The job sets `TZ=America/New_York`. The runner is UTC and Bryant Street is not,
+so for the four hours a night they disagree the ledger was stamping tomorrow:
+films found at 22:37 EDT on the 22nd were recorded as first seen on the 23rd,
+and the page — which already reckoned in the venue's clock — rendered them
+**"-1 days ago"**, sorted above Today.
+
+One `TZ` fixes every date in the job at once: the ledger's `first_seen`, the
+report filenames, the commit message. `build_site.py` names the zone explicitly
+so it was right either way. A batch dated ahead of today now reads as "Today"
+rather than a negative, in case a stamp from before this ever turns up again.
+
 ### Telling an open tab it has gone stale
 
 GitHub Pages serves the HTML with a ten-minute max-age, and a tab left open

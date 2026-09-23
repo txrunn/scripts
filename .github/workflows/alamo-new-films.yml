@@ -53,7 +53,14 @@ jobs:
   bryant-street:
     name: DC Bryant Street
     runs-on: ubuntu-latest
+    # The runner is UTC and the cinema is not, so for the four hours a night
+    # they disagree the ledger was stamping tomorrow's date: films found at
+    # 22:37 EDT were recorded as first seen on the 23rd, and the page -- which
+    # already reckons in the venue's clock -- rendered them "-1 days ago".
+    # Setting TZ makes the runner behave like a machine in DC, which is what
+    # every date in this job is about.
     env:
+      TZ: America/New_York
       # Where a human should land. Defined once: the run summary, the issue and
       # the phone push all point at the same place, and moving the page is one
       # edit rather than three.
@@ -235,9 +242,9 @@ jobs:
             echo "nothing changed, nothing to commit"
           else
             if [ "${{ steps.detect.outputs.new }}" = "true" ]; then
-              MSG="Record new Bryant Street films seen on $(date -u +%Y-%m-%d)"
+              MSG="Record new Bryant Street films seen on $(date +%Y-%m-%d)"
             else
-              MSG="Rebuild the Bryant Street page ($(date -u +%Y-%m-%d))"
+              MSG="Rebuild the Bryant Street page ($(date +%Y-%m-%d))"
             fi
             git commit -m "$MSG"
             # Rebasing is safe because everything staged above is regenerated
