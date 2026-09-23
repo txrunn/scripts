@@ -625,7 +625,21 @@ def load_ledger(path):
 
 
 def save_ledger(path, seen):
-    """Write the ledger atomically so an interrupted run cannot corrupt it."""
+    """Write the ledger atomically so an interrupted run cannot corrupt it.
+
+    A run that found nothing leaves the file untouched. `updated` would be the
+    only thing to differ, and rewriting it on a schedule turns `git log` over
+    this path -- the record of when each film went on sale, which is most of why
+    the ledger is in the repo -- into a clock ticking once an hour.
+    """
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as handle:
+                if json.load(handle).get("seen") == seen:
+                    return
+        except (OSError, ValueError):
+            pass  # unreadable: fall through and rewrite it
+
     os.makedirs(os.path.dirname(path), exist_ok=True)
     payload = {
         "version": 1,

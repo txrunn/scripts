@@ -22,9 +22,18 @@ name: Alamo new films
 
 on:
   schedule:
-    # 13:00 UTC = 9am EDT / 8am EST. GitHub cron is always UTC and does not
-    # follow DST, so this drifts by an hour in winter.
-    - cron: "0 13 * * *"
+    # Hourly. Alamo puts seats on sale whenever it likes and a Season Pass
+    # window can close inside a day, so a single morning check was leaving
+    # most of a day on the table.
+    #
+    # :17 rather than :00 because GitHub's scheduler is busiest on the hour and
+    # delays queued runs there; the exact minute does not matter to us.
+    #
+    # This is only affordable because a run that finds nothing now writes
+    # nothing: the page is fingerprinted with its timestamp held out and the
+    # ledger is left alone when `seen` has not moved. Undo either and this
+    # becomes 24 commits a day.
+    - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       test_alert:

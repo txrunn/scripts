@@ -744,6 +744,44 @@ class TestUnits(unittest.TestCase):
             anf.resolve_cinema(cinemas, [], None, "bryant")
 
 
+class TestLedgerWrites(unittest.TestCase):
+    """The ledger is the record of when each film went on sale, so it must only
+    move when that record does."""
+
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.dir.cleanup)
+        self.path = os.path.join(self.dir.name, "state", "ledger.json")
+
+    def test_writes_when_there_is_no_file(self):
+        anf.save_ledger(self.path, {"a": {"first_seen": "2026-09-01"}})
+        self.assertTrue(os.path.exists(self.path))
+
+    def test_an_unchanged_seen_map_leaves_the_file_alone(self):
+        # Otherwise an hourly schedule rewrites `updated` 24 times a day and
+        # `git log` over this path stops being history and becomes a clock.
+        seen = {"a": {"first_seen": "2026-09-01"}}
+        anf.save_ledger(self.path, seen)
+        before = open(self.path, "rb").read()
+        anf.save_ledger(self.path, dict(seen))
+        self.assertEqual(open(self.path, "rb").read(), before)
+
+    def test_a_new_film_does_rewrite_it(self):
+        anf.save_ledger(self.path, {"a": {"first_seen": "2026-09-01"}})
+        before = open(self.path, "rb").read()
+        anf.save_ledger(self.path, {"a": {"first_seen": "2026-09-01"},
+                                    "b": {"first_seen": "2026-09-02"}})
+        self.assertNotEqual(open(self.path, "rb").read(), before)
+        self.assertIn("b", json.load(open(self.path, encoding="utf-8"))["seen"])
+
+    def test_a_corrupt_file_is_rewritten_rather_than_trusted(self):
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
+        with open(self.path, "w", encoding="utf-8") as handle:
+            handle.write("{not json")
+        anf.save_ledger(self.path, {"a": {"first_seen": "2026-09-01"}})
+        self.assertEqual(list(json.load(open(self.path, encoding="utf-8"))["seen"]), ["a"])
+
+
 class TestDefaultPaths(unittest.TestCase):
     """State belongs next to the script, in a gitignored directory."""
 

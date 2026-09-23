@@ -360,7 +360,43 @@ calendar is one click away in the footer.
 python build_site.py                # build it into site/
 python build_site.py --verify       # is TMDB still shaped as expected?
 python build_site.py --refresh-all  # ignore the cache, re-look-up every title
+python build_site.py --force        # rewrite the page even if nothing changed
 ```
+
+### It runs hourly
+
+Alamo puts seats on sale whenever it likes and a Season Pass window can close
+inside a day, so a single morning check was leaving most of a day on the table.
+
+Two timestamps had to stop moving on their own before that was affordable.
+
+The page carries its build time, so every run used to rewrite `index.html` and
+every run committed. It is now fingerprinted with that timestamp held out: same
+slate, same bytes, file untouched, nothing staged, no commit. `cache/build.json`
+holds the last fingerprint.
+
+The ledger stamped `updated` on every save for the same reason, which mattered
+more — `git log` over `ci-state/` is the record of when each film went on sale,
+and rewriting it hourly would turn that into a clock ticking. It now leaves the
+file alone when nothing was added.
+
+Undo either and the schedule becomes 24 commits a day.
+
+### Telling an open tab it has gone stale
+
+GitHub Pages serves the HTML with a ten-minute max-age, and a tab left open
+never refetches at all — so a film found at 11:17 can sit unseen behind a copy
+you loaded at nine.
+
+Each build writes `site/status.json` beside the page holding its fingerprint,
+and the page carries the same id. On load, whenever you come back to the tab,
+and every ten minutes, it fetches that file and compares. A different id means
+the page has moved on, and a button appears offering to reload.
+
+Compared on fingerprint rather than on time: no clock to trust, no timezone to
+get wrong, and the file only moves when the content does — so the prompt only
+appears when reloading would actually show you something. The `Updated` stamp in
+the masthead is likewise when the page last *changed*, not when it last ran.
 
 ### The booking planner
 

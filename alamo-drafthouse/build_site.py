@@ -30,6 +30,7 @@ only the trailer links, and says so in the footer.
 
 import argparse
 import datetime as dt
+import hashlib
 import html
 import json
 import os
@@ -47,6 +48,18 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DEFAULT_STATE = os.path.join(SCRIPT_DIR, "ci-state", "dc-bryant-street.json")
 DEFAULT_CACHE = os.path.join(SCRIPT_DIR, "cache", "metadata.json")
+DEFAULT_BUILD = os.path.join(SCRIPT_DIR, "cache", "build.json")
+
+# Stand in for the build time and the build id while the page is fingerprinted.
+# The timestamp is the one thing guaranteed to differ between two runs, so it
+# must not be what makes them differ; the id cannot be known until the hash is
+# taken, which is the hash of the page it goes into.
+STAMP_TOKEN = "@@BUILD_STAMP@@"
+BUILD_TOKEN = "@@BUILD_ID@@"
+
+# Sits next to index.html so the page can ask, with a relative fetch, whether
+# what it is showing is still current.
+STATUS_NAME = "status.json"
 DEFAULT_OUT_DIR = os.path.join(SCRIPT_DIR, "site")
 
 # Where the page is published. Only the link-preview tags need it -- og:url has
@@ -875,6 +888,16 @@ section h2 + .batch, .lede + div > .batch:first-child { margin-top: 4px; }
 
 .empty { color: var(--soft); padding: 44px 0; max-width: 52ch; }
 
+/* Only ever shown when the deployed page has moved on from this one. */
+#fresh {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+  background: var(--brand); color: #090909; border: 0; border-radius: 3px;
+  font: 600 14px/1 Jost, "Futura", "Century Gothic", Avenir, sans-serif;
+  padding: 13px 20px; cursor: pointer; box-shadow: 0 6px 22px rgba(0, 0, 0, .5);
+  max-width: calc(100vw - 32px);
+}
+#fresh:hover { background: #ffc447; }
+
 .plan-tools { display: flex; align-items: center; gap: 14px; margin: 20px 0 6px; }
 #plan-clear {
   font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
@@ -943,7 +966,7 @@ footer {
   <div class="bar-in">
     <span class="logo"><img src="$logo" alt="Alamo Drafthouse"></span>
     <h1>$masthead</h1>
-    <div class="stamp">Checked $stamp</div>
+    <div class="stamp">Updated $stamp</div>
   </div>
 </div>
 
@@ -988,6 +1011,8 @@ footer {
 </section>
 
 <footer>$footer</footer>
+
+<button type="button" id="fresh" hidden>Updated since you opened this. Reload</button>
 </div>
 
 <script>
@@ -1174,6 +1199,34 @@ document.getElementById('plan-clear').addEventListener('click', () => {
   renderCalendar();
 });
 
+// --- is this page still the current one? ------------------------------------
+// GitHub Pages serves the HTML with a ten minute max-age and a tab left open
+// never refetches at all, so a page found by the hourly run can sit unseen
+// behind a cached copy. status.json is written beside this file and changes
+// only when the content does, so comparing build ids answers the question
+// exactly -- no clock to trust and no timezone to get wrong.
+const BUILD = '$build';
+const fresh = document.getElementById('fresh');
+fresh.addEventListener('click', () => location.reload());
+
+async function checkCurrent() {
+  try {
+    const r = await fetch('$status?t=' + Date.now(), {cache: 'no-store'});
+    if (!r.ok) return;
+    const status = await r.json();
+    if (status.fingerprint && status.fingerprint !== BUILD) fresh.hidden = false;
+  } catch (e) {
+    // Offline, or opened from disk. Nothing to say, so say nothing.
+  }
+}
+
+checkCurrent();
+// The moment that matters is coming back to a tab you left open yesterday.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) checkCurrent();
+});
+setInterval(checkCurrent, 10 * 60 * 1000);
+
 q.addEventListener('input', render);
 eventsOnly.addEventListener('change', () => { save(); render(); });
 render();
@@ -1184,7 +1237,8 @@ renderCalendar();
 """)
 
 
-def render_html(added, soon, title, label, market, has_key, since=None, site_url=SITE_URL):
+def render_html(added, soon, title, label, market, has_key, since=None, stamp=None,
+                build=None, site_url=SITE_URL):
     """Build the page. Data is injected as JSON and rendered client-side."""
     new_count = sum(len(b["films"]) for b in added)
     soon_count = len(soon)
@@ -1209,7 +1263,8 @@ def render_html(added, soon, title, label, market, has_key, since=None, site_url
         standfirst = "Nothing new, and nothing on a limited run ahead."
 
     notes = [
-        "Checked every morning. A film earns a place here by being newly on sale or by"
+        "Checked every hour; the date above is when the page last changed, not when"
+        " it last ran. A film earns a place here by being newly on sale or by"
         f" screening no more than {LIMITED_SHOWS} times — a wide release playing all"
         " month is neither.",
         f'For everything currently showing, <a href="{calendar}" rel="noopener">Alamo\'s'
@@ -1253,7 +1308,9 @@ def render_html(added, soon, title, label, market, has_key, since=None, site_url
         page_title=html.escape(f"{tab} · Alamo Drafthouse"),
         social=social,
         masthead=html.escape(title),
-        stamp=html.escape(build_stamp()),
+        stamp=html.escape(stamp if stamp is not None else build_stamp()),
+        build=html.escape(build or ""),
+        status=STATUS_NAME,
         summary=html.escape(recent_summary(added)),
         today=venue_today().isoformat(),
         logo=LOGO,
@@ -1355,6 +1412,10 @@ def build_parser():
     parser.add_argument("--state", default=DEFAULT_STATE,
                         help="ledger read for first-seen dates (default: ci-state/)")
     parser.add_argument("--cache", default=DEFAULT_CACHE)
+    parser.add_argument("--build-ledger", default=DEFAULT_BUILD,
+                        help="where the last build's fingerprint is kept")
+    parser.add_argument("--force", action="store_true",
+                        help="rewrite the page even if nothing changed")
     parser.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
     # Same name the issues and the phone notifications use, so the whole flow
     # calls this one thing by one name.
@@ -1421,19 +1482,44 @@ def main(argv=None):
     soon = upcoming_batches(cards)
     page = render_html(added, soon, args.title, label, args.market,
                        has_key=bool(api_key), since=baseline_date(ledger),
-                       site_url=args.site_url)
+                       site_url=args.site_url, stamp=STAMP_TOKEN,
+                       build=BUILD_TOKEN)
 
     out_dir = os.path.expanduser(args.out_dir)
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "index.html")
+
+    # Hashed with the timestamp still a placeholder, so a run that found nothing
+    # is byte-identical to the last one and the file is left alone. Without this
+    # an hourly schedule would be a commit an hour, every one of them a clock.
+    digest = hashlib.sha256(page.encode("utf-8")).hexdigest()
+    built = load_json(args.build_ledger, {})
+    new_count = sum(len(b["films"]) for b in added)
+    soon_count = len(soon)
+
+    if (not args.force
+            and built.get("fingerprint") == digest
+            and os.path.exists(out_path)):
+        print(f"{new_count} newly added + {soon_count} limited runs, unchanged "
+              f"since {built.get('built', 'the last build')} -- page left alone")
+        if api_key:
+            save_json(args.cache, cache)
+        return 0
+
+    stamped = venue_now().isoformat(timespec="seconds")
     with open(out_path, "w", encoding="utf-8", newline="\n") as handle:
-        handle.write(page)
+        handle.write(page.replace(STAMP_TOKEN, html.escape(build_stamp()))
+                         .replace(BUILD_TOKEN, digest))
+
+    # Deployed beside the page so an open tab can ask whether it is stale. It
+    # moves only when the page does, which is the only time reloading helps.
+    save_json(os.path.join(out_dir, STATUS_NAME),
+              {"fingerprint": digest, "updated": stamped})
 
     if api_key:
         save_json(args.cache, cache)
+    save_json(args.build_ledger, {"fingerprint": digest, "built": stamped})
 
-    new_count = sum(len(b["films"]) for b in added)
-    soon_count = len(soon)
     print(f"{new_count} newly added + {soon_count} limited runs -> {out_path}")
     print(f"  {looked_up} looked up, {len(missing)} without a TMDB trailer")
     return 0

@@ -536,6 +536,38 @@ class RenderTests(unittest.TestCase):
         self.assertIn("viewport", page)
 
 
+class RebuildTests(unittest.TestCase):
+    """An hourly schedule is only affordable if a quiet run writes nothing."""
+
+    def _page(self, stamp, build="x"):
+        ledger = {"a": {"first_seen": "2026-09-09"}, "_s": {"first_seen": "2026-08-01"}}
+        films = {"a": film("Taxi Driver", alamo.TIER_EVENT, "Film Club")}
+        cards = build_site.assemble(films, ledger, {}, "m", today=dt.date(2026, 9, 10))
+        return build_site.render_html(
+            build_site.added_batches(cards, today=dt.date(2026, 9, 10)), [],
+            "T", "L", "m", has_key=True, stamp=stamp, build=build)
+
+    def test_the_clock_is_the_only_difference_between_two_quiet_runs(self):
+        # The whole scheme rests on this: hold the timestamp out and two runs
+        # over the same slate are byte-identical.
+        a = self._page(build_site.STAMP_TOKEN)
+        b = self._page(build_site.STAMP_TOKEN)
+        self.assertEqual(a, b)
+
+    def test_a_real_stamp_does_change_the_page(self):
+        self.assertNotEqual(self._page("9 Sep, 1:00 AM EDT"),
+                            self._page("9 Sep, 2:00 AM EDT"))
+
+    def test_the_build_id_reaches_the_page_for_the_refresh_check(self):
+        self.assertIn("const BUILD = 'abc123'", self._page("s", build="abc123"))
+
+    def test_the_page_asks_for_the_status_file_beside_it(self):
+        # A relative fetch, so it works at whatever path Pages publishes it to.
+        page = self._page("s")
+        self.assertIn("fetch('%s?t=" % build_site.STATUS_NAME, page)
+        self.assertNotIn("/" + build_site.STATUS_NAME, page)
+
+
 class JsonIoTests(unittest.TestCase):
     def test_round_trip(self):
         with tempfile.TemporaryDirectory() as tmp:
