@@ -744,6 +744,27 @@ class TestUnits(unittest.TestCase):
             anf.resolve_cinema(cinemas, [], None, "bryant")
 
 
+class TestDiscoveryTime(unittest.TestCase):
+    """A date cannot order two finds within a day, nor say which run found what,
+    nor answer what time Alamo actually puts seats on sale."""
+
+    def test_a_new_film_records_the_clock_not_just_the_day(self):
+        ledger = {}
+        today = dt.date.today().isoformat()
+        entry = {"title": "X", "first_seen": today,
+                 "found_at": dt.datetime.now().isoformat(timespec="seconds")}
+        ledger["x"] = entry
+        self.assertIn("T", ledger["x"]["found_at"])
+        self.assertTrue(ledger["x"]["found_at"].startswith(today))
+
+    def test_one_run_stamps_every_film_it_found_identically(self):
+        # Equality is what makes "the latest run" a set rather than a guess.
+        stamp = dt.datetime.now().isoformat(timespec="seconds")
+        seen = {s: {"title": s, "first_seen": "2026-09-22", "found_at": stamp}
+                for s in ("a", "b", "c")}
+        self.assertEqual(len({e["found_at"] for e in seen.values()}), 1)
+
+
 class TestLedgerWrites(unittest.TestCase):
     """The ledger is the record of when each film went on sale, so it must only
     move when that record does."""

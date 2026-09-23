@@ -549,6 +549,54 @@ class RenderTests(unittest.TestCase):
         self.assertIn("viewport", page)
 
 
+class DiscoveryOrderTests(unittest.TestCase):
+    """Within a day, the thing you have not seen is the thing found last."""
+
+    TODAY = dt.date(2026, 9, 22)
+    MORNING = "2026-09-22T09:17:00"
+    LATEST = "2026-09-22T22:17:00"
+
+    def _cards(self, stamps, today=None):
+        films = {k: film(k.upper(), hours=[i]) for i, k in enumerate(stamps)}
+        ledger = {"_seed": {"first_seen": "2026-08-01"}}
+        for k, stamp in stamps.items():
+            ledger[k] = {"first_seen": stamp[:10], "found_at": stamp}
+        cards = build_site.assemble(films, ledger, {}, "m", today=today or self.TODAY)
+        build_site.mark_latest(cards, today=today or self.TODAY)
+        return cards
+
+    def test_newest_find_leads_the_day(self):
+        cards = self._cards({"a": self.MORNING, "b": self.LATEST})
+        out = build_site.added_batches(cards, today=self.TODAY)
+        self.assertEqual([f["title"] for f in out[0]["films"]], ["B", "A"])
+
+    def test_only_the_last_run_is_badged(self):
+        cards = self._cards({"a": self.MORNING, "b": self.LATEST, "c": self.LATEST})
+        badged = sorted(c["title"] for c in cards if c["latest"])
+        self.assertEqual(badged, ["B", "C"])
+
+    def test_nothing_is_badged_when_the_last_find_was_not_today(self):
+        # "Just in" is a lie about something found on Friday.
+        cards = self._cards({"a": self.LATEST}, today=dt.date(2026, 9, 23))
+        self.assertFalse(any(c["latest"] for c in cards))
+
+    def test_a_ledger_with_no_clock_still_works(self):
+        # Everything recorded before found_at existed sorts last and is unbadged.
+        films = {"a": film("A")}
+        ledger = {"a": {"first_seen": "2026-09-22"}, "_s": {"first_seen": "2026-08-01"}}
+        cards = build_site.assemble(films, ledger, {}, "m", today=self.TODAY)
+        self.assertIsNone(build_site.mark_latest(cards, today=self.TODAY))
+        self.assertIsNone(cards[0]["found_at"])
+        self.assertFalse(cards[0]["latest"])
+
+    def test_the_badge_reaches_the_page_only_when_earned(self):
+        cards = self._cards({"a": self.LATEST})
+        page = build_site.render_html(
+            build_site.added_batches(cards, today=self.TODAY), [],
+            "T", "L", "m", has_key=True, stamp="s", build="b")
+        self.assertIn(build_site.JUST_IN, page)
+
+
 class RebuildTests(unittest.TestCase):
     """An hourly schedule is only affordable if a quiet run writes nothing."""
 

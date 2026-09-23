@@ -85,9 +85,9 @@ RETRIES = 3
 # almost all of them are cache hits. There is nothing to gain by going faster.
 THROTTLE = 0.06
 
-# How long a film wears the NEW badge. A week is roughly how long it takes to
-# get round to booking something, and matches how often the slate turns over.
-NEW_DAYS = 7
+# Every film on this page is newly added, so a badge meaning "recent" would mark
+# all of them. It marks one thing instead: found by the most recent check.
+JUST_IN = "JUST IN"
 
 # What counts as limited rather than a run. The slate breaks cleanly here: 49 of
 # 59 films screen four times or fewer and the next ones up are 13, 16, 17 and 39
@@ -513,6 +513,7 @@ def assemble(films, ledger, cache, market, posters=None, opens=None, today=None)
             "trailer": meta.get("trailer"),
             "year": meta.get("year"),
             "seen": seen,
+            "found_at": (ledger.get(slug) or {}).get("found_at"),
         })
 
     cards = []
@@ -547,6 +548,11 @@ def assemble(films, ledger, cache, market, posters=None, opens=None, today=None)
             "tier": lead["tier"],
             "label": None if shared else lead["label"],
             "added": added,
+            # When the tracker first laid eyes on it, to the second. Absent on
+            # everything recorded before the ledger started keeping the clock.
+            "found_at": min([b["found_at"] for b in group if b["found_at"]],
+                            default=None),
+            "latest": False,
             # The seed batch is not an arrival: those films were simply playing
             # the day tracking started.
             "fresh": bool(added) and added != seeded,
@@ -579,6 +585,25 @@ def assemble(films, ledger, cache, market, posters=None, opens=None, today=None)
     return cards
 
 
+def mark_latest(cards, today=None):
+    """Flag the films the most recent check turned up, if that was today.
+
+    Every film one run finds shares a `found_at` to the second, so the newest
+    value identifies a run exactly rather than approximately. Gated on today
+    because "just in" is a lie about something found on Friday.
+    """
+    today = today or venue_today()
+    stamps = [c["found_at"] for c in cards if c.get("found_at")]
+    if not stamps:
+        return None
+    newest = max(stamps)
+    if newest[:10] != today.isoformat():
+        return None
+    for card in cards:
+        card["latest"] = card.get("found_at") == newest
+    return newest
+
+
 def added_batches(cards, today=None):
     """Newly-added films grouped into the mornings they arrived, newest first."""
     today = today or venue_today()
@@ -591,6 +616,12 @@ def added_batches(cards, today=None):
         # the label gave two "Today" headings in a row. ISO dates compare
         # lexicographically, so min() is the clamp.
         groups.setdefault(min(card["added"], today.isoformat()), []).append(card)
+
+    # Newest find first inside a day: the date alone cannot order two arrivals
+    # eight hours apart, and the one that just turned up is the one you have not
+    # seen. Anything recorded before the ledger kept a clock sorts last.
+    for films in groups.values():
+        films.sort(key=lambda c: (c.get("found_at") or "", c["title"]), reverse=True)
 
     out = []
     for date in sorted(groups, reverse=True):
@@ -875,6 +906,11 @@ section h2 + .batch, .lede + div > .batch:first-child { margin-top: 4px; }
   display: flex; align-items: flex-end; height: 100%; padding: 10px;
   color: var(--soft); font-size: 12px; line-height: 1.25;
 }
+/* Marks one run's worth of finds, not "recent" -- everything here is recent. */
+.badge {
+  position: absolute; top: 0; left: 0; background: var(--brand); color: #090909;
+  font-size: 9px; font-weight: 600; letter-spacing: .1em; padding: 3px 6px;
+}
 .title { font-size: 14px; font-weight: 500; line-height: 1.3; }
 .title a { text-decoration: none; }
 .title a:hover { color: var(--brand); text-decoration: underline; }
@@ -1065,8 +1101,9 @@ function film(f) {
   const art = f.poster
     ? '<img loading="lazy" src="' + esc(f.poster) + '" alt="">'
     : '<div class="none">' + esc(f.title) + '</div>';
+  const badge = f.latest ? '<span class="badge">$justin</span>' : '';
   return '<div class="film">' +
-    '<div class="poster">' + art + '</div>' +
+    '<div class="poster">' + art + badge + '</div>' +
     '<div class="title"><a href="' + esc(f.url) + '" rel="noopener">' +
       esc(f.title) + '</a></div>' +
     (f.label ? '<div class="series">' + esc(f.label) + '</div>' : '') +
@@ -1315,6 +1352,7 @@ def render_html(added, soon, title, label, market, has_key, since=None, stamp=No
         stamp=html.escape(stamp if stamp is not None else build_stamp()),
         build=html.escape(build or ""),
         status=STATUS_NAME,
+        justin=JUST_IN,
         summary=html.escape(recent_summary(added)),
         today=venue_today().isoformat(),
         logo=LOGO,
@@ -1482,6 +1520,7 @@ def main(argv=None):
     cards = assemble(films, ledger, cache, args.market,
                      posters=posters_by_slug(presentations),
                      opens=openings_by_slug(presentations))
+    mark_latest(cards)
     added = added_batches(cards)
     soon = upcoming_batches(cards)
     page = render_html(added, soon, args.title, label, args.market,

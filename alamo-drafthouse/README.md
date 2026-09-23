@@ -382,6 +382,32 @@ file alone when nothing was added.
 
 Undo either and the schedule becomes 24 commits a day.
 
+### Within a day, newest find first
+
+The ledger records `found_at` — the clock time, to the second — alongside
+`first_seen`. Every film one run turns up shares the exact same value, which is
+what makes "this run" an identifiable set rather than a guess.
+
+So a day's batch is ordered newest find first, and the films the most recent
+check turned up carry a **JUST IN** badge. The badge is gated on that check
+having happened today: everything on this page is newly added, so a badge
+meaning "recent" would mark all of it, and "just in" about something found on
+Friday is simply false. Entries recorded before the ledger kept a clock sort
+last and are never badged.
+
+### Later: stop running hourly
+
+Hourly is a blunt instrument — it is what you do before you know the answer.
+`found_at` is what will let us stop: after a fortnight, the distribution of
+discovery times says when Alamo actually puts seats on sale, and the schedule
+can drop to a few runs placed where they will catch something.
+
+```powershell
+python -c "import json,collections;print(sorted(collections.Counter(v['found_at'][11:13] for v in json.load(open('ci-state/dc-bryant-street.json'))['seen'].values() if 'found_at' in v).items()))"
+```
+
+Until that has a fortnight behind it, the hour-by-hour counts mean nothing.
+
 ### Everything reckons dates in the cinema's clock
 
 The job sets `TZ=America/New_York`. The runner is UTC and Bryant Street is not,

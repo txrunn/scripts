@@ -1056,10 +1056,22 @@ def main(argv=None):
 
     # The ledger records every new film regardless of --events-only, so toggling
     # the flag never resurfaces a title the previous run already showed you.
+    #
+    # found_at is the clock time, not just the day, and every film found by one
+    # run shares the exact value -- which is what makes "this run" identifiable
+    # later. The date alone cannot order two finds within a day, cannot say
+    # which run turned something up, and cannot answer the question worth asking
+    # after a fortnight of hourly checks: what time of day does Alamo actually
+    # put seats on sale, so the schedule can stop being hourly.
     today = dt.date.today().isoformat()
+    found_at = dt.datetime.now().isoformat(timespec="seconds")
     for slug, film in films.items():
         if slug not in seen:
-            seen[slug] = {"title": film["title"], "first_seen": today}
+            seen[slug] = {
+                "title": film["title"],
+                "first_seen": today,
+                "found_at": found_at,
+            }
 
     if baseline and not args.force_report:
         # Everything looks new on a cold start. Seed silently rather than
