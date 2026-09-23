@@ -418,14 +418,18 @@ class BatchTests(unittest.TestCase):
         out = build_site.added_batches(cards, today=self.TODAY)
         self.assertEqual([b["label"] for b in out], ["Today", "Yesterday", "Tue 8 Sep"])
 
-    def test_a_ledger_dated_ahead_of_today_still_reads_sanely(self):
+    def test_a_ledger_dated_ahead_of_today_folds_into_today(self):
         # The runner was UTC while the page reckoned in the venue's clock, so
         # films found at 22:37 EDT were stamped tomorrow and rendered as
-        # "-1 days ago". The job is pinned now; this is the belt.
-        films = {"a": film("A")}
-        cards = self._cards({"a": {"first_seen": "2026-09-11"}}, films)
+        # "-1 days ago". Relabelling alone then gave two "Today" headings in a
+        # row, so the grouping key is clamped, not the label.
+        films = {"a": film("A"), "b": film("B")}
+        cards = self._cards({"a": {"first_seen": "2026-09-11"},     # tomorrow
+                             "b": {"first_seen": "2026-09-10"}},    # today
+                            films)
         out = build_site.added_batches(cards, today=self.TODAY)
         self.assertEqual([(b["label"], b["sub"]) for b in out], [("Today", "")])
+        self.assertEqual(sorted(f["title"] for f in out[0]["films"]), ["A", "B"])
 
     def test_the_seed_batch_never_appears(self):
         films = {"a": film("A")}

@@ -586,17 +586,17 @@ def added_batches(cards, today=None):
     for card in cards:
         if not card["fresh"]:
             continue
-        groups.setdefault(card["added"], []).append(card)
+        # Folded into today rather than merely relabelled: a stamp written in a
+        # timezone ahead of the venue's is a different key, and clamping only
+        # the label gave two "Today" headings in a row. ISO dates compare
+        # lexicographically, so min() is the clamp.
+        groups.setdefault(min(card["added"], today.isoformat()), []).append(card)
 
     out = []
     for date in sorted(groups, reverse=True):
         when = dt.date.fromisoformat(date)
         delta = (today - when).days
         if delta <= 0:
-            # A ledger written in a timezone ahead of the venue's can date an
-            # arrival tomorrow -- that is how "-1 days ago" reached the page.
-            # The job is pinned to the venue's clock now, but a stamp from
-            # before that should still read as what it is: it has just turned up.
             label, sub = "Today", ""
         elif delta == 1:
             label, sub = "Yesterday", f"{when:%a} {when.day} {when:%b}"
