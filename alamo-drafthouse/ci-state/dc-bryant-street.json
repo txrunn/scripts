@@ -20,6 +20,10 @@
       "first_seen": "2026-08-25",
       "title": "Avengers: Doomsday"
     },
+    "avengers-endgame-encore": {
+      "first_seen": "2026-09-23",
+      "title": "Avengers Endgame: Encore"
+    },
     "basic-instinct": {
       "first_seen": "2026-08-25",
       "title": "Basic Instinct"
@@ -135,6 +139,10 @@
     "epic-sunday-the-thing-1982": {
       "first_seen": "2026-08-25",
       "title": "The Thing (1982)"
+    },
+    "ernie-emma": {
+      "first_seen": "2026-09-23",
+      "title": "Ernie & Emma"
     },
     "everything-everywhere-all-at-once": {
       "first_seen": "2026-09-01",
@@ -296,6 +304,10 @@
       "first_seen": "2026-08-27",
       "title": "Onslaught"
     },
+    "ozzy-black-sabbath-back-to-the-beginning": {
+      "first_seen": "2026-09-23",
+      "title": "Ozzy & Black Sabbath: Back to the Beginning"
+    },
     "paw-patrol-the-dino-movie": {
       "first_seen": "2026-08-25",
       "title": "Paw Patrol: The Dino Movie"
@@ -452,6 +464,10 @@
       "first_seen": "2026-08-25",
       "title": "The Fast and the Furious: 25th Anniversary"
     },
+    "the-history-of-concrete": {
+      "first_seen": "2026-09-23",
+      "title": "The History of Concrete"
+    },
     "the-lost-boys": {
       "first_seen": "2026-09-09",
       "title": "THE LOST BOYS"
@@ -500,11 +516,15 @@
       "first_seen": "2026-09-09",
       "title": "Manos: The Hands of Fate"
     },
+    "you-can-see-everything": {
+      "first_seen": "2026-09-23",
+      "title": "You Can See Everything"
+    },
     "your-mother-your-mother-your-mother": {
       "first_seen": "2026-09-10",
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-22T17:31:24",
+  "updated": "2026-09-23T02:37:44",
   "version": 1
 }

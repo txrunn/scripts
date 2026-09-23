@@ -26,6 +26,11 @@
     "v": 2,
     "year": "2026"
   },
+  "avengers-endgame-encore": {
+    "checked": "2026-09-23",
+    "tmdb_id": null,
+    "v": 2
+  },
   "basic-instinct": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/76Ts0yoHk8kVQj9MMnoMixhRWoh.jpg",
@@ -235,6 +240,14 @@
     "trailer": "https://www.youtube.com/watch?v=ySvzHdtCiWE",
     "v": 2,
     "year": "1982"
+  },
+  "ernie-emma": {
+    "checked": "2026-09-23",
+    "tmdb_id": 1468229,
+    "tmdb_title": "Ernie & Emma",
+    "trailer": "https://www.youtube.com/watch?v=NE1fmjcL4oc",
+    "v": 2,
+    "year": "2026"
   },
   "everything-everywhere-all-at-once": {
     "checked": "2026-09-09",
@@ -484,6 +497,11 @@
     "v": 2,
     "year": "2026"
   },
+  "ozzy-black-sabbath-back-to-the-beginning": {
+    "checked": "2026-09-23",
+    "tmdb_id": null,
+    "v": 2
+  },
   "possession-1981": {
     "checked": "2026-09-09",
     "tmdb_id": 21484,
@@ -722,6 +740,14 @@
     "v": 2,
     "year": "1991"
   },
+  "the-history-of-concrete": {
+    "checked": "2026-09-23",
+    "tmdb_id": 1596296,
+    "tmdb_title": "The History of Concrete",
+    "trailer": "https://www.youtube.com/watch?v=O05arcJjOd0",
+    "v": 2,
+    "year": "2026"
+  },
   "the-lost-boys": {
     "checked": "2026-09-09",
     "tmdb_id": 1547,
@@ -814,6 +840,14 @@
     "trailer": "https://www.youtube.com/watch?v=sF03ZFt8t8w",
     "v": 2,
     "year": "1966"
+  },
+  "you-can-see-everything": {
+    "checked": "2026-09-23",
+    "tmdb_id": 1765072,
+    "tmdb_title": "You Can See Everything",
+    "trailer": "https://www.youtube.com/watch?v=GGJSRFWALTI",
+    "v": 2,
+    "year": "2026"
   },
   "your-mother-your-mother-your-mother": {
     "checked": "2026-09-10",
