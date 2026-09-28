@@ -92,6 +92,11 @@
       "first_seen": "2026-09-01",
       "title": "Dismember the Alamo 2026 - DC Area"
     },
+    "doctor-who-the-satan-pit": {
+      "first_seen": "2026-09-28",
+      "found_at": "2026-09-28T17:59:47",
+      "title": "Doctor Who: The Satan Pit"
+    },
     "dune-part-three": {
       "first_seen": "2026-08-25",
       "title": "Dune: Part Three"
@@ -530,6 +535,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-23T18:16:41",
+  "updated": "2026-09-28T17:59:47",
   "version": 1
 }
