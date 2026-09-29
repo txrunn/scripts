@@ -278,6 +278,11 @@
       "first_seen": "2026-09-02",
       "title": "Nosferatu (1922)"
     },
+    "livestream-q-a-sense-and-sensibility-2026": {
+      "first_seen": "2026-09-29",
+      "found_at": "2026-09-29T11:50:58",
+      "title": "Sense and Sensibility (2026)"
+    },
     "livestream-q-a-the-weight": {
       "first_seen": "2026-09-01",
       "title": "The Weight"
@@ -535,6 +540,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-28T17:59:47",
+  "updated": "2026-09-29T11:50:58",
   "version": 1
 }
