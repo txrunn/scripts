@@ -387,6 +387,11 @@
       "first_seen": "2026-09-09",
       "title": "SCREAM (1996)"
     },
+    "sense-and-sensibility-2026": {
+      "first_seen": "2026-09-30",
+      "found_at": "2026-09-30T15:19:06",
+      "title": "Sense and Sensibility (2026)"
+    },
     "sing-along-buddy-2026": {
       "first_seen": "2026-09-29",
       "found_at": "2026-09-29T20:26:50",
@@ -545,6 +550,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-29T20:26:50",
+  "updated": "2026-09-30T15:19:06",
   "version": 1
 }
