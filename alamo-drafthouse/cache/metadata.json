@@ -813,6 +813,14 @@
     "v": 2,
     "year": "2026"
   },
+  "the-rocky-horror-picture-show": {
+    "checked": "2026-10-01",
+    "tmdb_id": 36685,
+    "tmdb_title": "The Rocky Horror Picture Show",
+    "trailer": "https://www.youtube.com/watch?v=4plqh6obZW4",
+    "v": 2,
+    "year": "1975"
+  },
   "the-social-reckoning": {
     "checked": "2026-09-21",
     "tmdb_id": 1281331,

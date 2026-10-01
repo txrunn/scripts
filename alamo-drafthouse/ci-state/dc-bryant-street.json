@@ -505,6 +505,11 @@
       "first_seen": "2026-08-25",
       "title": "The Odyssey"
     },
+    "the-rocky-horror-picture-show": {
+      "first_seen": "2026-10-01",
+      "found_at": "2026-10-01T14:53:32",
+      "title": "The Rocky Horror Picture Show"
+    },
     "the-social-reckoning": {
       "first_seen": "2026-09-21",
       "title": "The Social Reckoning"
@@ -550,6 +555,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-09-30T15:19:06",
+  "updated": "2026-10-01T14:53:32",
   "version": 1
 }
