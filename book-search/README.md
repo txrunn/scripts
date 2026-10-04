@@ -1,55 +1,63 @@
 # book-search
 
-Search AudioBookBay by title (and optionally author), get a magnet link for
-each upload, and send the ones you want to TorBox. Works from the command line
-or from a small search page on localhost.
-
-```bash
-./book_search.py "project hail mary" --author weir
-```
-
-```
- 1. Project Hail Mary - Andy Weir  [cached]
-    M4B | 128 Kbps | 881.82 MB | 14 Nov 2021
-    https://audiobookbay.lu/abss/proaject-hail-mary-andy-weir/
-    magnet:?xt=urn:btih:ad5fae5ffda056f9f45131045d140326bbafc4dc&dn=...
-```
-
-Stdlib only, so there is nothing to install. A TorBox key is optional: without
-one you still get magnet links.
-
-```bash
-export TORBOX_API_KEY=...        # torbox.app -> Settings
-```
-
----
-
-## The search page
+Search for a book by title (and optionally author). Audiobooks come from
+AudioBookBay as magnet links; ebooks come from Library Genesis as direct
+downloads. Connect a TorBox account to send either straight to TorBox.
 
 ```bash
 ./book_search.py --serve
 ```
 
-Opens `http://127.0.0.1:8765/` with a title box, an author box and the results.
-Uploads TorBox already has are marked **Ready now**. Each result has a
-**Send to TorBox** button and a **Copy magnet link** button. Searches go in
-the URL, so `?title=dune&author=herbert` can be bookmarked.
+That opens a search page on `http://127.0.0.1:8765/`. Stdlib only, so there is
+nothing to install.
 
-The page only listens on 127.0.0.1. Your TorBox key stays in the server process
-and never reaches the browser.
+---
+
+## The search page
+
+Pick **Audiobooks** or **Ebooks**, type a title, and optionally an author.
+
+- **Audiobooks** each get **Copy magnet link** and **Open in torrent app**.
+- **Ebooks** each get **Download**, which fetches the file from LibGen.
+
+**TorBox is per person.** The server holds no TorBox key. Anyone using the page
+connects their own account with **Connect TorBox**, either:
+
+- **Sign in with TorBox**: the page shows a code; enter it at
+  [tor.box/link](https://tor.box/link) and the page connects itself, or
+- **paste an API key** from torbox.app → Settings.
+
+The key is kept in that browser only. It is sent along with TorBox requests,
+passed through to TorBox, and never saved or logged by the server. Once
+connected, audiobooks TorBox already has are marked **Ready now**, and every
+result gets **Send to TorBox**: audiobooks as torrents, ebooks as web
+downloads.
+
+Searches go in the URL, so `?kind=books&title=dune&author=herbert` can be
+bookmarked.
+
+### Hosting it for other people
+
+`--host 0.0.0.0` makes it reachable from other machines. Because visitors'
+keys pass through the server, put it behind HTTPS (a reverse proxy such as
+Caddy) before anyone pastes a key into it over a network.
 
 ---
 
 ## Command line
 
+The command line is for your own account, so it reads `TORBOX_API_KEY` from
+the environment.
+
 ```bash
-./book_search.py "dune" -a herbert                  # title + author
-./book_search.py "dune" -a herbert --torbox         # mark each result [cached] / [not cached]
-./book_search.py "dune" -a herbert --add 1,3        # send #1 and #3 to TorBox
-./book_search.py "dune" --add all --cached-only     # send every result TorBox already has
-./book_search.py "dune" --magnets-only > magnets.txt
+./book_search.py "project hail mary" -a weir          # audiobooks
+./book_search.py "project hail mary" -a weir --books  # ebooks
+./book_search.py "dune" -a herbert --torbox           # mark each audiobook [cached] / [not cached]
+./book_search.py "dune" -a herbert --add 1,3          # send #1 and #3 to TorBox
+./book_search.py "dune" --add all --cached-only       # send every audiobook TorBox already has
+./book_search.py "dune" --links-only > links.txt      # magnets, or download pages with --books
 ./book_search.py "dune" --json
-./book_search.py "dune" -p 3                        # read 3 pages of results, not 1
+./book_search.py "dune" -p 3                          # read 3 pages of results, not 1
 ```
 
 `--add` takes `all`, single numbers, or ranges: `1,3`, `2-4`.
@@ -58,37 +66,56 @@ and never reaches the browser.
 
 ## How it works
 
-**Search results are narrowed.** AudioBookBay's search also matches tags and
-descriptions, so "project hail mary" comes back with unrelated books that are
-merely tagged with it. Only hits whose title contains every word of the title
-you typed (and of the author, if given) are kept. If that would leave nothing,
-everything is shown instead.
+**Results are narrowed.** AudioBookBay's search also matches tags and
+descriptions, and LibGen's matches series and publishers, so both return books
+that only mention what you typed. Only hits whose title contains every word of
+your title, and whose title or author contains every word of the author, are
+kept. If that would leave nothing, everything is shown instead.
 
-**Magnets are built from the detail page.** Each result's page has the info
-hash and tracker list in plain HTML, so no login is needed. The pages are
-fetched in parallel, which is why a search takes a few seconds.
+**Magnets are built from the detail page.** Each AudioBookBay result's page has
+the info hash and tracker list in plain HTML, so no login is needed. The pages
+are fetched in parallel, which is why an audiobook search takes a few seconds.
 
-**"Cached" means ready now.** TorBox has already downloaded that exact torrent,
+**Ebook links are fetched when you click.** LibGen's direct links carry a key
+that expires, so the server asks LibGen for a fresh one at the moment you click
+**Download** or **Send to TorBox**.
+
+**"Ready now" means cached.** TorBox has already downloaded that exact torrent,
 so adding it is instant and doesn't depend on anyone still seeding it.
+
+---
+
+## Sources
+
+[open-slum.org](https://open-slum.org/) tracks which shadow libraries are up.
+Of the ones it lists:
+
+| Library | Here? | Why |
+|---|---|---|
+| Library Genesis | Yes | Search and downloads answer plain requests. |
+| Anna's Archive | No | Search is only on its bot-protected domains; the mirrors that are up only serve download links. |
+| Z-Library | No | Needs an account, and every domain is bot-protected. |
+| Sci-Hub | No | Papers, not books. |
 
 ---
 
 ## When it breaks
 
-- **AudioBookBay changed domain.** It moves every so often. Set
-  `ABB_DOMAIN=audiobookbay.<new-tld>`; nothing else needs to change.
-- **No results, or every result is missing a magnet.** The site's HTML has
-  changed. The regexes at the top of the script are the only things that read
-  it, and `test_book_search.py` holds the markup they expect.
+- **AudioBookBay changed domain.** Set `ABB_DOMAIN=audiobookbay.<new-tld>`.
+- **LibGen is down.** It tries `libgen.li`, `libgen.bz` and `libgen.vg` in
+  turn. Set `LIBGEN_MIRRORS=host1,host2` if those all move; open-slum lists the
+  live ones.
+- **No results, or no magnets.** A site's HTML changed. The regexes at the top
+  of the script are the only things that read it, and `test_book_search.py`
+  holds the markup they expect.
 
 ---
 
 ## Adding another library
 
-`SOURCES` in the script maps a name to a function that takes a query and
-returns `Result`s. A new library is one more function that fills in the title,
-URL and whatever details it has. Results go through the same filtering, TorBox
-check and page.
+`SOURCES` in the script maps a kind of search to a `search` function, which
+turns a query into `Result`s, and a `finish` function for anything that needs
+a second request per result. Results go through the same filtering and page.
 
 ```bash
 ./test_book_search.py     # offline; nothing touches the network

@@ -118,63 +118,160 @@ class Selection(unittest.TestCase):
             bs.parse_selection("4", 3)
 
 
-class Server(unittest.TestCase):
-    """The page's API, with search and TorBox stubbed out."""
+LIBGEN_PAGE = """
+<table class="table  table-striped" id="tablelibgen">
+<thead><tr><th>ID</th></tr></thead><tbody><tr>
 
-    def start(self, key):
-        server = ThreadingHTTPServer(("127.0.0.1", 0), bs.make_handler(key))
+<td><a data-toggle="tooltip" title="Add/Edit : 2021-06-18/2021-10-17; ID: 6663311<br>Andy Weir - Project Hail Mary" href="edition.php?id=6414692">Project Hail Mary <i></i></a><br><a href="edition.php?id=6414692"><i><font color="green"> 9780593135211</font></a></i>
+<nobr><span class="badge badge-primary"><a title="Book">b</a></span></nobr>
+</td>
+<td>Andy Weir,  </td>
+<td>Penguin Random House LLC</td>
+<td><nobr>2021</nobr></td>
+<td>English</td>
+<td>0</td>
+<td><nobr><a href="/file.php?id=6663311">9 MB</a></nobr></td>
+<td>epub</td>
+<td><a title="libgen" href="/ads.php?md5=F21EF754F3C4B986F3896807D80A6CE1"><span class="badge badge-primary">1</span></a></td>
+</tr>
+<tr><td>a row with no download link</td></tr>
+</tbody></table>
+"""
+
+ADS_PAGE = """<td><a href="get.php?md5=f21ef754f3c4b986f3896807d80a6ce1&amp;key=4HWURK1DBHBGLJ7M"><h2>GET</h2></a></td>"""
+
+
+class LibGen(unittest.TestCase):
+    def test_parses_rows_with_a_download_link(self):
+        results = bs.parse_libgen_page(LIBGEN_PAGE, "https://libgen.li")
+        self.assertEqual(len(results), 1)
+        r = results[0]
+        self.assertEqual((r.title, r.author, r.year, r.language, r.size, r.format),
+                         ("Project Hail Mary", "Andy Weir", "2021", "English", "9 MB", "epub"))
+        self.assertEqual(r.md5, "f21ef754f3c4b986f3896807d80a6ce1")
+        self.assertEqual(r.url, "https://libgen.li/edition.php?id=6414692")
+        self.assertEqual(r.download_page, "https://libgen.li/ads.php?md5=f21ef754f3c4b986f3896807d80a6ce1")
+
+    def test_no_table_means_no_results(self):
+        self.assertEqual(bs.parse_libgen_page("<html>nothing found</html>", "https://libgen.li"), [])
+
+    def test_direct_link_comes_from_the_download_page(self):
+        with mock.patch.object(bs, "libgen_fetch", return_value=("https://libgen.bz", ADS_PAGE)):
+            link = bs.libgen_direct_link("f21ef754f3c4b986f3896807d80a6ce1")
+        self.assertEqual(link, "https://libgen.bz/get.php?md5=f21ef754f3c4b986f3896807d80a6ce1&key=4HWURK1DBHBGLJ7M")
+
+    def test_direct_link_rejects_anything_but_an_md5(self):
+        with self.assertRaises(ValueError):
+            bs.libgen_direct_link("../etc/passwd")
+
+    def test_tries_the_next_mirror(self):
+        calls = []
+
+        def fetch(url, **_):
+            calls.append(url)
+            if "libgen.li" in url:
+                raise OSError("down")
+            return "ok"
+
+        with mock.patch.object(bs, "fetch", side_effect=fetch), mock.patch.object(bs, "LIBGEN_MIRRORS", ["libgen.li", "libgen.bz"]):
+            self.assertEqual(bs.libgen_fetch("index.php"), ("https://libgen.bz", "ok"))
+        self.assertEqual(len(calls), 2)
+
+
+class DeviceToken(unittest.TestCase):
+    def test_accepts_the_shapes_torbox_might_send(self):
+        self.assertEqual(bs.torbox_device_token("abc"), "abc")
+        self.assertEqual(bs.torbox_device_token({"access_token": "abc"}), "abc")
+        self.assertEqual(bs.torbox_device_token({"token": "abc"}), "abc")
+        self.assertIsNone(bs.torbox_device_token({}))
+        self.assertIsNone(bs.torbox_device_token(None))
+
+
+class Server(unittest.TestCase):
+    """The page's API, with the sites and TorBox stubbed out."""
+
+    def setUp(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), bs.Handler)
         threading.Thread(target=server.serve_forever, daemon=True).start()
         self.addCleanup(server.shutdown)
-        return server.server_port
+        self.port = server.server_port
 
-    def request(self, port, method, path, body=None, headers=None):
-        conn = http.client.HTTPConnection("127.0.0.1", port)
-        conn.request(method, path, body=body, headers=headers or {})
+    def request(self, method, path, body=None, key=None):
+        headers = {"Content-Type": "application/json"} if body is not None else {}
+        if key:
+            headers["X-TorBox-Key"] = key
+        conn = http.client.HTTPConnection("127.0.0.1", self.port)
+        conn.request(method, path, body=json.dumps(body) if body is not None else None, headers=headers)
         resp = conn.getresponse()
-        return resp.status, resp.read()
+        raw = resp.read()
+        return resp.status, (json.loads(raw) if resp.getheader("Content-Type") == "application/json" else raw), resp
 
-    def test_page_reports_whether_a_key_is_set(self):
-        _, body = self.request(self.start(None), "GET", "/")
-        self.assertIn(b"const HAS_KEY = false;", body)
-        _, body = self.request(self.start("k"), "GET", "/")
-        self.assertIn(b"const HAS_KEY = true;", body)
+    def test_page_holds_no_key(self):
+        with mock.patch.dict(os.environ, {"TORBOX_API_KEY": "server-secret"}):
+            _, body, _ = self.request("GET", "/")
+        self.assertNotIn(b"server-secret", body)
 
-    def test_search_returns_results_without_trackers(self):
+    def test_search_passes_kind_and_drops_trackers(self):
         r = bs.Result("Project Hail Mary - Andy Weir", "u", info_hash="h", magnet="magnet:?xt=urn:btih:h", trackers=["t"])
         with mock.patch.object(bs, "search", return_value=[r]) as search:
-            status, body = self.request(self.start("k"), "GET", "/api/search?title=hail+mary&author=weir")
+            status, body, _ = self.request("GET", "/api/search?title=hail+mary&author=weir&kind=books")
         self.assertEqual(status, 200)
-        self.assertEqual(search.call_args.args, ("hail mary", "weir"))
-        self.assertEqual(search.call_args.kwargs, {"torbox_key": "k"})
-        out = json.loads(body)["results"][0]
-        self.assertEqual(out["magnet"], "magnet:?xt=urn:btih:h")
-        self.assertNotIn("trackers", out)
+        self.assertEqual(search.call_args.args, ("hail mary", "weir", "books"))
+        self.assertNotIn("trackers", body["results"][0])
 
-    def test_add_sends_magnet_to_torbox(self):
-        port = self.start("k")
-        payload = json.dumps({"magnet": "magnet:?xt=urn:btih:h", "name": "Book"})
-        with mock.patch.object(bs, "torbox_add", return_value={"success": True}) as add:
-            status, body = self.request(port, "POST", "/api/add", payload, {"Content-Type": "application/json"})
-        self.assertEqual((status, json.loads(body)), (200, {"success": True}))
-        add.assert_called_once_with("k", "magnet:?xt=urn:btih:h", "Book")
+    def test_search_rejects_unknown_kind(self):
+        status, _, _ = self.request("GET", "/api/search?title=x&kind=films")
+        self.assertEqual(status, 400)
 
-    def test_add_refuses_form_posts_and_non_magnets(self):
-        port = self.start("k")
-        with mock.patch.object(bs, "torbox_add") as add:
-            status, _ = self.request(port, "POST", "/api/add", "magnet=x", {"Content-Type": "application/x-www-form-urlencoded"})
-            self.assertEqual(status, 404)
-            status, _ = self.request(port, "POST", "/api/add", json.dumps({"magnet": "http://x"}), {"Content-Type": "application/json"})
-            self.assertEqual(status, 400)
+    def test_torbox_calls_need_the_visitors_key(self):
+        with mock.patch.dict(os.environ, {"TORBOX_API_KEY": "server-secret"}), mock.patch.object(bs, "torbox") as tb:
+            for method, path, body in (("GET", "/api/torbox/me", None),
+                                       ("POST", "/api/torbox/cached", {"hashes": []}),
+                                       ("POST", "/api/torbox/add", {"magnet": "magnet:?x"})):
+                status, _, _ = self.request(method, path, body)
+                self.assertEqual(status, 401, path)
+        tb.assert_not_called()
+
+    def test_add_magnet_uses_the_visitors_key(self):
+        with mock.patch.object(bs, "torbox_add_magnet", return_value={"success": True}) as add:
+            status, body, _ = self.request("POST", "/api/torbox/add", {"magnet": "magnet:?xt=urn:btih:h", "name": "Book"}, key="visitor")
+        self.assertEqual((status, body), (200, {"success": True}))
+        add.assert_called_once_with("visitor", "magnet:?xt=urn:btih:h", "Book")
+
+    def test_add_ebook_resolves_the_link_then_sends_it(self):
+        with mock.patch.object(bs, "libgen_direct_link", return_value="https://libgen.li/get.php?md5=a&key=b") as link, \
+             mock.patch.object(bs, "torbox_add_link", return_value={"success": True}) as add:
+            status, _, _ = self.request("POST", "/api/torbox/add", {"md5": "a" * 32, "name": "Book.epub"}, key="visitor")
+        self.assertEqual(status, 200)
+        link.assert_called_once_with("a" * 32)
+        add.assert_called_once_with("visitor", "https://libgen.li/get.php?md5=a&key=b", "Book.epub")
+
+    def test_add_refuses_non_magnets(self):
+        with mock.patch.object(bs, "torbox_add_magnet") as add:
+            status, _, _ = self.request("POST", "/api/torbox/add", {"magnet": "http://x"}, key="visitor")
+        self.assertEqual(status, 400)
         add.assert_not_called()
 
-    def test_add_without_key_is_refused(self):
-        status, body = self.request(self.start(None), "POST", "/api/add", json.dumps({"magnet": "magnet:?x"}), {"Content-Type": "application/json"})
-        self.assertEqual(status, 400)
-        self.assertFalse(json.loads(body)["success"])
+    def test_cached_filters_hashes_and_returns_a_list(self):
+        good = "a" * 40
+        with mock.patch.object(bs, "torbox_check_cached", return_value={good}) as check:
+            status, body, _ = self.request("POST", "/api/torbox/cached", {"hashes": [good, "not-a-hash"]}, key="visitor")
+        self.assertEqual((status, body), (200, {"cached": [good]}))
+        check.assert_called_once_with("visitor", [good])
 
-    def test_other_host_names_are_refused(self):
-        status, _ = self.request(self.start("k"), "GET", "/", headers={"Host": "evil.example"})
-        self.assertEqual(status, 403)
+    def test_device_token_pending_and_done(self):
+        with mock.patch.object(bs, "torbox", return_value={"success": False, "error": "DEVICE_CODE_NOT_USED"}):
+            _, body, _ = self.request("POST", "/api/torbox/device/token", {"device_code": "d"})
+        self.assertEqual(body, {"token": None})
+        with mock.patch.object(bs, "torbox", return_value={"success": True, "data": {"access_token": "tok"}}):
+            _, body, _ = self.request("POST", "/api/torbox/device/token", {"device_code": "d"})
+        self.assertEqual(body, {"token": "tok"})
+
+    def test_libgen_download_redirects_to_the_file(self):
+        with mock.patch.object(bs, "libgen_direct_link", return_value="https://libgen.li/get.php?md5=a&key=b"):
+            status, _, resp = self.request("GET", "/api/libgen/download?md5=" + "a" * 32)
+        self.assertEqual(status, 302)
+        self.assertEqual(resp.getheader("Location"), "https://libgen.li/get.php?md5=a&key=b")
 
 
 if __name__ == "__main__":
