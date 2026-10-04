@@ -180,6 +180,15 @@ The Purge 3-Movie Collection
 
 [documentaries]
 
-# A nature series, not a film -- no TMDB movie to look up, and no discs to
-# aggregate. It carries whatever overrides.toml says and nothing else.
+# Documentary *films* go here -- they are movies, and are looked up as such.
+# A documentary series belongs under [series] below.
+
+[series]
+
+# Television, looked up against TMDB's /tv endpoints instead of /movie. A
+# series has no director credit, so created_by stands in where TMDB has one,
+# and the shelf reports episode and season counts rather than a single runtime.
+#
+# Letterboxd does not catalogue television, so these link to TMDB instead.
 Seven Worlds, One Planet
+Naoki Urasawa's Monster: Collection 1

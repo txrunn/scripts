@@ -40,3 +40,15 @@ tmdb_id = 602734
 # international title, "Ring".
 ["Ringu"]
 title = "Ringu"
+
+# The box is labelled "Naoki Urasawa's Monster: Collection 1"; TMDB files the
+# series as plain "Monster", which a title search will not reach past the
+# publisher's name and the volume number. Pinned, and the disc note records
+# which half of the run is actually on the shelf.
+["Naoki Urasawa's Monster: Collection 1"]
+tmdb_id = 30981
+disc_notes = "Collection 1 of 2 (Blu-ray)"
+
+# Nature series, 2019. Pinned so a future TMDB title collision cannot move it.
+["Seven Worlds, One Planet"]
+tmdb_id = 90790

@@ -75,12 +75,22 @@ BLOCK_THRESHOLD = 3
 # Ignored when alphabetising, so "The Green Knight" files under G.
 LEADING_ARTICLES = ("the ", "a ", "an ")
 
-SECTIONS = ("films", "collections", "documentaries")
+SECTIONS = ("films", "collections", "documentaries", "series")
 CATEGORY = {
     "films": "Film",
     "collections": "Collection",
     "documentaries": "Documentary",
+    "series": "Series",
 }
+
+# Looked up against TMDB's /tv endpoints rather than /movie. A nature series or
+# an anime is not a movie, and searching /search/movie for one returns either
+# nothing or, worse, an unrelated film with a similar name.
+TV_SECTIONS = frozenset({"series"})
+
+# TMDB's TV route has no equivalent of the movie id redirect, and Letterboxd
+# does not catalogue television at all, so a series links to its TMDB page.
+TMDB_TV_PAGE = "https://www.themoviedb.org/tv/{tv_id}"
 
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -465,6 +475,74 @@ def directors_of(payload):
     return names
 
 
+def tv_search(query, year_hint, api_key):
+    """Find the best TMDB *series* match for an inventory line.
+
+    Scored like the movie search, against first_air_date. A box labelled
+    "Naoki Urasawa's Monster: Collection 1" will not match on title alone,
+    which is what overrides.toml's tmdb_id is for.
+    """
+    url = "{}/search/tv?api_key={}&query={}&include_adult=false".format(
+        TMDB_API, api_key, urllib.parse.quote(query)
+    )
+    payload = fetch(url)
+    results = payload.get("results")
+    if results is None:
+        raise SchemaError("TMDB TV search response has no 'results' key")
+    if not results:
+        return None
+
+    def score(result):
+        points = 0.0
+        name = result.get("name") or ""
+        original = result.get("original_name") or ""
+        if sort_title(name) == sort_title(query) or sort_title(original) == sort_title(query):
+            points += 100
+        aired = (result.get("first_air_date") or "")[:4]
+        if year_hint and aired.isdigit():
+            gap = abs(int(aired) - year_hint)
+            points += 60 if gap == 0 else (25 if gap == 1 else 0)
+        points += min(result.get("popularity") or 0, 50) / 10.0
+        return points
+
+    return max(results, key=score)
+
+
+def tv_show(tv_id, api_key):
+    """Full record for one series. external_ids carries the IMDb id for OMDb."""
+    url = "{}/tv/{}?api_key={}&append_to_response=external_ids".format(
+        TMDB_API, tv_id, api_key
+    )
+    payload = fetch(url)
+    if "name" not in payload:
+        raise SchemaError(f"TMDB tv {tv_id} response has no 'name'")
+    return payload
+
+
+def creators_of(payload):
+    """Creator credits for a series, standing in for a film's director.
+
+    Often empty -- TMDB has no created_by for Monster, for one -- so an empty
+    list is reported as a missing credit rather than filled from somewhere else.
+    """
+    names = []
+    for person in payload.get("created_by") or []:
+        name = person.get("name")
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
+def episode_runtime(payload):
+    """Minutes per episode. TMDB gives a list, occasionally with more than one."""
+    runtimes = [r for r in (payload.get("episode_run_time") or []) if r]
+    if not runtimes:
+        return None
+    # The shortest is the regular episode length; a longer entry is usually a
+    # feature-length finale or a double-length premiere.
+    return min(runtimes)
+
+
 def omdb_lookup(imdb_id, api_key):
     """IMDb rating and the Rotten Tomatoes Tomatometer, by IMDb id.
 
@@ -532,7 +610,10 @@ def resolve(entry, keys, notes, overrides=None):
     record["role"] = entry.get("role", "item")
     record["parent"] = entry.get("parent")
 
-    if entry["section"] != "films" and record["role"] != "member":
+    if entry["section"] in TV_SECTIONS:
+        return resolve_series(entry, record, keys, notes, overrides)
+
+    if entry["section"] == "collections" and record["role"] != "member":
         # The box itself is not a TMDB movie. Fabricating a match for "Bourne:
         # The Ultimate Collection" would put one film's runtime and director on
         # a five-disc set, so the set carries only what its discs roll up plus
@@ -604,6 +685,74 @@ def resolve(entry, keys, notes, overrides=None):
     )
 
     record["letterboxd"] = resolve_letterboxd(record["tmdb_id"], record["imdb_id"])
+    record["verified"] = dt.date.today().isoformat()
+    return record
+
+
+def resolve_series(entry, record, keys, notes, overrides):
+    """Look one series up against TMDB's TV endpoints."""
+    pinned = (overrides or {}).get(entry["key"], {}).get("tmdb_id")
+    if pinned:
+        detail = tv_show(pinned, keys["tmdb"])
+        record["source_notes"].append(f"TMDB TV id pinned to {pinned} in overrides.toml")
+    else:
+        found = tv_search(entry["query"], entry["year_hint"], keys["tmdb"])
+        if not found:
+            record["source_notes"].append("no TMDB series match for this title")
+            notes.append(f"{entry['key']}: no TMDB series match")
+            return record
+        detail = tv_show(found["id"], keys["tmdb"])
+
+    record["tmdb_id"] = detail["id"]
+    record["tmdb_kind"] = "tv"
+    record["title"] = detail.get("name") or entry["query"]
+    aired = (detail.get("first_air_date") or "")[:4]
+    record["year"] = int(aired) if aired.isdigit() else None
+    last = (detail.get("last_air_date") or "")[:4]
+    record["last_year"] = int(last) if last.isdigit() else None
+    record["seasons"] = detail.get("number_of_seasons") or None
+    record["episodes"] = detail.get("number_of_episodes") or None
+    record["runtime"] = episode_runtime(detail)
+    record["genres"] = [g["name"] for g in detail.get("genres") or [] if g.get("name")]
+    record["overview"] = detail.get("overview") or ""
+    record["poster"] = detail.get("poster_path")
+    record["directors"] = creators_of(detail)
+    record["imdb_id"] = ((detail.get("external_ids") or {}).get("imdb_id")) or None
+
+    if not record["directors"]:
+        record["source_notes"].append("TMDB lists no created_by credit for this series")
+    if not record["runtime"]:
+        record["source_notes"].append("TMDB has no episode_run_time")
+    if record["episodes"]:
+        record["source_notes"].append(
+            "series: {} episode(s) across {} season(s)".format(
+                record["episodes"], record["seasons"] or 1)
+        )
+
+    if keys["omdb"] and record["imdb_id"]:
+        try:
+            omdb = omdb_lookup(record["imdb_id"], keys["omdb"])
+            record["imdb_rating"] = _number(omdb.get("imdbRating"))
+            record["rt_critic"] = rt_critic_from(omdb)
+            if record["rt_critic"] is None:
+                record["source_notes"].append(
+                    "Rotten Tomatoes has no Tomatometer for this series on OMDb"
+                )
+        except (FetchError, SchemaError) as exc:
+            record["source_notes"].append(f"OMDb lookup failed: {exc}")
+            notes.append(f"{entry['key']}: OMDb lookup failed ({exc})")
+    elif not keys["omdb"]:
+        record["source_notes"].append(
+            "no OMDB_API_KEY set: IMDb rating and Tomatometer not fetched"
+        )
+    elif not record["imdb_id"]:
+        record["source_notes"].append(
+            "TMDB has no IMDb id for this series, so OMDb could not be queried"
+        )
+
+    # Letterboxd is film-only, so there is nothing to resolve; TMDB's own page
+    # is the honest destination for a series.
+    record["letterboxd"] = TMDB_TV_PAGE.format(tv_id=record["tmdb_id"])
     record["verified"] = dt.date.today().isoformat()
     return record
 
@@ -763,7 +912,7 @@ def shelve(records):
         order += 1
         shelf.append(record)
 
-    for section in ("collections", "documentaries"):
+    for section in ("collections", "documentaries", "series"):
         group = [r for r in records if r["section"] == section]
         for record in sorted(group, key=lambda r: sort_title(r["title"])):
             record["block"] = ""
@@ -796,6 +945,10 @@ def write_csv(path, shelf):
             # A box set has no runtime or score of its own -- it reports what
             # its discs rolled up. A disc is a Film that names its box.
             runtime = record["runtime"] if not record.get("members") else record.get("agg_runtime")
+            # For a series, the comparable figure is the whole run, the same way
+            # a box set reports its discs' total rather than one film's length.
+            if record.get("episodes") and record.get("runtime"):
+                runtime = record["episodes"] * record["runtime"]
             critic = record["rt_critic"] if not record.get("members") else record.get("agg_rt")
             imdb = record["imdb_rating"] if not record.get("members") else record.get("agg_imdb")
             writer.writerow({
@@ -1071,11 +1224,21 @@ function card(f) {
   // nothing. Flag the exception instead.
   const badge = f.box
     ? '<div class="badge">' + f.films + ' FILMS</div>'
-    : (f.uhd ? '' : '<div class="badge">BLU-RAY</div>');
+    : f.episodes
+      ? '<div class="badge">' + (f.seasons > 1 ? f.seasons + ' SEASONS' : 'SERIES') + '</div>'
+      : (f.uhd ? '' : '<div class="badge">BLU-RAY</div>');
   const bits = [];
   if (f.span && f.span[0] !== f.span[1]) bits.push(f.span[0] + '–' + f.span[1]);
+  else if (f.episodes && f.lastyear && f.lastyear !== f.year) bits.push(f.year + '–' + f.lastyear);
   else if (f.year) bits.push(f.year);
-  if (f.runtime) bits.push(f.box ? Math.round(f.runtime / 60) + 'h total' : f.runtime + ' min');
+  if (f.episodes) {
+    // "74 ep · 23 min" says more about a series than either number alone, and
+    // a single "23 min" would read as if that were the whole thing.
+    bits.push(f.episodes + ' ep');
+    if (f.runtime) bits.push(f.runtime + ' min');
+  } else if (f.runtime) {
+    bits.push(f.box ? Math.round(f.runtime / 60) + 'h total' : f.runtime + ' min');
+  }
   const scores = [];
   if (f.rt_critic != null) {
     // Fresh gets the tomato, rotten gets the green splat -- the same signal
@@ -1312,6 +1475,9 @@ def render_html(shelf, blocks, title, embedded=None):
             "member": record.get("role") == "member",
             "parent": record.get("parent"),
             "films": record.get("film_count"),
+            "episodes": record.get("episodes"),
+            "seasons": record.get("seasons"),
+            "lastyear": record.get("last_year"),
             "span": list(record["agg_years"]) if record.get("agg_years") else None,
         })
 
@@ -1542,6 +1708,30 @@ def mode_verify(args, keys):
                 url = resolve_letterboxd(detail["id"], detail.get("imdb_id"))
                 check("Letterboxd id redirect resolves",
                       bool(url and "/film/" in url), url or "")
+
+            # The TV route is a separate contract and breaks separately.
+            series = tv_search("Seven Worlds, One Planet", 2019, keys["tmdb"])
+            check("TMDB TV search returns results", bool(series),
+                  (series or {}).get("name", ""))
+            if series:
+                show = tv_show(series["id"], keys["tmdb"])
+                check("TMDB tv has first_air_date", bool(show.get("first_air_date")),
+                      str(show.get("first_air_date")))
+                check("TMDB tv has number_of_episodes",
+                      bool(show.get("number_of_episodes")),
+                      str(show.get("number_of_episodes")))
+                check("TMDB tv has episode_run_time",
+                      episode_runtime(show) is not None,
+                      f"{episode_runtime(show)} min")
+                check("TMDB tv has genres", bool(show.get("genres")),
+                      ", ".join(g["name"] for g in show.get("genres", [])))
+                check("TMDB tv external_ids carry an IMDb id",
+                      bool((show.get("external_ids") or {}).get("imdb_id")),
+                      str((show.get("external_ids") or {}).get("imdb_id")))
+                results.append((
+                    "TMDB tv created_by", "INFO",
+                    ", ".join(creators_of(show)) or "absent -- common; left blank",
+                ))
         except (FetchError, SchemaError) as exc:
             check("TMDB reachable", False, str(exc))
 
