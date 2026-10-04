@@ -2614,24 +2614,36 @@
     },
     "Seven Worlds, One Planet": {
       "directors": [],
-      "genres": [],
-      "imdb_id": null,
-      "imdb_rating": null,
+      "episodes": 7,
+      "genres": [
+        "Documentary",
+        "Family"
+      ],
+      "imdb_id": "tt9805708",
+      "imdb_rating": 9.3,
       "key": "Seven Worlds, One Planet",
-      "letterboxd": null,
-      "overview": "",
-      "poster": null,
+      "last_year": 2019,
+      "letterboxd": "https://www.themoviedb.org/tv/90790",
+      "overview": "Millions of years ago, incredible forces ripped apart the Earth’s crust creating seven extraordinary continents. This documentary series reveals how each distinct continent has shaped the unique animal life found there.",
+      "parent": null,
+      "poster": "/kzKNMIlqyznC1jjht8mI2oEtDcp.jpg",
+      "role": "item",
       "rt_audience": null,
       "rt_critic": null,
-      "runtime": null,
-      "section": "documentaries",
+      "runtime": 58,
+      "seasons": 1,
+      "section": "series",
       "source_notes": [
-        "box set / non-film entry: not looked up against TMDB"
+        "TMDB TV id pinned to 90790 in overrides.toml",
+        "TMDB lists no created_by credit for this series",
+        "series: 7 episode(s) across 1 season(s)",
+        "Rotten Tomatoes has no Tomatometer for this series on OMDb"
       ],
       "title": "Seven Worlds, One Planet",
-      "tmdb_id": null,
-      "verified": "2026-09-07",
-      "year": null
+      "tmdb_id": 90790,
+      "tmdb_kind": "tv",
+      "verified": "2026-10-04",
+      "year": 2019
     },
     "Shaun of the Dead": {
       "directors": [
