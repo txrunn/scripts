@@ -51,6 +51,10 @@ DETAIL_PAGE = """
 
 
 class ParseSearchPage(unittest.TestCase):
+    def test_reads_language(self):
+        page = SEARCH_PAGE.replace('<div class="postInfo">Category: Humor&nbsp;<br />', '<div class="postInfo">Category: Humor&nbsp;<br />Language: English<span>')
+        self.assertEqual(bs.parse_search_page(page)[0].language, "English")
+
     def setUp(self):
         self.results = bs.parse_search_page(SEARCH_PAGE)
 
@@ -178,6 +182,72 @@ class LibGen(unittest.TestCase):
         self.assertEqual(len(calls), 2)
 
 
+ZLIB_BOOKS = [
+    {"id": 12886527, "title": "Project Hail Mary", "author": "Andy Weir", "year": 2021, "language": "english",
+     "filesizeString": "514 KB", "extension": "epub", "md5": "ED984DB8707F12FE72AE28EFA5F3F30F",
+     "href": "https://z-lib.gl/book/KqZYoO8kdz/project-hail-mary.html"},
+    {"id": 18432777, "title": "Project Hail Mary", "author": "Andy Weir", "year": 0, "language": "English",
+     "filesizeString": "7.44 MB", "extension": "pdf", "md5": "17a7e444973b6213e6023b50128dc6d7",
+     "href": "https://z-lib.gl/book/43n9KjBQJj/project-hail-mary.html"},
+    {"id": 1, "title": "", "md5": "nope"},
+]
+
+
+class ZLibrary(unittest.TestCase):
+    def test_parses_books_and_skips_broken_ones(self):
+        results = bs.parse_zlib_books(ZLIB_BOOKS)
+        self.assertEqual(len(results), 2)
+        r = results[0]
+        self.assertEqual((r.title, r.author, r.year, r.language, r.size, r.format, r.md5),
+                         ("Project Hail Mary", "Andy Weir", "2021", "English", "514 KB", "epub",
+                          "ed984db8707f12fe72ae28efa5f3f30f"))
+        self.assertEqual(r.sources, ["Z-Library"])
+        self.assertEqual(r.download_page, "")
+        self.assertEqual(results[1].year, "")
+
+
+class Merge(unittest.TestCase):
+    def test_same_file_in_two_libraries_becomes_one_result(self):
+        libgen = bs.parse_libgen_page(LIBGEN_PAGE.replace("F21EF754F3C4B986F3896807D80A6CE1", "ED984DB8707F12FE72AE28EFA5F3F30F"),
+                                      "https://libgen.li")
+        merged = bs.merge_by_md5(libgen + bs.parse_zlib_books(ZLIB_BOOKS))
+        self.assertEqual(len(merged), 2)
+        both, zlib_only = merged
+        self.assertEqual(both.sources, ["LibGen", "Z-Library"])
+        self.assertEqual(set(both.links), {"LibGen", "Z-Library"})
+        self.assertTrue(both.download_page.startswith("https://libgen.li/ads.php"))
+        self.assertEqual(zlib_only.sources, ["Z-Library"])
+
+    def test_ebook_search_survives_one_library_down_and_links_annas(self):
+        def down(*_):
+            raise OSError("down")
+
+        problems = []
+        with mock.patch.dict(bs.EBOOK_LIBRARIES, {"LibGen": down, "Z-Library": lambda q, p: bs.parse_zlib_books(ZLIB_BOOKS)}):
+            results = bs.ebook_search("project hail mary", 1, problems)
+        self.assertEqual(problems, ["LibGen"])
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0].links["Anna's Archive"], bs.ANNAS_BASE + "/md5/ed984db8707f12fe72ae28efa5f3f30f")
+
+    def test_ebook_search_fails_when_every_library_is_down(self):
+        def down(*_):
+            raise OSError("down")
+
+        with mock.patch.dict(bs.EBOOK_LIBRARIES, {"LibGen": down, "Z-Library": down}), self.assertRaises(RuntimeError):
+            bs.ebook_search("x", 1, [])
+
+
+class Keep(unittest.TestCase):
+    def test_filters_language_and_format_case_insensitively(self):
+        rs = [bs.Result("a", "u", language="English", format="epub"),
+              bs.Result("b", "u", language="Russian", format="epub"),
+              bs.Result("c", "u", language="English", format="pdf")]
+        self.assertEqual([r.title for r in bs.keep(rs, "english", None)], ["a", "c"])
+        self.assertEqual([r.title for r in bs.keep(rs, None, "EPUB")], ["a", "b"])
+        self.assertEqual([r.title for r in bs.keep(rs, "english,russian", "epub")], ["a", "b"])
+        self.assertEqual(len(bs.keep(rs, None, None)), 3)
+
+
 class DeviceToken(unittest.TestCase):
     def test_accepts_the_shapes_torbox_might_send(self):
         self.assertEqual(bs.torbox_device_token("abc"), "abc")
@@ -193,6 +263,7 @@ class Server(unittest.TestCase):
     def setUp(self):
         server = ThreadingHTTPServer(("127.0.0.1", 0), bs.Handler)
         threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)
         self.addCleanup(server.shutdown)
         self.port = server.server_port
 
@@ -202,6 +273,7 @@ class Server(unittest.TestCase):
             headers["X-TorBox-Key"] = key
         conn = http.client.HTTPConnection("127.0.0.1", self.port)
         conn.request(method, path, body=json.dumps(body) if body is not None else None, headers=headers)
+        self.addCleanup(conn.close)
         resp = conn.getresponse()
         raw = resp.read()
         return resp.status, (json.loads(raw) if resp.getheader("Content-Type") == "application/json" else raw), resp
@@ -216,6 +288,7 @@ class Server(unittest.TestCase):
         with mock.patch.object(bs, "search", return_value=[r]) as search:
             status, body, _ = self.request("GET", "/api/search?title=hail+mary&author=weir&kind=books")
         self.assertEqual(status, 200)
+        self.assertEqual(body["unavailable"], [])
         self.assertEqual(search.call_args.args, ("hail mary", "weir", "books"))
         self.assertNotIn("trackers", body["results"][0])
 

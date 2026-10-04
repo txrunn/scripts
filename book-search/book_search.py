@@ -3,7 +3,8 @@
 
 Audiobooks come from AudioBookBay: each hit's page is opened for its info hash
 and trackers, and a magnet link is built from those -- no account needed.
-Ebooks come from Library Genesis, with a direct download link per file.
+Ebooks come from Library Genesis and Z-Library, merged by file hash and
+labelled with every library that has each file.
 
 With a TorBox API key the results also say which audiobooks TorBox already has
 cached (ready now, no seeders needed), and any result can be sent to TorBox:
@@ -22,6 +23,8 @@ Environment:
     ABB_DOMAIN       AudioBookBay moves domains; override it here (default audiobookbay.lu)
     LIBGEN_MIRRORS   comma-separated LibGen hosts to try in order
                      (default libgen.li,libgen.bz,libgen.vg)
+    ZLIB_MIRRORS     comma-separated Z-Library hosts (default z-lib.gl,z-lib.gd,library-access.sk)
+    ANNAS_DOMAIN     Anna's Archive domain for per-file links (default annas-archive.gl)
 """
 from __future__ import annotations
 
@@ -44,6 +47,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ABB_BASE = f"https://{os.environ.get('ABB_DOMAIN', 'audiobookbay.lu')}"
 LIBGEN_MIRRORS = [h.strip() for h in os.environ.get("LIBGEN_MIRRORS", "libgen.li,libgen.bz,libgen.vg").split(",") if h.strip()]
+ZLIB_MIRRORS = [h.strip() for h in os.environ.get("ZLIB_MIRRORS", "z-lib.gl,z-lib.gd,library-access.sk").split(",") if h.strip()]
+ANNAS_BASE = f"https://{os.environ.get('ANNAS_DOMAIN', 'annas-archive.gl')}"
 TORBOX_BASE = "https://api.torbox.app/v1/api"
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 
@@ -58,6 +63,7 @@ FALLBACK_TRACKERS = [
 POST_RE = re.compile(r'<div class="post">(.*?)(?=<div class="post">|<div class="navigation"|$)', re.S)
 TITLE_RE = re.compile(r'<div class="postTitle"><h2><a href="([^"]+)"[^>]*>(.*?)</a>', re.S)
 POSTED_RE = re.compile(r"Posted:\s*([^<]+)")
+LANGUAGE_RE = re.compile(r"Language:\s*([^<]+)")
 FORMAT_RE = re.compile(r"Format:\s*<span[^>]*>([^<]*)</span>")
 BITRATE_RE = re.compile(r"Bitrate:\s*<span[^>]*>([^<]*)</span>")
 SIZE_RE = re.compile(r"File Size:\s*<span[^>]*>([^<]*)</span>\s*([KMGT]?B)s?", re.I)
@@ -76,7 +82,8 @@ GET_LINK_RE = re.compile(r'href="(get\.php\?md5=[0-9a-fA-F]{32}&(?:amp;)?key=[A-
 class Result:
     title: str
     url: str
-    source: str = "audiobookbay"
+    sources: list[str] = field(default_factory=lambda: ["AudioBookBay"])
+    links: dict[str, str] = field(default_factory=dict)  # library name -> this file's page there
     author: str = ""
     posted: str = ""
     year: str = ""
@@ -87,7 +94,7 @@ class Result:
     info_hash: str = ""
     magnet: str = ""
     md5: str = ""
-    download_page: str = ""
+    download_page: str = ""  # LibGen's download page; empty when only Z-Library has the file
     cached: bool | None = None
     trackers: list[str] = field(default_factory=list, repr=False)
 
@@ -138,6 +145,8 @@ def parse_post(block: str) -> Result | None:
     r = Result(title=clean(m.group(2)), url=urllib.parse.urljoin(ABB_BASE, m.group(1)))
     if m := POSTED_RE.search(block):
         r.posted = clean(m.group(1))
+    if m := LANGUAGE_RE.search(block):
+        r.language = clean(m.group(1))
     if m := FORMAT_RE.search(block):
         r.format = clean(m.group(1))
     if (m := BITRATE_RE.search(block)) and clean(m.group(1)) != "?":
@@ -214,14 +223,16 @@ def parse_libgen_page(body: str, base: str) -> list[Result]:
         title = LIBGEN_TITLE_RE.search(cells[0]) if cells else None
         if len(cells) < 9 or not md5 or not title:
             continue
+        url = f"{base}/{title.group(1)}"
         results.append(Result(
             title=clean(title.group(2)),
-            url=f"{base}/{title.group(1)}",
-            source="libgen",
+            url=url,
+            sources=["LibGen"],
+            links={"LibGen": url},
             author=clean(cells[1]).strip(" ,;"),
             year=clean(cells[3]),
             language=clean(cells[4]),
-            size=clean(cells[6]),
+            size=clean(cells[6]).replace(" kB", " KB"),
             format=clean(cells[7]),
             md5=md5.group(1).lower(),
             download_page=f"{base}/ads.php?md5={md5.group(1).lower()}",
@@ -240,11 +251,101 @@ def libgen_direct_link(md5: str) -> str:
     return f"{base}/{html.unescape(m.group(1))}"
 
 
-# Each source turns a query into Results; `finish` fills in whatever needs a
-# second request per result. New libraries slot in here.
+# --- Z-Library ----------------------------------------------------------------
+# The website is behind a bot wall, but the API its apps use answers plain
+# requests. Searching needs no account; downloading does, so Z-Library-only
+# files link to their page there instead.
+
+def zlib_search(query: str, pages: int = 1) -> list[Result]:
+    results: list[Result] = []
+    for page in range(1, pages + 1):
+        data = None
+        for host in ZLIB_MIRRORS:
+            try:
+                body = urllib.parse.urlencode({"message": query, "limit": 50, "page": page}).encode()
+                data = json.loads(fetch(f"https://{host}/eapi/book/search", data=body, method="POST",
+                                        headers={"Content-Type": "application/x-www-form-urlencoded"}))
+                break
+            except Exception:  # noqa: BLE001 - try the next mirror
+                continue
+        if data is None:
+            raise RuntimeError("no Z-Library mirror answered")
+        page_results = parse_zlib_books(data.get("books") or [])
+        results.extend(page_results)
+        if len(page_results) < 50:
+            break
+    return results
+
+
+def parse_zlib_books(books: list[dict]) -> list[Result]:
+    results = []
+    for b in books:
+        md5 = str(b.get("md5") or "").lower()
+        if not re.fullmatch(r"[0-9a-f]{32}", md5) or not b.get("title"):
+            continue
+        url = str(b.get("href") or "")
+        results.append(Result(
+            title=clean(str(b["title"])),
+            url=url,
+            sources=["Z-Library"],
+            links={"Z-Library": url} if url else {},
+            author=clean(str(b.get("author") or "")),
+            year=str(b["year"]) if b.get("year") else "",
+            language=str(b.get("language") or "").title(),
+            size=str(b.get("filesizeString") or ""),
+            format=str(b.get("extension") or ""),
+            md5=md5,
+        ))
+    return results
+
+
+# --- Ebooks: every library at once ---------------------------------------------
+
+EBOOK_LIBRARIES = {"LibGen": libgen_search, "Z-Library": zlib_search}
+
+
+def merge_by_md5(results: list[Result]) -> list[Result]:
+    """The same file is often in several libraries. Keep one result per file,
+    listing every library that has it, and fill gaps from whichever knows more."""
+    merged: dict[str, Result] = {}
+    for r in results:
+        if r.md5 not in merged:
+            merged[r.md5] = r
+            continue
+        m = merged[r.md5]
+        m.sources += [s for s in r.sources if s not in m.sources]
+        m.links = {**r.links, **m.links}
+        m.download_page = m.download_page or r.download_page
+        for f in ("author", "year", "language", "size", "format"):
+            if not getattr(m, f):
+                setattr(m, f, getattr(r, f))
+    return list(merged.values())
+
+
+def ebook_search(query: str, pages: int = 1, problems: list[str] | None = None) -> list[Result]:
+    found: list[Result] = []
+    with ThreadPoolExecutor(max_workers=len(EBOOK_LIBRARIES)) as pool:
+        jobs = {name: pool.submit(fn, query, pages) for name, fn in EBOOK_LIBRARIES.items()}
+        for name, job in jobs.items():
+            try:
+                found.extend(job.result())
+            except Exception as e:  # noqa: BLE001 - one library down shouldn't hide the other
+                print(f"warn: {name}: {e}", file=sys.stderr)
+                if problems is not None:
+                    problems.append(name)
+    if problems is not None and len(problems) == len(EBOOK_LIBRARIES):
+        raise RuntimeError("no library answered")
+    results = merge_by_md5(found)
+    for r in results:
+        r.links["Anna's Archive"] = f"{ANNAS_BASE}/md5/{r.md5}"
+    return results
+
+
+# Each kind of search turns a query into Results; `finish` fills in whatever
+# needs a second request per result. New libraries slot in here.
 SOURCES = {
-    "audiobooks": {"search": abb_search, "finish": abb_finish},
-    "books": {"search": libgen_search, "finish": lambda results: results},
+    "audiobooks": {"search": lambda q, pages, problems=None: abb_search(q, pages), "finish": abb_finish},
+    "books": {"search": ebook_search, "finish": lambda results: results},
 }
 
 
@@ -265,11 +366,25 @@ def narrow(results: list[Result], title: str, author: str | None) -> list[Result
     return [r for r in results if all(w in words(r.title) for w in title_words)] or results
 
 
+def pick(values: str | None) -> set[str]:
+    return {v.strip().lower() for v in (values or "").split(",") if v.strip()}
+
+
+def keep(results: list[Result], languages: str | None, formats: str | None) -> list[Result]:
+    """Drop results outside the chosen languages and file types. Filtering
+    happens before the per-result fetches, so it also makes searches faster."""
+    langs, fmts = pick(languages), pick(formats)
+    return [r for r in results
+            if (not langs or r.language.lower() in langs) and (not fmts or r.format.lower() in fmts)]
+
+
 def search(title: str, author: str | None = None, kind: str = "audiobooks", pages: int = 1,
-           limit: int = 0) -> list[Result]:
+           limit: int = 0, languages: str | None = None, formats: str | None = None,
+           problems: list[str] | None = None) -> list[Result]:
+    """`problems` collects the names of libraries that didn't answer."""
     source = SOURCES[kind]
     query = f"{title} {author}" if author else title
-    results = narrow(source["search"](query, pages), title, author)
+    results = keep(narrow(source["search"](query, pages, problems), title, author), languages, formats)
     if limit:
         results = results[:limit]
     return source["finish"](results)
@@ -345,29 +460,38 @@ PAGE = r"""<!doctype html>
 <title>Book search</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+/* Bookcloth green and brass: the colours of a library binding. */
 :root {
-  --paper: #e9eef3;
-  --sheet: #f7f9fb;
-  --ink: #18263b;
-  --muted: #5a6a80;
-  --line: #c9d3de;
-  --ready: #0b6e5a;
-  --ready-wash: #d4ede6;
+  --paper: #eef1ea;
+  --sheet: #fbfcf9;
+  --ink: #15261f;
+  --muted: #56685f;
+  --line: #d2dacf;
+  --cloth: #1d4434;
+  --on-cloth: #f3f1e6;
+  --brass: #7c5a12;
+  --brass-wash: #f1e6c8;
+  --ready: #14713f;
+  --ready-wash: #d5eedb;
   --focus: #2f6fdb;
   --danger: #a3292b;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #121a26;
-    --sheet: #1a2433;
-    --ink: #e4eaf2;
-    --muted: #93a2b8;
-    --line: #2c3a4e;
-    --ready: #5fd3b4;
-    --ready-wash: #123a33;
-    --focus: #7aa7ff;
+    --paper: #0d1713;
+    --sheet: #14221c;
+    --ink: #e8eee9;
+    --muted: #9bada4;
+    --line: #26372f;
+    --cloth: #d9e6dd;
+    --on-cloth: #0d1713;
+    --brass: #e4bf68;
+    --brass-wash: #2e2812;
+    --ready: #74dca0;
+    --ready-wash: #143222;
+    --focus: #8ab4ff;
     --danger: #ff8c86;
   }
 }
@@ -375,69 +499,103 @@ PAGE = r"""<!doctype html>
 [hidden] { display: none !important; }
 body {
   margin: 0; background: var(--paper); color: var(--ink);
-  font: 16px/1.5 "Atkinson Hyperlegible", system-ui, sans-serif;
+  font: 17px/1.5 "Alegreya Sans", system-ui, sans-serif;
 }
-main { max-width: 46rem; margin: 0 auto; padding: 2rem 1rem 5rem; }
-.account { display: flex; gap: 0.75rem; align-items: center; justify-content: flex-end; min-height: 2.5rem; font-size: 0.92rem; color: var(--muted); }
+main { max-width: 48rem; margin: 0 auto; padding: 1.5rem 1rem 5rem; }
+
+/* Account */
+.account { display: flex; gap: 0.75rem; align-items: center; justify-content: flex-end; min-height: 2.5rem; font-size: 0.95rem; color: var(--muted); }
 .connect {
-  background: var(--sheet); border: 1px solid var(--line); border-radius: 8px;
-  padding: 1rem 1.1rem; margin: 0.5rem 0 1.5rem;
+  background: var(--sheet); border: 1px solid var(--line); border-radius: 10px;
+  padding: 1.1rem 1.2rem; margin: 0.5rem 0 1.5rem;
 }
-.connect h2 { font: 500 1.15rem/1.3 Literata, Georgia, serif; margin: 0 0 0.3rem; }
-.connect p { margin: 0 0 0.8rem; color: var(--muted); font-size: 0.95rem; }
-.code { font: 650 2rem/1 Literata, Georgia, serif; letter-spacing: 0.12em; color: var(--ink); margin: 0.2rem 0 0.6rem; }
+.connect h2 { font: 700 1.25rem/1.3 Alegreya, Georgia, serif; margin: 0 0 0.3rem; }
+.connect p { margin: 0 0 0.8rem; color: var(--muted); }
+.code { font: 800 2.2rem/1 Alegreya, Georgia, serif; letter-spacing: 0.14em; margin: 0.2rem 0 0.6rem; }
 .keyrow { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .keyrow input { flex: 1 1 14rem; }
-.or { margin: 1rem 0 0.5rem; font-size: 0.9rem; color: var(--muted); }
-h1 {
-  font: 650 2.4rem/1.1 Literata, Georgia, serif; letter-spacing: -0.01em;
-  margin: 0.5rem 0 0.4rem;
-}
-.lede { color: var(--muted); margin: 0 0 1.5rem; }
-.kinds { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 3px; margin-bottom: 1rem; }
+.or { margin: 1rem 0 0.5rem; }
+
+/* Search */
+h1 { font: 800 2.7rem/1.05 Alegreya, Georgia, serif; letter-spacing: -0.01em; margin: 0.5rem 0 0.35rem; }
+.lede { color: var(--muted); margin: 0 0 1.4rem; max-width: 38rem; }
+.kinds { display: inline-flex; background: var(--sheet); border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin-bottom: 1rem; }
 .kinds label { cursor: pointer; }
 .kinds input { position: absolute; opacity: 0; pointer-events: none; }
-.kinds span { display: block; padding: 0.35rem 0.9rem; border-radius: 5px; color: var(--muted); }
-.kinds input:checked + span { background: var(--ink); color: var(--paper); font-weight: 700; }
+.kinds span { display: block; padding: 0.3rem 1rem; border-radius: 999px; color: var(--muted); font-weight: 500; }
+.kinds input:checked + span { background: var(--cloth); color: var(--on-cloth); font-weight: 700; }
 .kinds input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 1px; }
-form.search { display: grid; grid-template-columns: 2fr 1fr auto; gap: 0.6rem; margin-bottom: 0.75rem; }
-.field { display: grid; gap: 0.25rem; font-size: 0.85rem; color: var(--muted); }
+form.search { display: grid; grid-template-columns: 2fr 1fr auto; gap: 0.6rem; }
+.field { display: grid; gap: 0.2rem; font-size: 0.9rem; color: var(--muted); }
 input[type=text], input[type=password] {
-  font: inherit; font-size: 1.05rem; color: var(--ink); background: var(--sheet);
-  border: 1px solid var(--line); border-radius: 6px; padding: 0.6rem 0.75rem; width: 100%;
+  font: inherit; font-size: 1.1rem; color: var(--ink); background: var(--sheet);
+  border: 1px solid var(--line); border-radius: 8px; padding: 0.55rem 0.75rem; width: 100%;
 }
 button, .button {
-  font: inherit; font-weight: 700; cursor: pointer; border-radius: 6px; text-decoration: none;
-  border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
-  padding: 0.6rem 1.1rem; display: inline-block; line-height: 1.5;
+  font: inherit; font-weight: 700; cursor: pointer; border-radius: 8px; text-decoration: none;
+  border: 1px solid var(--cloth); background: var(--cloth); color: var(--on-cloth);
+  padding: 0.5rem 1rem; display: inline-block; line-height: 1.4;
 }
-form.search button { align-self: end; }
-.quiet { background: transparent; color: var(--ink); border-color: var(--line); font-weight: 400; }
-.link { background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-weight: 400; }
+form.search button { align-self: end; padding: 0.6rem 1.3rem; }
+.quiet { background: transparent; color: var(--ink); border-color: var(--line); font-weight: 500; }
+.quiet:hover { border-color: var(--muted); }
+.link { background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.status { min-height: 1.5rem; color: var(--muted); margin: 0.5rem 0 1.5rem; }
-.status.error, .note.error { color: var(--danger); }
-ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-li { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
-.head { display: flex; gap: 0.75rem; align-items: baseline; justify-content: space-between; }
-h3 { font: 500 1.25rem/1.3 Literata, Georgia, serif; margin: 0; }
-h3 a { color: inherit; text-decoration: none; }
-h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
-.by { color: var(--muted); margin-top: 0.1rem; }
-.ready {
-  flex: none; font-weight: 700; font-size: 0.85rem; color: var(--ready);
-  background: var(--ready-wash); border-radius: 999px; padding: 0.15rem 0.7rem;
+
+/* Filters */
+.filters { display: grid; gap: 0.5rem; margin: 1.5rem 0 0; }
+.facet { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.facet-name { width: 5.5rem; color: var(--muted); font-size: 0.95rem; }
+.chip {
+  font-weight: 500; font-size: 0.95rem; padding: 0.2rem 0.75rem; border-radius: 999px;
+  background: var(--sheet); color: var(--ink); border: 1px solid var(--line);
 }
-.slow { flex: none; font-size: 0.85rem; color: var(--muted); }
-.meta { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; color: var(--muted); font-size: 0.92rem; margin: 0.35rem 0 0.8rem; }
-.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-.note { font-size: 0.88rem; color: var(--muted); }
+.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 0.3rem; }
+.chip[aria-pressed=true] { background: var(--cloth); color: var(--on-cloth); border-color: var(--cloth); }
+.chip[aria-pressed=true] .n { color: inherit; opacity: 0.75; }
+
+.status { min-height: 1.5rem; color: var(--muted); margin: 1rem 0 0.75rem; }
+.status.error, .note.error { color: var(--danger); }
+
+/* Results */
+ol { list-style: none; margin: 0; padding: 0; }
+li {
+  display: grid; grid-template-columns: 1fr auto; gap: 0.2rem 1.5rem;
+  padding: 1.1rem 0; border-top: 1px solid var(--line);
+}
+li:last-child { border-bottom: 1px solid var(--line); }
+h3 { font: 700 1.3rem/1.25 Alegreya, Georgia, serif; margin: 0; }
+h3 a { color: inherit; text-decoration: none; }
+h3 a:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.by { display: flex; flex-wrap: wrap; gap: 0 1rem; color: var(--muted); }
+.by .who { color: var(--ink); }
+.file { grid-row: span 2; display: grid; justify-items: end; align-content: start; gap: 0.3rem; text-align: right; }
+.fmt {
+  font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--brass);
+  background: var(--brass-wash); border-radius: 5px; padding: 0.05rem 0.5rem;
+}
+.size { font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.bitrate { color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.ready {
+  font-weight: 700; font-size: 0.85rem; color: var(--ready);
+  background: var(--ready-wash); border-radius: 999px; padding: 0.1rem 0.65rem;
+}
+.slow { font-size: 0.85rem; color: var(--muted); }
+.from { grid-column: 1; display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+.src {
+  font-size: 0.85rem; font-weight: 500; color: var(--ink); text-decoration: none;
+  border: 1px solid var(--line); border-radius: 5px; padding: 0 0.45rem;
+}
+a.src:hover { border-color: var(--muted); }
+.actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.6rem; }
+.note { font-size: 0.95rem; color: var(--muted); }
 .note.ok { color: var(--ready); font-weight: 700; }
+
 @media (max-width: 560px) {
-  h1 { font-size: 1.9rem; }
+  h1 { font-size: 2.1rem; }
   form.search { grid-template-columns: 1fr; }
-  .head { flex-direction: column; gap: 0.3rem; }
+  .facet-name { width: 100%; }
 }
 </style>
 </head>
@@ -458,7 +616,7 @@ h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
     <div id="device-wait" hidden>
       <p>Go to <a id="device-link" target="_blank" rel="noreferrer"></a> and enter this code:</p>
       <div class="code" id="device-code"></div>
-      <p class="note" id="device-note">Waiting for you to approve it…</p>
+      <p class="note">Waiting for you to approve it…</p>
     </div>
     <p class="or">Or paste an API key from torbox.app, under Settings:</p>
     <form class="keyrow" id="key-form">
@@ -479,24 +637,32 @@ h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
     <label class="field">Author (optional) <input type="text" name="author" autocomplete="off"></label>
     <button>Search</button>
   </form>
+
+  <div class="filters" id="filters" hidden>
+    <div class="facet" id="facet-language" role="group" aria-label="Language"></div>
+    <div class="facet" id="facet-format" role="group" aria-label="File type"></div>
+    <div class="facet" id="facet-source" role="group" aria-label="Library"></div>
+  </div>
   <p class="status" id="status" role="status"></p>
   <ol id="results"></ol>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
-const store = {
-  get() { try { return localStorage.getItem("torbox-key") || ""; } catch { return ""; } },
-  set(v) { try { v ? localStorage.setItem("torbox-key", v) : localStorage.removeItem("torbox-key"); } catch {} },
+const local = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
-let key = store.get();
-let lastResults = [];
+let key = local.get("torbox-key", "");
+let results = [];   // everything the last search returned
+const kind = () => document.querySelector("input[name=kind]:checked").value;
+let unavailable = [];  // libraries that didn't answer the last search
 
 function el(tag, attrs = {}, ...kids) {
   const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (k === "class") n.className = v; else n.setAttribute(k, v);
   }
-  n.append(...kids.filter(k => k !== null && k !== undefined && k !== ""));
+  n.append(...kids.flat().filter(k => k !== null && k !== undefined && k !== false && k !== ""));
   return n;
 }
 
@@ -516,8 +682,6 @@ async function api(path, body) {
 
 // --- Account ---------------------------------------------------------------
 
-const kind = () => document.querySelector("input[name=kind]:checked").value;
-
 function renderAccount(label) {
   $("who").textContent = key ? (label ? `TorBox: ${label}` : "TorBox connected") : "";
   $("connect-open").hidden = !!key;
@@ -528,10 +692,15 @@ function renderAccount(label) {
 
 function renderLede() {
   $("lede").textContent = kind() === "books"
-    ? (key ? "Searches Library Genesis. Download a file directly, or send it to TorBox."
-           : "Searches Library Genesis and gives you a direct download for each file.")
-    : key ? "Searches AudioBookBay. Uploads marked Ready now are already on TorBox and download straight away."
-          : "Searches AudioBookBay and gives you a magnet link for each upload. Connect TorBox to see which are ready now.";
+    ? (key ? "Searches LibGen and Z-Library. Files on LibGen download directly or go to TorBox."
+           : "Searches LibGen and Z-Library, and shows which library has each file. Files on LibGen download directly.")
+    : (key ? "Searches AudioBookBay. Uploads marked Ready now are already on TorBox and download straight away."
+           : "Searches AudioBookBay and gives you a magnet link for each upload. Connect TorBox to see which are ready now.");
+}
+
+function connectError(text) {
+  $("connect-note").className = "note error";
+  $("connect-note").textContent = text;
 }
 
 async function useKey(candidate) {
@@ -539,14 +708,13 @@ async function useKey(candidate) {
   key = candidate;
   try {
     const me = await api("/api/torbox/me");
-    store.set(key);
+    local.set("torbox-key", key);
     renderAccount(me.email);
-    if (lastResults.length) markCached(lastResults);
+    if (results.length) markCached(results);
     return true;
   } catch (e) {
     key = prev;
-    $("connect-note").className = "note error";
-    $("connect-note").textContent = `TorBox didn't accept that key: ${e.message}`;
+    connectError(`TorBox didn't accept that key: ${e.message}`);
     return false;
   }
 }
@@ -556,24 +724,26 @@ $("connect-open").addEventListener("click", () => {
   if (!$("connect").hidden) $("device-start").focus();
 });
 $("disconnect").addEventListener("click", () => {
-  key = ""; store.set("");
+  key = ""; local.set("torbox-key", null);
   renderAccount();
-  if (lastResults.length) render(lastResults.map(r => ({ ...r, cached: null })));
+  if (results.length) show(results.map(r => ({ ...r, cached: null })));
 });
 $("key-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const v = $("key-input").value.trim();
-  if (!v) return;
-  if (await useKey(v)) $("key-input").value = "";
+  if (v && await useKey(v)) $("key-input").value = "";
 });
 
 let polling = null;
+function stopDevice() {
+  clearInterval(polling);
+  $("device").hidden = false; $("device-wait").hidden = true;
+}
 $("device-start").addEventListener("click", async () => {
   $("connect-note").textContent = "";
   try {
     const d = await api("/api/torbox/device/start");
-    $("device").hidden = true;
-    $("device-wait").hidden = false;
+    $("device").hidden = true; $("device-wait").hidden = false;
     $("device-link").href = d.verification_url;
     $("device-link").textContent = d.friendly_verification_url || d.verification_url;
     $("device-code").textContent = d.code;
@@ -581,43 +751,80 @@ $("device-start").addEventListener("click", async () => {
     clearInterval(polling);
     polling = setInterval(async () => {
       if (Date.now() > expires) {
-        clearInterval(polling);
-        $("device").hidden = false; $("device-wait").hidden = true;
-        $("connect-note").className = "note error";
-        $("connect-note").textContent = "The code expired. Start again to get a new one.";
-        return;
+        stopDevice();
+        return connectError("The code expired. Start again to get a new one.");
       }
       try {
         const t = await api("/api/torbox/device/token", { device_code: d.device_code });
-        if (t.token) {
-          clearInterval(polling);
-          $("device").hidden = false; $("device-wait").hidden = true;
-          await useKey(t.token);
-        }
+        if (t.token) { stopDevice(); await useKey(t.token); }
       } catch (e) {
-        clearInterval(polling);
-        $("device").hidden = false; $("device-wait").hidden = true;
-        $("connect-note").className = "note error";
-        $("connect-note").textContent = e.message;
+        stopDevice();
+        connectError(e.message);
       }
     }, Math.max(5, d.interval || 5) * 1000);
   } catch (e) {
-    $("connect-note").className = "note error";
-    $("connect-note").textContent = `Couldn't start sign-in: ${e.message}`;
+    connectError(`Couldn't start sign-in: ${e.message}`);
   }
 });
 
+// --- Filters ---------------------------------------------------------------
+// Built from whatever the search returned. Choices are remembered per kind,
+// so ebooks can stay on English EPUB while audiobooks stay on M4B.
+
+// Each facet gives a list of values, because a file can be in several libraries.
+const FACETS = [
+  { id: "language", label: "Language", values: r => [r.language || "Unknown"] },
+  { id: "format", label: "File type", values: r => [(r.format || "unknown").toUpperCase()] },
+  { id: "source", label: "Library", values: r => r.sources || [] },
+];
+const chosen = () => local.get(`filters-${kind()}`, {});
+
+function passes(r, sel) {
+  return FACETS.every(f => !sel[f.id]?.length || f.values(r).some(v => sel[f.id].includes(v)));
+}
+
+function toggle(facet, value) {
+  const sel = chosen();
+  const set = new Set(sel[facet] || []);
+  set.has(value) ? set.delete(value) : set.add(value);
+  sel[facet] = [...set];
+  local.set(`filters-${kind()}`, sel);
+  show(results);
+}
+
+function renderFilters(sel) {
+  let any = false;
+  for (const f of FACETS) {
+    const counts = new Map();
+    for (const r of results) for (const v of f.values(r)) counts.set(v, (counts.get(v) || 0) + 1);
+    // A remembered choice stays visible even when this search has none of it.
+    for (const v of sel[f.id] || []) if (!counts.has(v)) counts.set(v, 0);
+    const box = $(`facet-${f.id}`);
+    if (counts.size < 2 && !(sel[f.id] || []).length) { box.hidden = true; continue; }
+    any = true;
+    box.hidden = false;
+    const chips = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([v, n]) => {
+      const b = el("button", { type: "button", class: "chip", "aria-pressed": String((sel[f.id] || []).includes(v)) },
+        v, el("span", { class: "n" }, String(n)));
+      b.addEventListener("click", () => toggle(f.id, v));
+      return b;
+    });
+    box.replaceChildren(el("span", { class: "facet-name" }, f.label), ...chips);
+  }
+  $("filters").hidden = !any;
+}
+
 // --- Results ---------------------------------------------------------------
 
-function sendButton(r) {
-  if (!key) return null;
+function sendControls(r) {
+  if (!key) return [];
   const note = el("span", { class: "note", "aria-live": "polite" });
   const send = el("button", { type: "button" }, "Send to TorBox");
   send.addEventListener("click", async () => {
     send.disabled = true;
     note.className = "note"; note.textContent = "Sending…";
     try {
-      await api("/api/torbox/add", r.source === "libgen"
+      await api("/api/torbox/add", r.md5
         ? { md5: r.md5, name: `${r.title}${r.format ? "." + r.format : ""}` }
         : { magnet: r.magnet, name: r.title });
       note.className = "note ok"; note.textContent = "Sent to TorBox";
@@ -630,11 +837,18 @@ function sendButton(r) {
 }
 
 function row(r) {
-  const actions = el("div", { class: "actions" });
-  const sent = sendButton(r);
-  if (r.source === "libgen") {
-    actions.append(el("a", { class: "button" + (sent ? " quiet" : ""), href: `/api/libgen/download?md5=${r.md5}`, target: "_blank", rel: "noreferrer" }, "Download"));
-    if (sent) actions.prepend(sent[0]), actions.append(sent[1]);
+  const [send, note] = sendControls(r);
+  let actions, from = null;
+  if (r.md5) {
+    const zlibOnly = !r.download_page;
+    const annas = r.links["Anna's Archive"];
+    const onAnnas = annas && el("a", { class: "button quiet", href: annas, target: "_blank", rel: "noreferrer" }, "Find on Anna's Archive");
+    actions = zlibOnly
+      ? [el("a", { class: "button", href: r.links["Z-Library"], target: "_blank", rel: "noreferrer" }, "Open on Z-Library"), onAnnas,
+         el("span", { class: "note" }, "Only on Z-Library, which needs you signed in to download.")]
+      : [send, el("a", { class: "button" + (send ? " quiet" : ""), href: `/api/libgen/download?md5=${r.md5}`, target: "_blank", rel: "noreferrer" }, "Download"), onAnnas, note];
+    from = el("div", { class: "from", "aria-label": "Libraries with this file" },
+      r.sources.map(s => r.links[s] ? el("a", { class: "src", href: r.links[s], target: "_blank", rel: "noreferrer", title: `This file on ${s}` }, s) : el("span", { class: "src" }, s)));
   } else {
     const copy = el("button", { type: "button", class: "quiet" }, "Copy magnet link");
     copy.addEventListener("click", async () => {
@@ -642,43 +856,61 @@ function row(r) {
       copy.textContent = "Copied";
       setTimeout(() => (copy.textContent = "Copy magnet link"), 1500);
     });
-    if (sent) actions.append(sent[0]);
-    actions.append(copy, el("a", { class: "button quiet", href: r.magnet }, "Open in torrent app"));
-    if (sent) actions.append(sent[1]);
+    actions = [send, copy, el("a", { class: "button quiet", href: r.magnet }, "Open in torrent app"), note];
   }
-  const badge = r.cached === true ? el("span", { class: "ready" }, "Ready now")
-    : r.cached === false ? el("span", { class: "slow" }, "Not cached, needs seeders") : null;
+  const ready = r.cached === true ? el("span", { class: "ready" }, "Ready now")
+    : r.cached === false ? el("span", { class: "slow" }, "Not cached") : null;
   return el("li", {},
-    el("div", { class: "head" }, el("h3", {}, el("a", { href: r.url, target: "_blank", rel: "noreferrer" }, r.title)), badge),
-    r.author ? el("div", { class: "by" }, r.author) : null,
-    el("div", { class: "meta" },
-      r.format && el("span", {}, r.format.toUpperCase()),
-      r.bitrate && el("span", {}, r.bitrate),
-      r.size && el("span", {}, r.size),
-      r.year && el("span", {}, r.year),
+    el("h3", {}, el("a", { href: r.url, target: "_blank", rel: "noreferrer" }, r.title)),
+    el("div", { class: "file" },
+      r.format && el("span", { class: "fmt" }, r.format.toUpperCase()),
+      r.size && el("span", { class: "size" }, r.size),
+      r.bitrate && el("span", { class: "bitrate" }, r.bitrate),
+      ready),
+    el("div", { class: "by" },
+      r.author && el("span", { class: "who" }, r.author),
       r.language && el("span", {}, r.language),
+      r.year && el("span", {}, r.year),
       r.posted && el("span", {}, "Posted " + r.posted)),
-    actions);
+    from,
+    el("div", { class: "actions" }, actions));
 }
 
-function render(results) {
-  lastResults = results;
-  $("results").replaceChildren(...results.map(row));
-  const n = results.length, noun = kind() === "books" ? "file" : "upload";
-  const ready = results.filter(r => r.cached).length;
+function show(all) {
+  results = all;
+  const sel = chosen();
+  renderFilters(sel);
+  const visible = all.filter(r => passes(r, sel));
+  $("results").replaceChildren(...visible.map(row));
+  const noun = kind() === "books" ? "file" : "upload";
+  const plural = (n) => `${n} ${noun}${n === 1 ? "" : "s"}`;
+  const ready = visible.filter(r => r.cached).length;
+  const checked = all.some(r => r.cached === true || r.cached === false);
   $("status").className = "status";
-  $("status").textContent = `${n} ${noun}${n === 1 ? "" : "s"}` +
-    (results.some(r => r.cached !== null && r.cached !== undefined) ? `, ${ready} ready now on TorBox.` : ".");
+  if (all.length && !visible.length) {
+    $("status").replaceChildren(`None of the ${plural(all.length)} match these filters. `,
+      clearButton());
+    return;
+  }
+  $("status").textContent = (visible.length < all.length ? `${visible.length} of ${plural(all.length)}` : plural(all.length)) +
+    (checked ? `, ${ready} ready now on TorBox.` : ".") +
+    (unavailable.length ? ` ${unavailable.join(" and ")} didn't answer, so ${unavailable.length > 1 ? "they're" : "it's"} missing from these results.` : "");
 }
 
-async function markCached(results) {
-  const hashes = results.filter(r => r.info_hash).map(r => r.info_hash);
-  if (!key || !hashes.length) return render(results);
+function clearButton() {
+  const b = el("button", { type: "button", class: "link" }, "Clear filters");
+  b.addEventListener("click", () => { local.set(`filters-${kind()}`, null); show(results); });
+  return b;
+}
+
+async function markCached(all) {
+  const hashes = all.filter(r => r.info_hash).map(r => r.info_hash);
+  if (!key || !hashes.length) return show(all);
   try {
     const { cached } = await api("/api/torbox/cached", { hashes });
-    render(results.map(r => r.info_hash ? { ...r, cached: cached.includes(r.info_hash) } : r));
+    show(all.map(r => r.info_hash ? { ...r, cached: cached.includes(r.info_hash) } : r));
   } catch (e) {
-    render(results);
+    show(all);
     $("status").textContent += ` Couldn't check TorBox: ${e.message}`;
   }
 }
@@ -688,13 +920,15 @@ $("search").addEventListener("submit", async (ev) => {
   const fd = new FormData(ev.target);
   const params = new URLSearchParams({ kind: kind(), title: fd.get("title").trim(), author: fd.get("author").trim() });
   history.replaceState(null, "", "?" + params);
+  results = [];
   $("results").replaceChildren();
-  lastResults = [];
+  $("filters").hidden = true;
   $("status").className = "status";
   $("status").textContent = kind() === "books" ? "Searching…"
     : "Searching… each result's page is opened for its magnet link, so this takes a few seconds.";
   try {
     const data = await api("/api/search?" + params);
+    unavailable = data.unavailable || [];
     if (!data.results.length) {
       $("status").textContent = "Nothing matched. Try fewer words, or drop the author.";
       return;
@@ -775,12 +1009,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(400, {"error": "Enter a title."})
             if kind not in SOURCES:
                 return self._json(400, {"error": "Unknown kind of search."})
+            problems: list[str] = []
             try:
-                results = search(title, author, kind)
+                results = search(title, author, kind, problems=problems)
             except Exception as e:  # noqa: BLE001 - report it on the page
-                site = "LibGen" if kind == "books" else "AudioBookBay (set ABB_DOMAIN if it moved)"
+                site = "LibGen or Z-Library" if kind == "books" else "AudioBookBay (set ABB_DOMAIN if it moved)"
                 return self._json(502, {"error": f"Couldn't reach {site}: {e}."})
-            return self._json(200, {"results": [r.public() for r in results]})
+            return self._json(200, {"results": [r.public() for r in results], "unavailable": problems})
 
         if url.path == "/api/libgen/download":
             try:
@@ -895,6 +1130,8 @@ def main() -> None:
     ap.add_argument("-b", "--books", action="store_true", help="search ebooks (LibGen) instead of audiobooks")
     ap.add_argument("-p", "--pages", type=int, default=1, help="result pages to scan (default 1)")
     ap.add_argument("-n", "--limit", type=int, default=0, help="keep at most N results")
+    ap.add_argument("-l", "--language", help="only this language, e.g. English (comma-separate several)")
+    ap.add_argument("-f", "--format", help="only these file types, e.g. epub or m4b,mp3")
     ap.add_argument("--links-only", "--magnets-only", action="store_true",
                     help="print only links, one per line: magnets for audiobooks, download pages for ebooks")
     ap.add_argument("--json", action="store_true", help="print JSON")
@@ -914,7 +1151,8 @@ def main() -> None:
 
     kind = "books" if args.books else "audiobooks"
     key = require_key() if (args.torbox or args.add or args.cached_only) else None
-    results = search(args.title, args.author, kind, args.pages, args.limit)
+    results = search(args.title, args.author, kind, args.pages, args.limit,
+                     languages=args.language, formats=args.format)
     if not results:
         sys.exit("no results")
     if key and kind == "audiobooks":
@@ -928,12 +1166,15 @@ def main() -> None:
     if args.json:
         print(json.dumps([r.public() for r in results], indent=2))
     elif args.links_only:
-        print("\n".join(r.magnet or r.download_page for r in results))
+        print("\n".join(r.magnet or r.download_page or r.url for r in results))
     else:
         for i, r in enumerate(results, 1):
             meta = " | ".join(x for x in (r.author, r.format, r.bitrate, r.size, r.year, r.language, r.posted) if x)
+            if r.md5:
+                meta += f"\n    on {', '.join(r.sources)}"
             flag = "" if r.cached is None else ("  [cached]" if r.cached else "  [not cached]")
-            print(f"{i:>2}. {r.title}{flag}\n    {meta}\n    {r.url}\n    {r.magnet or r.download_page}\n")
+            link = r.magnet or r.download_page or r.links.get("Anna's Archive", "")
+            print(f"{i:>2}. {r.title}{flag}\n    {meta}\n    {r.url}\n    {link}\n")
 
     if args.add:
         picks = [results[i] for i in parse_selection(args.add, len(results))]
@@ -942,6 +1183,9 @@ def main() -> None:
         if not picks:
             sys.exit("nothing to add")
         for r in picks:
+            if r.md5 and not r.download_page:
+                print(f"skipped: {r.title} - only on Z-Library, which needs you signed in to download", file=sys.stderr)
+                continue
             if r.md5:
                 resp = torbox_add_link(key, libgen_direct_link(r.md5), f"{r.title}.{r.format}" if r.format else r.title)
             else:
