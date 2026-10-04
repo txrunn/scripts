@@ -199,6 +199,82 @@ def parse_inventory(path):
     return entries
 
 
+def append_titles(path, requested, section="films"):
+    """Write new titles into `section` of the inventory, in place.
+
+    Lets a disc be added without opening an editor -- from the Actions UI on a
+    phone, say. Idempotent: a title already in the file is reported and skipped
+    rather than duplicated, so re-running the same dispatch is harmless.
+
+    Titles are separated by ';' rather than ',' because film titles contain
+    commas ("Seven Worlds, One Planet") and splitting on those would quietly
+    invent two entries out of one.
+    """
+    wanted = []
+    for chunk in requested:
+        for title in chunk.split(";"):
+            title = title.strip()
+            if title and title not in wanted:
+                wanted.append(title)
+    if not wanted:
+        return [], []
+
+    with open(os.path.expanduser(path), encoding="utf-8") as handle:
+        lines = handle.read().splitlines()
+
+    # Compare on the alphabetisation key so "the matrix" is recognised as
+    # already-present when the file says "The Matrix".
+    present = {}
+    current = "films"
+    for line in lines:
+        bare = line.strip()
+        if not bare or bare.startswith("#"):
+            continue
+        header = SECTION_HEADER.match(bare)
+        if header:
+            current = header.group(1)
+            continue
+        stripped = YEAR_HINT.match(bare)
+        present[sort_title(stripped.group(1) if stripped else bare)] = (bare, current)
+
+    added, skipped = [], []
+    for title in wanted:
+        stripped = YEAR_HINT.match(title)
+        key = sort_title(stripped.group(1) if stripped else title)
+        if key in present:
+            skipped.append((title, present[key][0]))
+        else:
+            added.append(title)
+            present[key] = (title, section)
+
+    if not added:
+        return added, skipped
+
+    # Insert at the end of the target section, before the next header. Order
+    # inside a section does not matter -- the build sorts the shelf itself --
+    # but appending keeps the diff to the lines actually added.
+    start = None
+    for index, line in enumerate(lines):
+        if SECTION_HEADER.match(line.strip() or "") and line.strip() == f"[{section}]":
+            start = index
+            break
+    if start is None:
+        raise InventoryError(f"{path} has no [{section}] section to add to")
+
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        if SECTION_HEADER.match(lines[index].strip() or ""):
+            end = index
+            break
+    while end > start + 1 and not lines[end - 1].strip():
+        end -= 1
+
+    lines[end:end] = added
+    with open(os.path.expanduser(path), "w", encoding="utf-8") as handle:
+        handle.write("\n".join(lines) + "\n")
+    return added, skipped
+
+
 def load_overrides(path):
     """Read overrides.toml. Absent is fine -- it is an optional file."""
     if not os.path.exists(os.path.expanduser(path)):
@@ -1525,6 +1601,12 @@ def build_parser():
                         help="rebuild the outputs even if nothing changed")
     parser.add_argument("--offline", action="store_true",
                         help="never fetch; fail if any title is uncached")
+    parser.add_argument("--add", action="append", default=[], metavar="TITLES",
+                        help="add title(s) to collection.txt before building; "
+                             "separate several with ';'. Repeatable.")
+    parser.add_argument("--add-section", default="films",
+                        choices=SECTIONS,
+                        help="which section --add writes into (default: films)")
     parser.add_argument("--refresh", action="append", default=[], metavar="TITLE",
                         help="drop TITLE from the cache and look it up again")
     parser.add_argument("--refresh-all", action="store_true",
@@ -1550,6 +1632,17 @@ def main(argv=None):
     try:
         if args.verify:
             return mode_verify(args, keys)
+
+        if args.add:
+            added, skipped = append_titles(
+                args.collection, args.add, args.add_section)
+            for title, existing in skipped:
+                print(f"already in the inventory, skipping: {title!r} "
+                      f"(as {existing!r})", file=sys.stderr)
+            for title in added:
+                print(f"added to {args.add_section}: {title}", file=sys.stderr)
+            if not added:
+                print("nothing new to add", file=sys.stderr)
 
         entries = parse_inventory(args.collection)
         overrides = load_overrides(args.overrides)

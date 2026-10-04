@@ -129,6 +129,97 @@ class InventoryTests(unittest.TestCase):
             self.parse("# nothing but comments\n")
 
 
+class AppendTitlesTests(unittest.TestCase):
+    """--add writes into the inventory so a disc can be added without an editor."""
+
+    def file(self, text):
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False,
+                                         encoding="utf-8") as handle:
+            handle.write(text)
+            path = handle.name
+        self.addCleanup(os.unlink, path)
+        return path
+
+    BASE = "[films]\n\nAlien\nDie Hard\n\n[collections]\n\nBourne Box\n"
+
+    def test_title_lands_at_the_end_of_the_films_section(self):
+        path = self.file(self.BASE)
+        added, skipped = bcol.append_titles(path, ["Weapons (2025)"])
+        self.assertEqual(added, ["Weapons (2025)"])
+        lines = open(path, encoding="utf-8").read().splitlines()
+        self.assertEqual(lines.index("Weapons (2025)"), lines.index("Die Hard") + 1)
+        self.assertLess(lines.index("Weapons (2025)"), lines.index("[collections]"))
+
+    def test_several_titles_split_on_semicolons(self):
+        path = self.file(self.BASE)
+        added, _ = bcol.append_titles(path, ["Weapons (2025); Bugonia (2025)"])
+        self.assertEqual(added, ["Weapons (2025)", "Bugonia (2025)"])
+
+    def test_commas_are_not_separators(self):
+        # "Seven Worlds, One Planet" is one title, not two.
+        path = self.file(self.BASE)
+        added, _ = bcol.append_titles(path, ["Seven Worlds, One Planet"])
+        self.assertEqual(added, ["Seven Worlds, One Planet"])
+
+    def test_adding_a_title_already_present_is_skipped(self):
+        path = self.file(self.BASE)
+        added, skipped = bcol.append_titles(path, ["Alien"])
+        self.assertEqual(added, [])
+        self.assertEqual(skipped, [("Alien", "Alien")])
+
+    def test_duplicate_detection_ignores_case_and_articles(self):
+        path = self.file("[films]\n\nThe Matrix\n")
+        added, skipped = bcol.append_titles(path, ["the matrix"])
+        self.assertEqual(added, [])
+        self.assertEqual(skipped[0][1], "The Matrix")
+
+    def test_duplicate_detection_ignores_a_year_hint(self):
+        path = self.file("[films]\n\nAlien (1979)\n")
+        added, _ = bcol.append_titles(path, ["Alien"])
+        self.assertEqual(added, [])
+
+    def test_rerunning_the_same_add_changes_nothing(self):
+        path = self.file(self.BASE)
+        bcol.append_titles(path, ["Weapons (2025)"])
+        before = open(path, encoding="utf-8").read()
+        bcol.append_titles(path, ["Weapons (2025)"])
+        self.assertEqual(open(path, encoding="utf-8").read(), before)
+
+    def test_the_rest_of_the_file_is_untouched(self):
+        original = "# a note\n\n" + self.BASE
+        path = self.file(original)
+        bcol.append_titles(path, ["Weapons (2025)"])
+        after = open(path, encoding="utf-8").read()
+        self.assertIn("# a note", after)
+        for line in ("Alien", "Die Hard", "[collections]", "Bourne Box"):
+            self.assertIn(line, after)
+
+    def test_can_target_the_collections_section(self):
+        path = self.file(self.BASE)
+        bcol.append_titles(path, ["Purge Box"], section="collections")
+        lines = open(path, encoding="utf-8").read().splitlines()
+        self.assertGreater(lines.index("Purge Box"), lines.index("[collections]"))
+
+    def test_a_missing_section_is_an_error(self):
+        path = self.file("[films]\nAlien\n")
+        with self.assertRaises(bcol.InventoryError):
+            bcol.append_titles(path, ["A Doc"], section="documentaries")
+
+    def test_empty_input_does_nothing(self):
+        path = self.file(self.BASE)
+        before = open(path, encoding="utf-8").read()
+        self.assertEqual(bcol.append_titles(path, ["", "  ;  "]), ([], []))
+        self.assertEqual(open(path, encoding="utf-8").read(), before)
+
+    def test_result_still_parses(self):
+        path = self.file(self.BASE)
+        bcol.append_titles(path, ["Weapons (2025); Bugonia (2025)"])
+        entries = bcol.parse_inventory(path)
+        keys = [e["key"] for e in entries]
+        self.assertIn("Weapons (2025)", keys)
+        self.assertEqual(next(e for e in entries if e["key"] == "Weapons (2025)")["year_hint"], 2025)
+
+
 # --- Alphabetisation ---------------------------------------------------------
 
 

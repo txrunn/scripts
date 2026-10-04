@@ -62,8 +62,49 @@ New repository secret**, same names.
 
 ## Adding a disc
 
+Two routes. Both end in the same place: a line in `collection.txt`, looked up
+once and cached.
+
+### From your machine
+
 Open `collection.txt`, put the title on its own line under the right section,
 save. Order within a section does not matter — the build sorts the shelf itself.
+
+```bash
+git pull
+printf '%s\n' 'Weapons (2025)' 'Bugonia (2025)' >> collection.txt   # see note below
+git commit -am "Add Weapons and Bugonia" && git push
+```
+
+Appending with `>>` puts the title at the very end of the file, which is the
+**documentaries** section — fine for the build, which sorts by section header
+rather than position, but it will look wrong in the file. Either edit the file
+properly, or use `--add`, which inserts into the right section:
+
+```bash
+python build_collection.py --add "Weapons (2025); Bugonia (2025)"
+```
+
+That writes the lines into `[films]`, looks only those two up, and rebuilds.
+Re-running it is harmless: a title already in the inventory is reported and
+skipped rather than duplicated.
+
+### From the Actions tab, with no checkout
+
+**Actions → "Movie collection" → Run workflow**, then fill in **Disc(s) to add**:
+
+```
+Weapons (2025); Bugonia (2025)
+```
+
+Pick the shelf from the dropdown if it is not a film. The job adds the lines,
+looks the titles up, rebuilds, and commits `collection.txt` back with the page
+and cache — so your next `git pull` has them. This is the route that works from
+a phone in a shop.
+
+Separate several titles with **`;`**, not a comma: film titles contain commas
+("Seven Worlds, One Planet") and splitting on those would invent two entries
+out of one.
 
 ```
 [films]
@@ -366,6 +407,8 @@ one object — where the director blocks are curation.
 | `--verify` | Check the inventory and both API contracts, then exit. |
 | `--offline` | Never fetch. Fails loudly if any title is uncached. |
 | `--force` | Rebuild the outputs even when nothing changed. |
+| `--add TITLES` | Add title(s) to `collection.txt`, `;`-separated, then build. Repeatable. |
+| `--add-section` | Which section `--add` writes into (default `films`). |
 | `--refresh TITLE` | Drop one title from the cache and look it up again. Repeatable. |
 | `--refresh-all` | Ignore the cache entirely and re-fetch everything. |
 | `--embed-posters` | Inline posters as data URIs for a fully portable page. |
@@ -432,7 +475,7 @@ ever need edits there.
 python -m unittest discover -s . -t . -v
 ```
 
-101 tests, no network — every build test runs against a cache seeded in memory.
+116 tests, no network — every build test runs against a cache seeded in memory.
 
 Coverage: inventory parsing (comments, sections, year hints, a year *in* a title
 not being a hint, duplicates rejected); alphabetisation (leading articles,

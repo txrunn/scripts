@@ -33,6 +33,15 @@ on:
       - "movie-collection/build_collection.py"
   workflow_dispatch:
     inputs:
+      add:
+        description: "Disc(s) to add -- separate several with ';'  e.g. Weapons (2025); Bugonia"
+        type: string
+        default: ""
+      add_section:
+        description: "Which shelf the new disc goes on"
+        type: choice
+        options: [films, collections, documentaries]
+        default: films
       force:
         description: "Rebuild even if nothing in the inventory changed"
         type: boolean
@@ -83,14 +92,26 @@ jobs:
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           OMDB_API_KEY: ${{ secrets.OMDB_API_KEY }}
+          # Through the environment, never interpolated into the script. A
+          # workflow_dispatch string is attacker-controlled in the general case
+          # and "; rm -rf /" in a film title would otherwise be a command.
+          ADD_TITLES: ${{ inputs.add }}
+          ADD_SECTION: ${{ inputs.add_section }}
         run: |
           set -o pipefail
           ARGS=""
           [ "${{ inputs.force }}" = "true" ] && ARGS="$ARGS --force"
           [ "${{ inputs.refresh_all }}" = "true" ] && ARGS="$ARGS --refresh-all"
-          python movie-collection/build_collection.py \
-            --title "4K Disc Inventory" --format markdown $ARGS \
-            | tee "$RUNNER_TEMP/report.md"
+          if [ -n "$ADD_TITLES" ]; then
+            python movie-collection/build_collection.py \
+              --add "$ADD_TITLES" --add-section "${ADD_SECTION:-films}" \
+              --title "4K Disc Inventory" --format markdown $ARGS \
+              | tee "$RUNNER_TEMP/report.md"
+          else
+            python movie-collection/build_collection.py \
+              --title "4K Disc Inventory" --format markdown $ARGS \
+              | tee "$RUNNER_TEMP/report.md"
+          fi
           # Empty on a no-op build, which would otherwise leave this step blank
           # in the log -- indistinguishable from a step that did nothing.
           [ -s "$RUNNER_TEMP/report.md" ] || echo "Nothing added since the last build."
@@ -103,7 +124,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add movie-collection/site movie-collection/cache
+          git add movie-collection/site movie-collection/cache movie-collection/collection.txt
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Nothing changed -- no commit."
