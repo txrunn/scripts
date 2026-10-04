@@ -113,7 +113,7 @@ CSV_COLUMNS = [
 # Bump when the HTML template changes, so a template edit forces a rebuild even
 # though the inventory is untouched.
 #   5: favicon
-TEMPLATE_VERSION = 5
+TEMPLATE_VERSION = 6
 
 
 class FetchError(Exception):
@@ -1016,6 +1016,26 @@ input[type=search], select {
   font: inherit; padding: 9px 12px; border: 1px solid var(--line);
   border-radius: 8px; background: var(--panel); color: var(--ink);
 }
+select {
+  /* A native select sizes itself to its widest option, so "Director block:
+     Christopher Nolan" blew the box out to match and left the platform arrow
+     stranded at the far edge, yards from the selected text. Own the arrow,
+     cap the width, and ellipsise anything longer. */
+  appearance: none; -webkit-appearance: none;
+  padding-right: 32px; max-width: 15rem;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236d6a61' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+}
+select:hover { border-color: var(--muted); }
+@media (prefers-color-scheme: dark) {
+  /* A data: URI cannot read a CSS variable, so the arrow is restated. */
+  select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2397928a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+}
 input[type=search] { flex: 1 1 260px; min-width: 0; }
 .toggle {
   display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px;
@@ -1858,6 +1878,22 @@ def main(argv=None):
     for key in args.refresh:
         records_cache.pop(key, None)
 
+    # A pin the cache predates must re-resolve, not merely warn. Warning alone
+    # leaves the record exactly as it was looked up before the pin existed --
+    # the silent wrong-entry case pins are there to fix. Seven Worlds, One
+    # Planet sat with no metadata this way: cached as an unresolved
+    # documentary, so pinning its TV id changed nothing at all.
+    for entry in entries:
+        wanted = overrides.get(entry["key"], {}).get("tmdb_id")
+        cached = records_cache.get(entry["key"])
+        if wanted and cached is not None and cached.get("tmdb_id") != wanted:
+            print(
+                "pinned id for {!r} is {} but the cache has {}; re-resolving".format(
+                    entry["key"], wanted, cached.get("tmdb_id")),
+                file=sys.stderr,
+            )
+            records_cache.pop(entry["key"], None)
+
     ledger = load_json(args.ledger, {})
     known = set(ledger.get("titles", []))
     current = {e["key"] for e in entries}
@@ -1895,7 +1931,6 @@ def main(argv=None):
     # Rebuild the working records from the cache every time, so an overrides.toml
     # edit takes effect without re-fetching anything.
     records = []
-    unpinned = []
     for entry in entries:
         # dict() is a shallow copy, so the lists inside are still the cache's
         # own. Anything downstream that appends -- the box-set aggregate note
@@ -1909,21 +1944,7 @@ def main(argv=None):
         record["key"] = entry["key"]
         record["role"] = entry.get("role", "item")
         record["parent"] = entry.get("parent")
-        # A tmdb_id added to overrides.toml after the film was already cached
-        # changes nothing until it is re-resolved. Saying so is the difference
-        # between a pin that works and a pin you think works.
-        wanted = overrides.get(entry["key"], {}).get("tmdb_id")
-        if wanted and record.get("tmdb_id") != wanted:
-            unpinned.append(entry["key"])
         records.append(apply_overrides(record, overrides))
-
-    if unpinned:
-        print(
-            "warning: these have a pinned tmdb_id that the cache predates; "
-            "re-resolve them with:\n  --refresh " +
-            " --refresh ".join(f'"{k}"' for k in unpinned),
-            file=sys.stderr,
-        )
 
     shelf, blocks = shelve(records)
 

@@ -789,6 +789,20 @@ class HtmlTests(unittest.TestCase):
         # filter start in a state matching nothing.
         self.assertIn("genre.value = names.includes(keep) ? keep : 'all'", self.html)
 
+    def test_selects_own_their_arrow_rather_than_the_platform_one(self):
+        # A native select sizes to its widest option, which stranded the arrow
+        # far from the selected text once "Director block: ..." was an option.
+        self.assertIn("appearance: none", self.html)
+        self.assertIn("background-position: right 12px center", self.html)
+        self.assertIn("max-width: 15rem", self.html)
+
+    def test_the_arrow_is_restated_for_dark_mode(self):
+        # A data: URI cannot read a CSS variable, so a single arrow would be
+        # invisible in one of the two themes.
+        self.assertEqual(self.html.count("data:image/svg+xml;charset=utf-8,%3Csvg"), 2)
+        self.assertIn("%236d6a61", self.html)
+        self.assertIn("%2397928a", self.html)
+
     def test_collapse_state_is_persisted(self):
         self.assertIn("localStorage", self.html)
 
@@ -907,26 +921,36 @@ class PinnedIdTests(unittest.TestCase):
         self.assertEqual(self.searched, ["Spiral"])
         self.assertEqual(self.fetched, [766922])
 
-    def test_a_pin_the_cache_predates_is_warned_about(self):
-        # Adding tmdb_id to overrides.toml does nothing until the film is
-        # re-resolved. Silently ignoring it is how you end up believing a
-        # mismatch is fixed when it is not.
+    def test_a_pin_the_cache_predates_forces_a_re_resolve(self):
+        # Warning alone was not enough: Seven Worlds, One Planet sat with no
+        # metadata because it was cached before its pin existed, and nothing
+        # ever acted on the warning. The entry is dropped from the cache so the
+        # next lookup honours the pin.
         ws = Workspace("[films]\nSpiral (2021)\n",
                        [record("Spiral (2021)", tmdb_id=766922)],
                        overrides='["Spiral (2021)"]\ntmdb_id = 602734\n')
         self.addCleanup(ws.close)
         code, _, err = ws.run()
-        self.assertEqual(code, 0)
-        self.assertIn("--refresh", err)
+        self.assertIn("re-resolving", err)
+        # --offline cannot re-resolve, so it fails loudly rather than shipping
+        # the record the pin was meant to replace.
+        self.assertEqual(code, 1)
         self.assertIn("Spiral (2021)", err)
 
-    def test_no_warning_once_the_cache_matches_the_pin(self):
+    def test_a_stale_pin_is_re_resolved_against_the_pinned_id(self):
+        entry = dict(self.entry)
+        bcol.resolve(entry, self.keys, [], {"Spiral (2021)": {"tmdb_id": 602734}})
+        self.assertEqual(self.searched, [])
+        self.assertEqual(self.fetched, [602734])
+
+    def test_nothing_is_re_resolved_once_the_cache_matches_the_pin(self):
         ws = Workspace("[films]\nSpiral (2021)\n",
                        [record("Spiral (2021)", tmdb_id=602734)],
                        overrides='["Spiral (2021)"]\ntmdb_id = 602734\n')
         self.addCleanup(ws.close)
-        _, _, err = ws.run()
-        self.assertNotIn("--refresh", err)
+        code, _, err = ws.run()
+        self.assertEqual(code, 0)
+        self.assertNotIn("re-resolving", err)
 
 
 SHOW = {
