@@ -142,11 +142,15 @@ class AppendTitlesTests(unittest.TestCase):
 
     BASE = "[films]\n\nAlien\nDie Hard\n\n[collections]\n\nBourne Box\n"
 
+    def read(self, path):
+        with open(path, encoding="utf-8") as handle:
+            return handle.read()
+
     def test_title_lands_at_the_end_of_the_films_section(self):
         path = self.file(self.BASE)
         added, skipped = bcol.append_titles(path, ["Weapons (2025)"])
         self.assertEqual(added, ["Weapons (2025)"])
-        lines = open(path, encoding="utf-8").read().splitlines()
+        lines = self.read(path).splitlines()
         self.assertEqual(lines.index("Weapons (2025)"), lines.index("Die Hard") + 1)
         self.assertLess(lines.index("Weapons (2025)"), lines.index("[collections]"))
 
@@ -181,15 +185,15 @@ class AppendTitlesTests(unittest.TestCase):
     def test_rerunning_the_same_add_changes_nothing(self):
         path = self.file(self.BASE)
         bcol.append_titles(path, ["Weapons (2025)"])
-        before = open(path, encoding="utf-8").read()
+        before = self.read(path)
         bcol.append_titles(path, ["Weapons (2025)"])
-        self.assertEqual(open(path, encoding="utf-8").read(), before)
+        self.assertEqual(self.read(path), before)
 
     def test_the_rest_of_the_file_is_untouched(self):
         original = "# a note\n\n" + self.BASE
         path = self.file(original)
         bcol.append_titles(path, ["Weapons (2025)"])
-        after = open(path, encoding="utf-8").read()
+        after = self.read(path)
         self.assertIn("# a note", after)
         for line in ("Alien", "Die Hard", "[collections]", "Bourne Box"):
             self.assertIn(line, after)
@@ -197,7 +201,7 @@ class AppendTitlesTests(unittest.TestCase):
     def test_can_target_the_collections_section(self):
         path = self.file(self.BASE)
         bcol.append_titles(path, ["Purge Box"], section="collections")
-        lines = open(path, encoding="utf-8").read().splitlines()
+        lines = self.read(path).splitlines()
         self.assertGreater(lines.index("Purge Box"), lines.index("[collections]"))
 
     def test_a_missing_section_is_an_error(self):
@@ -207,9 +211,9 @@ class AppendTitlesTests(unittest.TestCase):
 
     def test_empty_input_does_nothing(self):
         path = self.file(self.BASE)
-        before = open(path, encoding="utf-8").read()
+        before = self.read(path)
         self.assertEqual(bcol.append_titles(path, ["", "  ;  "]), ([], []))
-        self.assertEqual(open(path, encoding="utf-8").read(), before)
+        self.assertEqual(self.read(path), before)
 
     def test_result_still_parses(self):
         path = self.file(self.BASE)
@@ -923,6 +927,115 @@ class PinnedIdTests(unittest.TestCase):
         self.addCleanup(ws.close)
         _, _, err = ws.run()
         self.assertNotIn("--refresh", err)
+
+
+SHOW = {
+    "id": 90790, "name": "Seven Worlds, One Planet",
+    "first_air_date": "2019-10-27", "last_air_date": "2019-12-15",
+    "number_of_seasons": 1, "number_of_episodes": 7,
+    "episode_run_time": [59], "genres": [{"name": "Documentary"}],
+    "poster_path": "/sw.jpg", "overview": "",
+    "created_by": [{"name": "Alastair Fothergill"}],
+    "external_ids": {"imdb_id": "tt9505704"},
+}
+
+
+class SeriesParsingTests(unittest.TestCase):
+    def test_creators_stand_in_for_a_director(self):
+        self.assertEqual(bcol.creators_of(SHOW), ["Alastair Fothergill"])
+
+    def test_a_series_with_no_creator_credit_gives_an_empty_list(self):
+        # TMDB genuinely has no created_by for Monster. Blank, never invented.
+        self.assertEqual(bcol.creators_of({"created_by": []}), [])
+        self.assertEqual(bcol.creators_of({}), [])
+
+    def test_duplicate_creator_credits_collapse(self):
+        payload = {"created_by": [{"name": "Shuichi"}, {"name": "Shuichi"}]}
+        self.assertEqual(bcol.creators_of(payload), ["Shuichi"])
+
+    def test_episode_runtime_takes_the_regular_length(self):
+        # A longer entry is normally a feature-length finale, not the norm.
+        self.assertEqual(bcol.episode_runtime({"episode_run_time": [23, 46]}), 23)
+        self.assertEqual(bcol.episode_runtime(SHOW), 59)
+
+    def test_missing_episode_runtime_is_none_not_zero(self):
+        self.assertIsNone(bcol.episode_runtime({"episode_run_time": []}))
+        self.assertIsNone(bcol.episode_runtime({"episode_run_time": [0]}))
+        self.assertIsNone(bcol.episode_runtime({}))
+
+    def test_series_is_its_own_section_and_category(self):
+        self.assertIn("series", bcol.SECTIONS)
+        self.assertEqual(bcol.CATEGORY["series"], "Series")
+        self.assertIn("series", bcol.TV_SECTIONS)
+
+    def test_documentaries_are_not_looked_up_as_tv(self):
+        # A documentary *film* is a movie; only [series] goes to the TV route.
+        self.assertNotIn("documentaries", bcol.TV_SECTIONS)
+
+
+def series_record(key, **extra):
+    base = record(key, section="series")
+    base.update({
+        "episodes": 7, "seasons": 1, "runtime": 59, "last_year": 2019,
+        "year": 2019, "tmdb_kind": "tv",
+        "letterboxd": "https://www.themoviedb.org/tv/90790",
+        "directors": ["Alastair Fothergill"],
+    })
+    base.update(extra)
+    return base
+
+
+class SeriesShelfTests(unittest.TestCase):
+    INV = "[films]\nAlien\n\n[series]\nSeven Worlds, One Planet\nMonster\n"
+
+    def setUp(self):
+        records = [
+            record("Alien", year=1979, directors=["Ridley Scott"]),
+            series_record("Seven Worlds, One Planet"),
+            series_record("Monster", episodes=74, seasons=1, runtime=23,
+                          last_year=2005, year=2004, directors=[]),
+        ]
+        self.ws = Workspace(self.INV, records)
+        self.addCleanup(self.ws.close)
+        self.ws.run()
+        self.rows = {r["Title"]: r for r in self.ws.rows()}
+
+    def test_series_get_their_own_shelf(self):
+        self.assertEqual(self.rows["Monster"]["Shelf_Section"], "Series shelf")
+
+    def test_series_shelf_comes_after_the_films(self):
+        orders = {t: int(r["Shelf_Order"]) for t, r in self.rows.items()}
+        self.assertLess(orders["Alien"], orders["Monster"])
+
+    def test_category_is_series(self):
+        self.assertEqual(self.rows["Monster"]["Category"], "Series")
+
+    def test_runtime_is_the_whole_run_not_one_episode(self):
+        # 74 x 23. A bare "23" would read as if that were the whole thing.
+        self.assertEqual(self.rows["Monster"]["Runtime_Minutes"], str(74 * 23))
+
+    def test_a_series_with_no_creator_leaves_director_blank(self):
+        self.assertEqual(self.rows["Monster"]["Director"], "")
+
+    def test_series_never_count_toward_a_director_block(self):
+        records = [series_record("S%d" % i, directors=["Alastair Fothergill"])
+                   for i in range(3)]
+        _, blocks = bcol.shelve(records)
+        self.assertEqual(blocks, {})
+
+    def test_page_badges_a_series_and_shows_episode_count(self):
+        page = self.ws.page()
+        raw = page.split("const DATA = ", 1)[1].split(";\nconst shelf", 1)[0]
+        data = json.loads(raw.replace("<\\/", "</"))
+        monster = next(f for f in data if f["title"] == "Monster")
+        self.assertEqual(monster["episodes"], 74)
+        self.assertEqual(monster["seasons"], 1)
+        self.assertIn("SERIES", page)
+        self.assertIn("' ep'", page)
+
+    def test_series_link_to_tmdb_since_letterboxd_has_no_tv(self):
+        page = self.ws.page()
+        self.assertIn("themoviedb.org/tv/", page)
 
 
 class FingerprintTests(unittest.TestCase):

@@ -1720,14 +1720,27 @@ def mode_verify(args, keys):
                 check("TMDB tv has number_of_episodes",
                       bool(show.get("number_of_episodes")),
                       str(show.get("number_of_episodes")))
-                check("TMDB tv has episode_run_time",
-                      episode_runtime(show) is not None,
-                      f"{episode_runtime(show)} min")
-                check("TMDB tv has genres", bool(show.get("genres")),
-                      ", ".join(g["name"] for g in show.get("genres", [])))
-                check("TMDB tv external_ids carry an IMDb id",
-                      bool((show.get("external_ids") or {}).get("imdb_id")),
-                      str((show.get("external_ids") or {}).get("imdb_id")))
+                # Sparse rather than broken: TMDB legitimately omits all
+                # three on plenty of shows. A hard FAIL here would stop the
+                # whole shelf -- 103 films included -- from building because
+                # one series has no runtime listed.
+                runtime = episode_runtime(show)
+                results.append((
+                    "TMDB tv episode_run_time",
+                    "PASS" if runtime else "WARN",
+                    f"{runtime} min" if runtime else "absent; per-episode runtime blank",
+                ))
+                results.append((
+                    "TMDB tv genres",
+                    "PASS" if show.get("genres") else "WARN",
+                    ", ".join(g["name"] for g in show.get("genres", [])) or "absent",
+                ))
+                imdb = (show.get("external_ids") or {}).get("imdb_id")
+                results.append((
+                    "TMDB tv external_ids imdb_id",
+                    "PASS" if imdb else "WARN",
+                    str(imdb) if imdb else "absent; no OMDb lookup for this series",
+                ))
                 results.append((
                     "TMDB tv created_by", "INFO",
                     ", ".join(creators_of(show)) or "absent -- common; left blank",

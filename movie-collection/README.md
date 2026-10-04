@@ -158,6 +158,38 @@ alphabetical shelf. The box is one object; it sits in one place. On the shelf
 the discs stay with their box, in release order, and on the page they render
 inside the box's own panel.
 
+### Television
+
+A series is not a movie, and searching TMDB's movie endpoints for one returns
+nothing useful. Put it under `[series]` and it is looked up against `/search/tv`
+and `/tv/{id}` instead:
+
+```
+[series]
+
+Seven Worlds, One Planet
+Naoki Urasawa's Monster: Collection 1
+```
+
+What differs from a film:
+
+| | Film | Series |
+|---|---|---|
+| Credit | `Director` | `created_by`, which TMDB often lacks entirely |
+| Runtime | The film's | Per-episode on the page, the whole run in the CSV |
+| Shown | Year, runtime | Year span, episode count, season badge |
+| Links to | Letterboxd | **TMDB** — Letterboxd does not catalogue television |
+
+A volume or part-set is where `tmdb_id` earns its keep. The shelf says
+*"Naoki Urasawa's Monster: Collection 1"*, but TMDB files the series as plain
+`Monster` — no title search gets past the publisher's name and the volume
+number, so it is pinned, and `disc_notes` records which half is actually owned.
+
+`[documentaries]` is for documentary **films**, which are movies and are looked
+up as such. A documentary *series* like *Seven Worlds, One Planet* goes under
+`[series]`; it sat in `[documentaries]` and carried no metadata at all until
+the TV route existed, because nothing was ever looked up for it.
+
 ### If it picks the wrong film
 
 Pin it, then re-resolve that one title:
@@ -190,6 +222,7 @@ check where it lands.
 |---|---|
 | Box set film count, total runtime, year span, mean scores | Aggregated from the discs indented under it |
 | Title, year, director(s), runtime, genre, poster, overview | TMDB |
+| Series: episode and season counts, year span, creators | TMDB `/tv` |
 | IMDb rating | OMDb |
 | `RT_Critic_Percent` — the Tomatometer | OMDb's `Ratings` array |
 | Letterboxd link | Resolved from the TMDB id, cached as a real `/film/<slug>/` URL |
@@ -233,6 +266,8 @@ Collection shelf          box sets, together, not scattered through the As,
                           each immediately followed by its own discs
    ↓
 Documentary shelf
+   ↓
+Series shelf
 ```
 
 **The 3+ rule is computed, not configured.** Every build counts directors across
@@ -475,7 +510,7 @@ ever need edits there.
 python -m unittest discover -s . -t . -v
 ```
 
-116 tests, no network — every build test runs against a cache seeded in memory.
+131 tests, no network — every build test runs against a cache seeded in memory.
 
 Coverage: inventory parsing (comments, sections, year hints, a year *in* a title
 not being a hint, duplicates rejected); alphabetisation (leading articles,
