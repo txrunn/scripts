@@ -1,0 +1,10 @@
+# Audio this tool produces or consumes. The repo holds the script, never its
+# output -- a single extracted track is tens of megabytes, and none of it is
+# ours to redistribute.
+*.wav
+*.webm
+*.m4a
+*.opus
+*.mp3
+*.flac
+*.beats.txt

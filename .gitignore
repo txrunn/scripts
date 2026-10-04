@@ -222,3 +222,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Audio pulled down by yt-wav, wherever it lands. A single track is tens of
+# megabytes and none of it belongs in version control.
+*.wav
+*.webm
+*.m4a
+*.opus
+*.flac
