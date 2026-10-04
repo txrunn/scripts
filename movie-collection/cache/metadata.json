@@ -471,6 +471,35 @@
       "verified": "2026-09-07",
       "year": null
     },
+    "Bugonia (2025)": {
+      "directors": [
+        "Yorgos Lanthimos"
+      ],
+      "genres": [
+        "Science Fiction",
+        "Thriller",
+        "Comedy"
+      ],
+      "imdb_id": "tt12300742",
+      "imdb_rating": 7.4,
+      "key": "Bugonia (2025)",
+      "letterboxd": "https://letterboxd.com/film/bugonia/",
+      "overview": "Two conspiracy obsessed young men kidnap the high-powered CEO of a major company, convinced that she is an alien intent on destroying planet Earth.",
+      "parent": null,
+      "poster": "/18Kbb0qeCxwzna0W6a9gEMZuizF.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 87,
+      "runtime": 119,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Bugonia",
+      "tmdb_id": 701387,
+      "verified": "2026-10-04",
+      "year": 2025
+    },
     "Casino Royale (2006)": {
       "directors": [
         "Martin Campbell"
@@ -2035,6 +2064,41 @@
       "tmdb_id": 1018,
       "verified": "2026-09-07",
       "year": 2001
+    },
+    "Naoki Urasawa's Monster: Collection 1": {
+      "directors": [],
+      "episodes": 74,
+      "genres": [
+        "Animation",
+        "Drama",
+        "Mystery",
+        "Crime"
+      ],
+      "imdb_id": "tt0434706",
+      "imdb_rating": 8.7,
+      "key": "Naoki Urasawa's Monster: Collection 1",
+      "last_year": 2005,
+      "letterboxd": "https://www.themoviedb.org/tv/30981",
+      "overview": "Kenzou Tenma, a Japanese brain surgeon in Germany, finds his life in utter turmoil after getting involved with a psychopath that was once a former patient.",
+      "parent": null,
+      "poster": "/n5XNKXnoXpoXyfiCtXHOf8q8PFM.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": null,
+      "runtime": 24,
+      "seasons": 1,
+      "section": "series",
+      "source_notes": [
+        "TMDB TV id pinned to 30981 in overrides.toml",
+        "TMDB lists no created_by credit for this series",
+        "series: 74 episode(s) across 1 season(s)",
+        "Rotten Tomatoes has no Tomatometer for this series on OMDb"
+      ],
+      "title": "Monster",
+      "tmdb_id": 30981,
+      "tmdb_kind": "tv",
+      "verified": "2026-10-04",
+      "year": 2004
     },
     "No Time to Die (2021)": {
       "directors": [
@@ -3799,6 +3863,34 @@
       "tmdb_id": 9804,
       "verified": "2026-09-07",
       "year": 1995
+    },
+    "Weapons (2025)": {
+      "directors": [
+        "Zach Cregger"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "imdb_id": "tt26581740",
+      "imdb_rating": 7.4,
+      "key": "Weapons (2025)",
+      "letterboxd": "https://letterboxd.com/film/weapons-2025/",
+      "overview": "When all but one child from the same class mysteriously vanish on the same night at exactly the same time, a community is left questioning who or what is behind their disappearance.",
+      "parent": null,
+      "poster": "/cpf7vsRZ0MYRQcnLWteD5jK9ymT.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 93,
+      "runtime": 129,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Weapons",
+      "tmdb_id": 1078605,
+      "verified": "2026-10-04",
+      "year": 2025
     },
     "Wes Craven's New Nightmare (1994)": {
       "directors": [
