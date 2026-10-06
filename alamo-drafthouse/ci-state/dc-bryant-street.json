@@ -226,6 +226,16 @@
       "first_seen": "2026-09-18",
       "title": "Ginger Snaps"
     },
+    "godzilla-minus-zero": {
+      "first_seen": "2026-10-06",
+      "found_at": "2026-10-06T11:11:20",
+      "title": "Godzilla Minus Zero"
+    },
+    "godzilla-vs-mechagodzilla": {
+      "first_seen": "2026-10-06",
+      "found_at": "2026-10-06T11:11:20",
+      "title": "Godzilla vs. Mechagodzilla"
+    },
     "godzilla-vs-megalon": {
       "first_seen": "2026-09-16",
       "title": "Godzilla vs. Megalon"
@@ -429,6 +439,11 @@
       "first_seen": "2026-08-25",
       "title": "Star Trek: The Motion Picture - Director's Edition"
     },
+    "special-event-wild-at-heart-unrated": {
+      "first_seen": "2026-10-06",
+      "found_at": "2026-10-06T11:11:20",
+      "title": "Wild at Heart"
+    },
     "spider-man-brand-new-day": {
       "first_seen": "2026-08-25",
       "title": "Spider-Man: Brand New Day"
@@ -555,6 +570,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-01T14:53:32",
+  "updated": "2026-10-06T11:11:20",
   "version": 1
 }

@@ -386,6 +386,22 @@
     "v": 2,
     "year": "2000"
   },
+  "godzilla-minus-zero": {
+    "checked": "2026-10-06",
+    "tmdb_id": 1381071,
+    "tmdb_title": "Godzilla Minus Zero",
+    "trailer": "https://www.youtube.com/watch?v=kw0YhiqOPFg",
+    "v": 2,
+    "year": "2026"
+  },
+  "godzilla-vs-mechagodzilla": {
+    "checked": "2026-10-06",
+    "tmdb_id": 38582,
+    "tmdb_title": "Godzilla vs. Mechagodzilla",
+    "trailer": null,
+    "v": 2,
+    "year": "1974"
+  },
   "godzilla-vs-megalon": {
     "checked": "2026-09-16",
     "tmdb_id": 39264,
@@ -696,6 +712,14 @@
     "trailer": "https://www.youtube.com/watch?v=ByXuk9QqQkk",
     "v": 2,
     "year": "2001"
+  },
+  "special-event-wild-at-heart-unrated": {
+    "checked": "2026-10-06",
+    "tmdb_id": 483,
+    "tmdb_title": "Wild at Heart",
+    "trailer": "https://www.youtube.com/watch?v=dQIdBfrF0Ik",
+    "v": 2,
+    "year": "1990"
   },
   "spider-man-brand-new-day": {
     "checked": "2026-09-09",
