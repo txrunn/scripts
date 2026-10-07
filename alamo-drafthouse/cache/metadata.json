@@ -7,6 +7,14 @@
     "v": 2,
     "year": "2023"
   },
+  "a24-x-alamo-cinema-club-mandatory-bundle-pearl": {
+    "checked": "2026-10-07",
+    "tmdb_id": 949423,
+    "tmdb_title": "Pearl",
+    "trailer": "https://www.youtube.com/watch?v=L5PW5r3pEOg",
+    "v": 2,
+    "year": "2022"
+  },
   "advance-screening-dune-part-three-the-big-show-insider-screening": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/d43fvHQsIMa4kpyhKXw0haEJIvI.jpg",
@@ -108,6 +116,14 @@
     "tmdb_id": 1711224,
     "tmdb_title": "CatVideoFest 2026",
     "trailer": "https://www.youtube.com/watch?v=wbzRCI1AgZ8",
+    "v": 2,
+    "year": "2026"
+  },
+  "clayface": {
+    "checked": "2026-10-07",
+    "tmdb_id": 1400940,
+    "tmdb_title": "Clayface",
+    "trailer": "https://www.youtube.com/watch?v=OGO4Mqvo3jI",
     "v": 2,
     "year": "2026"
   },
@@ -368,6 +384,14 @@
     "trailer": "https://www.youtube.com/watch?v=M9Fy2Vq_SX8",
     "v": 2,
     "year": "1982"
+  },
+  "fjord": {
+    "checked": "2026-10-07",
+    "tmdb_id": 1401459,
+    "tmdb_title": "Fjord",
+    "trailer": "https://www.youtube.com/watch?v=0gdRZZVoinM",
+    "v": 2,
+    "year": "2026"
   },
   "forgotten-island": {
     "checked": "2026-09-09",
