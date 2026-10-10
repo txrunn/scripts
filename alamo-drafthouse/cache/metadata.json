@@ -684,6 +684,11 @@
     "v": 2,
     "year": "2026"
   },
+  "restoration-at-grayson-manor": {
+    "checked": "2026-10-10",
+    "tmdb_id": null,
+    "v": 2
+  },
   "sad-girl-cinema-club-a-tale-of-two-sisters": {
     "checked": "2026-09-19",
     "tmdb_id": 4552,

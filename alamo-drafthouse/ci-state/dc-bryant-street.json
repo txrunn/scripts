@@ -415,6 +415,11 @@
       "first_seen": "2026-09-01",
       "title": "Resident Evil (2026)"
     },
+    "restoration-at-grayson-manor": {
+      "first_seen": "2026-10-10",
+      "found_at": "2026-10-10T18:30:45",
+      "title": "Restoration at Grayson Manor"
+    },
     "sad-girl-cinema-club-a-tale-of-two-sisters": {
       "first_seen": "2026-09-19",
       "title": "A Tale of Two Sisters"
@@ -605,6 +610,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-08T17:19:22",
+  "updated": "2026-10-10T18:30:45",
   "version": 1
 }
