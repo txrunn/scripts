@@ -205,6 +205,11 @@
       "first_seen": "2026-09-22",
       "title": "Ghost in the Cell"
     },
+    "film-club-ken-russells-the-devils": {
+      "first_seen": "2026-10-16",
+      "found_at": "2026-10-16T15:57:43",
+      "title": "Ken Russell's The Devils"
+    },
     "film-club-network": {
       "first_seen": "2026-08-25",
       "title": "Network"
@@ -545,6 +550,11 @@
       "first_seen": "2026-08-25",
       "title": "The End of Oak Street"
     },
+    "the-exorcist": {
+      "first_seen": "2026-10-16",
+      "found_at": "2026-10-16T15:57:43",
+      "title": "THE EXORCIST"
+    },
     "the-fast-and-the-furious-25th-anniversary": {
       "first_seen": "2026-08-25",
       "title": "The Fast and the Furious: 25th Anniversary"
@@ -569,6 +579,11 @@
       "first_seen": "2026-10-01",
       "found_at": "2026-10-01T14:53:32",
       "title": "The Rocky Horror Picture Show"
+    },
+    "the-shining": {
+      "first_seen": "2026-10-16",
+      "found_at": "2026-10-16T15:57:43",
+      "title": "THE SHINING"
     },
     "the-social-reckoning": {
       "first_seen": "2026-09-21",
@@ -625,6 +640,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-15T14:17:27",
+  "updated": "2026-10-16T15:57:43",
   "version": 1
 }
