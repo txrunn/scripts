@@ -5,9 +5,18 @@
 <link>https://www.escapefromtarkov.com/news</link>
 <description>Every official Escape from Tarkov announcement, patch notes included.</description>
 <language>en-us</language>
-<lastBuildDate>Mon, 12 Oct 2026 13:20:05 +0000</lastBuildDate>
+<lastBuildDate>Fri, 16 Oct 2026 11:21:08 +0000</lastBuildDate>
 <ttl>5</ttl>
 <atom:link href="https://txrunn.github.io/scripts/tarkov/all.xml" rel="self" type="application/rss+xml" />
+<item>
+<title>New in-game survey</title>
+<link>https://store.steampowered.com/news/app/3932890/view/1846651706681057</link>
+<guid isPermaLink="false">steam:1846651706681057</guid>
+<pubDate>Fri, 16 Oct 2026 11:21:08 +0000</pubDate>
+<source url="https://store.steampowered.com/news/app/3932890/view/1846651706681057">Steam</source>
+<description><![CDATA[<p>A new in-game survey is now available, focused on the Leagues system.</p><p>We'd like to hear your opinion on the current Leagues system, weekly competitions, Ranking up and down, leaderboards, and rewards.</p><p>Your responses will help us understand which elements of the Leagues system players find most interesting and which changes we should consider as we continue to develop it.</p><p>You will receive a participation reward in your in-game messages after completing the survey. Thank you for helping us make the game better!</p>]]></description>
+<content:encoded><![CDATA[<p>A new in-game survey is now available, focused on the Leagues system.</p><p>We'd like to hear your opinion on the current Leagues system, weekly competitions, Ranking up and down, leaderboards, and rewards.</p><p>Your responses will help us understand which elements of the Leagues system players find most interesting and which changes we should consider as we continue to develop it.</p><p>You will receive a participation reward in your in-game messages after completing the survey. Thank you for helping us make the game better!</p>]]></content:encoded>
+</item>
 <item>
 <title>Новую GPS-навигацию в Escape from Tarkov встретили неоднозначно: одни рады помощи новичкам, другие недовольны</title>
 <link>https://store.steampowered.com/news/app/3932890/view/1846018067940925</link>
