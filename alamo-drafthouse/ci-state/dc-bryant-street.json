@@ -534,6 +534,11 @@
       "first_seen": "2026-08-25",
       "title": "The Faculty"
     },
+    "the-cat-in-the-hat-2026": {
+      "first_seen": "2026-10-19",
+      "found_at": "2026-10-19T15:55:28",
+      "title": "The Cat in the Hat (2026)"
+    },
     "the-craft": {
       "first_seen": "2026-09-09",
       "title": "The Craft"
@@ -640,6 +645,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-16T15:57:43",
+  "updated": "2026-10-19T15:55:28",
   "version": 1
 }

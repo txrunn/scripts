@@ -852,6 +852,14 @@
     "tmdb_id": null,
     "v": 2
   },
+  "the-cat-in-the-hat-2026": {
+    "checked": "2026-10-19",
+    "tmdb_id": 1117898,
+    "tmdb_title": "The Cat in the Hat",
+    "trailer": "https://www.youtube.com/watch?v=jz8pLlPhSeY",
+    "v": 2,
+    "year": "2026"
+  },
   "the-craft": {
     "checked": "2026-09-09",
     "tmdb_id": 9100,
