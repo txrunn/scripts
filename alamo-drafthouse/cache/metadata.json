@@ -185,6 +185,14 @@
     "v": 2,
     "year": "2026"
   },
+  "dress-up-screening-dune-part-three": {
+    "checked": "2026-10-20",
+    "tmdb_id": 1170608,
+    "tmdb_title": "Dune: Part Three",
+    "trailer": "https://www.youtube.com/watch?v=3_9vCamtuPY",
+    "v": 2,
+    "year": "2026"
+  },
   "dune-part-three": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/d43fvHQsIMa4kpyhKXw0haEJIvI.jpg",
@@ -414,6 +422,14 @@
     "trailer": "https://www.youtube.com/watch?v=a8RHqN93qfo",
     "v": 2,
     "year": "2026"
+  },
+  "free-victory-screening-scooby-doo-on-zombie-island": {
+    "checked": "2026-10-20",
+    "tmdb_id": 13151,
+    "tmdb_title": "Scooby-Doo on Zombie Island",
+    "trailer": "https://www.youtube.com/watch?v=pxOxUpWE2n8",
+    "v": 2,
+    "year": "1998"
   },
   "ghost-in-the-shell-dubbed": {
     "checked": "2026-09-12",

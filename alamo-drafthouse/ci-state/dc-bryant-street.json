@@ -112,6 +112,11 @@
       "found_at": "2026-09-28T17:59:47",
       "title": "Doctor Who: The Satan Pit"
     },
+    "dress-up-screening-dune-part-three": {
+      "first_seen": "2026-10-20",
+      "found_at": "2026-10-20T15:15:47",
+      "title": "Dune: Part Three"
+    },
     "dune-part-three": {
       "first_seen": "2026-08-25",
       "title": "Dune: Part Three"
@@ -243,6 +248,11 @@
     "forgotten-island": {
       "first_seen": "2026-09-08",
       "title": "Forgotten Island"
+    },
+    "free-victory-screening-scooby-doo-on-zombie-island": {
+      "first_seen": "2026-10-20",
+      "found_at": "2026-10-20T15:15:47",
+      "title": "Scooby-Doo on Zombie Island"
     },
     "ghost-2-big-to-rig": {
       "first_seen": "2026-08-25",
@@ -650,6 +660,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-20T11:05:01",
+  "updated": "2026-10-20T15:15:47",
   "version": 1
 }
