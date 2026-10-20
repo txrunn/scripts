@@ -282,6 +282,11 @@
       "first_seen": "2026-08-25",
       "title": "HARRY POTTER AND THE SORCERER'S STONE"
     },
+    "hexed": {
+      "first_seen": "2026-10-20",
+      "found_at": "2026-10-20T11:05:01",
+      "title": "Hexed"
+    },
     "hope-2026": {
       "first_seen": "2026-08-25",
       "title": "Hope (2026)"
@@ -645,6 +650,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-19T15:55:28",
+  "updated": "2026-10-20T11:05:01",
   "version": 1
 }
