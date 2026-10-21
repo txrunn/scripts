@@ -472,6 +472,11 @@
       "found_at": "2026-09-29T20:26:50",
       "title": "Buddy (2026)"
     },
+    "special-event-green-room-10th-anniversary": {
+      "first_seen": "2026-10-21",
+      "found_at": "2026-10-21T14:38:07",
+      "title": "Green Room"
+    },
     "special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026": {
       "first_seen": "2026-09-05",
       "title": "Princess Mononoke (Dubbed)"
@@ -660,6 +665,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-20T15:15:47",
+  "updated": "2026-10-21T14:38:07",
   "version": 1
 }
