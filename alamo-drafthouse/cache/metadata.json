@@ -728,6 +728,14 @@
     "v": 2,
     "year": "2008"
   },
+  "reservoir-dogs": {
+    "checked": "2026-10-26",
+    "tmdb_id": 500,
+    "tmdb_title": "Reservoir Dogs",
+    "trailer": "https://www.youtube.com/watch?v=2KLZ4fSXtgI",
+    "v": 2,
+    "year": "1992"
+  },
   "resident-evil-2026": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/qku2uWSoJ9amQV5MWo1Eek29iji.jpg",
@@ -861,6 +869,14 @@
     "v": 2,
     "year": "2026"
   },
+  "swingers": {
+    "checked": "2026-10-26",
+    "tmdb_id": 93685,
+    "tmdb_title": "Swingers",
+    "trailer": null,
+    "v": 2,
+    "year": "2002"
+  },
   "teenage-sex-and-death-at-camp-miasma": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/nLsFnXifieSTqSeWxjXSS8RvaUZ.jpg",
@@ -941,6 +957,16 @@
     "trailer": "https://www.youtube.com/watch?v=O05arcJjOd0",
     "v": 2,
     "year": "2026"
+  },
+  "the-irregular-at-magic-high-school-the-movie-dubbed": {
+    "checked": "2026-10-26",
+    "tmdb_id": null,
+    "v": 2
+  },
+  "the-irregular-at-magic-high-school-the-movie-subtitled": {
+    "checked": "2026-10-26",
+    "tmdb_id": null,
+    "v": 2
   },
   "the-lost-boys": {
     "checked": "2026-09-09",
@@ -1033,6 +1059,11 @@
     "trailer": "https://www.youtube.com/watch?v=k1MVnzd2aVc",
     "v": 2,
     "year": "2026"
+  },
+  "touch-of-evil-the-restored-cut": {
+    "checked": "2026-10-26",
+    "tmdb_id": null,
+    "v": 2
   },
   "trick-or-treat-1986": {
     "checked": "2026-09-09",
