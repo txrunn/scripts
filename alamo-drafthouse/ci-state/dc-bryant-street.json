@@ -38,6 +38,11 @@
       "first_seen": "2026-08-25",
       "title": "Basic Instinct"
     },
+    "batman-returns": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "Batman Returns"
+    },
     "beetlejuice": {
       "first_seen": "2026-09-09",
       "title": "Beetlejuice"
@@ -79,6 +84,11 @@
       "found_at": "2026-10-07T16:37:06",
       "title": "Clayface"
     },
+    "club-kid": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "Club Kid"
+    },
     "coyote-vs-acme": {
       "first_seen": "2026-08-26",
       "title": "Coyote Vs. ACME"
@@ -107,10 +117,20 @@
       "first_seen": "2026-09-01",
       "title": "Dismember the Alamo 2026 - DC Area"
     },
+    "dive-in-wonderland": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "Dive in Wonderland"
+    },
     "doctor-who-the-satan-pit": {
       "first_seen": "2026-09-28",
       "found_at": "2026-09-28T17:59:47",
       "title": "Doctor Who: The Satan Pit"
+    },
+    "double-indemnity": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "DOUBLE INDEMNITY"
     },
     "dress-up-screening-dune-part-three": {
       "first_seen": "2026-10-20",
@@ -249,6 +269,11 @@
       "first_seen": "2026-09-08",
       "title": "Forgotten Island"
     },
+    "free-victory-screening-saving-private-ryan": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "FREE VICTORY SCREENING: SAVING PRIVATE RYAN"
+    },
     "free-victory-screening-scooby-doo-on-zombie-island": {
       "first_seen": "2026-10-20",
       "found_at": "2026-10-20T15:15:47",
@@ -364,6 +389,16 @@
       "first_seen": "2026-08-25",
       "title": "Mothra vs. Godzilla"
     },
+    "movie-party-elf-movie-party-sing-along": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "Elf"
+    },
+    "movie-party-national-lampoons-christmas-vacation": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "National Lampoon's Christmas Vacation"
+    },
     "movie-party-the-outsiders-the-complete-novel": {
       "first_seen": "2026-08-25",
       "title": "The Outsiders: The Complete Novel"
@@ -385,6 +420,11 @@
       "found_at": "2026-10-22T14:32:04",
       "title": "Once Upon a Time in Harlem"
     },
+    "once-upon-a-time-in-hollywood": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "ONCE UPON A TIME IN... HOLLYWOOD"
+    },
     "onslaught": {
       "first_seen": "2026-08-27",
       "title": "Onslaught"
@@ -402,6 +442,11 @@
       "first_seen": "2026-08-25",
       "title": "Paw Patrol: The Dino Movie"
     },
+    "planes-trains-automobiles": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "Planes, Trains & Automobiles"
+    },
     "possession-1981": {
       "first_seen": "2026-09-09",
       "title": "POSSESSION (1981)"
@@ -417,6 +462,11 @@
     "psycho-1960": {
       "first_seen": "2026-09-09",
       "title": "PSYCHO (1960)"
+    },
+    "pulp-fiction": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "PULP FICTION"
     },
     "queen-budapest": {
       "first_seen": "2026-08-25",
@@ -630,6 +680,16 @@
       "found_at": "2026-10-01T14:53:32",
       "title": "The Rocky Horror Picture Show"
     },
+    "the-room-a-tribute": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "The Room Returns"
+    },
+    "the-searchers": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "The Searchers"
+    },
     "the-shining": {
       "first_seen": "2026-10-16",
       "found_at": "2026-10-16T15:57:43",
@@ -673,9 +733,19 @@
       "first_seen": "2026-09-09",
       "title": "Trick or Treat (1986)"
     },
+    "true-stories": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "True Stories"
+    },
     "verity": {
       "first_seen": "2026-09-04",
       "title": "Verity"
+    },
+    "wallace-gromit-the-classic-shorts": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T12:37:14",
+      "title": "Wallace & Gromit: The Classic Shorts"
     },
     "weird-wednesday-manos-the-hands-of-fate": {
       "first_seen": "2026-09-09",
@@ -695,6 +765,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-26T15:18:17",
+  "updated": "2026-10-27T12:37:14",
   "version": 1
 }

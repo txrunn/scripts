@@ -56,6 +56,14 @@
     "v": 2,
     "year": "1992"
   },
+  "batman-returns": {
+    "checked": "2026-10-27",
+    "tmdb_id": 364,
+    "tmdb_title": "Batman Returns",
+    "trailer": "https://www.youtube.com/watch?v=TlbtLfWvFbo",
+    "v": 2,
+    "year": "1992"
+  },
   "beetlejuice": {
     "checked": "2026-09-09",
     "tmdb_id": 4011,
@@ -127,6 +135,14 @@
     "v": 2,
     "year": "2026"
   },
+  "club-kid": {
+    "checked": "2026-10-27",
+    "tmdb_id": 1585239,
+    "tmdb_title": "Club Kid",
+    "trailer": "https://www.youtube.com/watch?v=guKEdb_iRXw",
+    "v": 2,
+    "year": "2026"
+  },
   "coyote-vs-acme": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/orkLtdgMGiO9rTVMqJ1kKwrnup1.jpg",
@@ -177,6 +193,14 @@
     "tmdb_id": null,
     "v": 2
   },
+  "dive-in-wonderland": {
+    "checked": "2026-10-27",
+    "tmdb_id": 1418665,
+    "tmdb_title": "Alice in Wonderland –Dive in Wonderland–",
+    "trailer": "https://www.youtube.com/watch?v=Y6fNuySFktc",
+    "v": 2,
+    "year": "2025"
+  },
   "doctor-who-the-satan-pit": {
     "checked": "2026-09-28",
     "tmdb_id": 1770183,
@@ -184,6 +208,14 @@
     "trailer": "https://www.youtube.com/watch?v=BBBP-iqluxw",
     "v": 2,
     "year": "2026"
+  },
+  "double-indemnity": {
+    "checked": "2026-10-27",
+    "tmdb_id": 996,
+    "tmdb_title": "Double Indemnity",
+    "trailer": "https://www.youtube.com/watch?v=9oxVkwB05rU",
+    "v": 2,
+    "year": "1944"
   },
   "dress-up-screening-dune-part-three": {
     "checked": "2026-10-20",
@@ -423,6 +455,11 @@
     "v": 2,
     "year": "2026"
   },
+  "free-victory-screening-saving-private-ryan": {
+    "checked": "2026-10-27",
+    "tmdb_id": null,
+    "v": 2
+  },
   "free-victory-screening-scooby-doo-on-zombie-island": {
     "checked": "2026-10-20",
     "tmdb_id": 13151,
@@ -591,6 +628,22 @@
     "v": 2,
     "year": "2000"
   },
+  "movie-party-elf-movie-party-sing-along": {
+    "checked": "2026-10-27",
+    "tmdb_id": 10719,
+    "tmdb_title": "Elf",
+    "trailer": "https://www.youtube.com/watch?v=GA8EcNisRvA",
+    "v": 2,
+    "year": "2003"
+  },
+  "movie-party-national-lampoons-christmas-vacation": {
+    "checked": "2026-10-27",
+    "tmdb_id": 5825,
+    "tmdb_title": "National Lampoon's Christmas Vacation",
+    "trailer": "https://www.youtube.com/watch?v=tLVd4ipC5Lc",
+    "v": 2,
+    "year": "1989"
+  },
   "mystery-machine-9-14-2026": {
     "checked": "2026-09-09",
     "tmdb_id": null,
@@ -621,6 +674,14 @@
     "v": 2,
     "year": "2026"
   },
+  "once-upon-a-time-in-hollywood": {
+    "checked": "2026-10-27",
+    "tmdb_id": 466272,
+    "tmdb_title": "Once Upon a Time... in Hollywood",
+    "trailer": "https://www.youtube.com/watch?v=Scf8nIJCvs4",
+    "v": 2,
+    "year": "2019"
+  },
   "onslaught": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/cOGtvhc6Ij9KvzM6jZsfQyg0B0O.jpg",
@@ -640,6 +701,11 @@
   },
   "ozzy-black-sabbath-back-to-the-beginning": {
     "checked": "2026-09-23",
+    "tmdb_id": null,
+    "v": 2
+  },
+  "planes-trains-automobiles": {
+    "checked": "2026-10-27",
     "tmdb_id": null,
     "v": 2
   },
@@ -676,6 +742,14 @@
     "trailer": "https://www.youtube.com/watch?v=zn7dBPlFkA0",
     "v": 2,
     "year": "1960"
+  },
+  "pulp-fiction": {
+    "checked": "2026-10-27",
+    "tmdb_id": 680,
+    "tmdb_title": "Pulp Fiction",
+    "trailer": "https://www.youtube.com/watch?v=tGpTpVyI_OQ",
+    "v": 2,
+    "year": "1994"
   },
   "queen-budapest": {
     "checked": "2026-09-09",
@@ -1001,6 +1075,19 @@
     "v": 2,
     "year": "1975"
   },
+  "the-room-a-tribute": {
+    "checked": "2026-10-27",
+    "tmdb_id": null,
+    "v": 2
+  },
+  "the-searchers": {
+    "checked": "2026-10-27",
+    "tmdb_id": 3114,
+    "tmdb_title": "The Searchers",
+    "trailer": "https://www.youtube.com/watch?v=pJXgjw_5erE",
+    "v": 2,
+    "year": "1956"
+  },
   "the-shining": {
     "checked": "2026-10-16",
     "tmdb_id": 694,
@@ -1073,6 +1160,14 @@
     "v": 2,
     "year": "1986"
   },
+  "true-stories": {
+    "checked": "2026-10-27",
+    "tmdb_id": 24798,
+    "tmdb_title": "True Stories",
+    "trailer": "https://www.youtube.com/watch?v=5MIHT9d25wY",
+    "v": 2,
+    "year": "1986"
+  },
   "verity": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/7ZgjGeacN0PwenoQX4DjI4FlN6Z.jpg",
@@ -1081,6 +1176,11 @@
     "trailer": "https://www.youtube.com/watch?v=xdPMKhjMSFs",
     "v": 2,
     "year": "2026"
+  },
+  "wallace-gromit-the-classic-shorts": {
+    "checked": "2026-10-27",
+    "tmdb_id": null,
+    "v": 2
   },
   "weird-wednesday-manos-the-hands-of-fate": {
     "checked": "2026-09-09",
