@@ -338,6 +338,11 @@
       "first_seen": "2026-08-25",
       "title": "Katy Perry: The Lifetimes Tour - Live From Paris"
     },
+    "ken-russells-the-devils": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T17:18:24",
+      "title": "Ken Russell's The Devils"
+    },
     "linkin-park-unshatter": {
       "first_seen": "2026-08-25",
       "title": "LINKIN PARK: UNSHATTER"
@@ -389,6 +394,11 @@
       "first_seen": "2026-08-25",
       "title": "Mothra vs. Godzilla"
     },
+    "movie-party-dr-seuss-how-the-grinch-stole-christmas-2000": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T17:18:24",
+      "title": "How the Grinch Stole Christmas"
+    },
     "movie-party-elf-movie-party-sing-along": {
       "first_seen": "2026-10-27",
       "found_at": "2026-10-27T12:37:14",
@@ -402,6 +412,11 @@
     "movie-party-the-outsiders-the-complete-novel": {
       "first_seen": "2026-08-25",
       "title": "The Outsiders: The Complete Novel"
+    },
+    "movie-party-the-polar-express": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T17:18:24",
+      "title": "The Polar Express"
     },
     "mystery-machine-9-14-2026": {
       "first_seen": "2026-09-09",
@@ -476,6 +491,11 @@
       "first_seen": "2026-09-09",
       "title": "Daughters of Darkness"
     },
+    "queer-film-theory-101-eyes-wide-shut": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T17:18:24",
+      "title": "Eyes Wide Shut"
+    },
     "queer-film-theory-101-the-birdcage": {
       "first_seen": "2026-08-25",
       "title": "The Birdcage"
@@ -513,6 +533,11 @@
     "sad-girl-cinema-club-a-tale-of-two-sisters": {
       "first_seen": "2026-09-19",
       "title": "A Tale of Two Sisters"
+    },
+    "sad-girl-cinema-club-little-women-2019": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T17:18:24",
+      "title": "Little Women (2019)"
     },
     "sad-girl-cinema-club-my-sassy-girl": {
       "first_seen": "2026-08-25",
@@ -756,6 +781,11 @@
       "found_at": "2026-10-12T18:58:30",
       "title": "Wild Horse Nine"
     },
+    "wildwood": {
+      "first_seen": "2026-10-27",
+      "found_at": "2026-10-27T17:18:24",
+      "title": "Wildwood"
+    },
     "you-can-see-everything": {
       "first_seen": "2026-09-23",
       "title": "You Can See Everything"
@@ -765,6 +795,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-27T12:37:14",
+  "updated": "2026-10-27T17:18:24",
   "version": 1
 }

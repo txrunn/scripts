@@ -549,6 +549,11 @@
     "v": 2,
     "year": "2026"
   },
+  "ken-russells-the-devils": {
+    "checked": "2026-10-27",
+    "tmdb_id": null,
+    "v": 2
+  },
   "linkin-park-unshatter": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/kHNrz7DBVPrtyMhJxmBm2poS2l9.jpg",
@@ -628,6 +633,14 @@
     "v": 2,
     "year": "2000"
   },
+  "movie-party-dr-seuss-how-the-grinch-stole-christmas-2000": {
+    "checked": "2026-10-27",
+    "tmdb_id": 8871,
+    "tmdb_title": "How the Grinch Stole Christmas",
+    "trailer": "https://www.youtube.com/watch?v=myTaigPrbsg",
+    "v": 2,
+    "year": "2000"
+  },
   "movie-party-elf-movie-party-sing-along": {
     "checked": "2026-10-27",
     "tmdb_id": 10719,
@@ -643,6 +656,14 @@
     "trailer": "https://www.youtube.com/watch?v=tLVd4ipC5Lc",
     "v": 2,
     "year": "1989"
+  },
+  "movie-party-the-polar-express": {
+    "checked": "2026-10-27",
+    "tmdb_id": 5255,
+    "tmdb_title": "The Polar Express",
+    "trailer": "https://www.youtube.com/watch?v=eHvSH2EoLLc",
+    "v": 2,
+    "year": "2004"
   },
   "mystery-machine-9-14-2026": {
     "checked": "2026-09-09",
@@ -768,6 +789,14 @@
     "v": 2,
     "year": "1971"
   },
+  "queer-film-theory-101-eyes-wide-shut": {
+    "checked": "2026-10-27",
+    "tmdb_id": 345,
+    "tmdb_title": "Eyes Wide Shut",
+    "trailer": "https://www.youtube.com/watch?v=yxqrzWe0Ggc",
+    "v": 2,
+    "year": "1999"
+  },
   "queer-film-theory-101-the-birdcage": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/4IpC35BoA5aRO0Q1DpFGJ8iKKYq.jpg",
@@ -831,6 +860,14 @@
     "trailer": "https://www.youtube.com/watch?v=anF5XiN8QY8",
     "v": 2,
     "year": "2003"
+  },
+  "sad-girl-cinema-club-little-women-2019": {
+    "checked": "2026-10-27",
+    "tmdb_id": 331482,
+    "tmdb_title": "Little Women",
+    "trailer": "https://www.youtube.com/watch?v=AST2-4db4ic",
+    "v": 2,
+    "year": "2019"
   },
   "sad-girl-cinema-club-my-sassy-girl": {
     "checked": "2026-09-09",
@@ -1195,6 +1232,14 @@
     "tmdb_id": 891621,
     "tmdb_title": "Wild Horse Nine",
     "trailer": "https://www.youtube.com/watch?v=Haw_sznA5aQ",
+    "v": 2,
+    "year": "2026"
+  },
+  "wildwood": {
+    "checked": "2026-10-27",
+    "tmdb_id": 791523,
+    "tmdb_title": "Wildwood",
+    "trailer": "https://www.youtube.com/watch?v=POneS8h1jyU",
     "v": 2,
     "year": "2026"
   },
