@@ -24,6 +24,14 @@
     "v": 2,
     "year": "2026"
   },
+  "advance-screening-the-hunger-games-sunrise-on-the-reaping-the-big-show-early-access": {
+    "checked": "2026-10-28",
+    "tmdb_id": 1300968,
+    "tmdb_title": "The Hunger Games: Sunrise on the Reaping",
+    "trailer": "https://www.youtube.com/watch?v=fS35YSjopjE",
+    "v": 2,
+    "year": "2026"
+  },
   "angel-heart": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/h5v3wjJQNB7q2RntEnKDLhKtTFE.jpg",
@@ -1066,6 +1074,14 @@
     "tmdb_id": 1596296,
     "tmdb_title": "The History of Concrete",
     "trailer": "https://www.youtube.com/watch?v=O05arcJjOd0",
+    "v": 2,
+    "year": "2026"
+  },
+  "the-hunger-games-sunrise-on-the-reaping": {
+    "checked": "2026-10-28",
+    "tmdb_id": 1300968,
+    "tmdb_title": "The Hunger Games: Sunrise on the Reaping",
+    "trailer": "https://www.youtube.com/watch?v=fS35YSjopjE",
     "v": 2,
     "year": "2026"
   },
