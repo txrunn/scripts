@@ -373,6 +373,11 @@
       "first_seen": "2026-09-02",
       "title": "Nosferatu (1922)"
     },
+    "livestream-q-a-paper-tiger": {
+      "first_seen": "2026-10-29",
+      "found_at": "2026-10-29T10:17:23",
+      "title": "Paper Tiger"
+    },
     "livestream-q-a-sense-and-sensibility-2026": {
       "first_seen": "2026-09-29",
       "found_at": "2026-09-29T11:50:58",
@@ -805,6 +810,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-28T12:01:09",
+  "updated": "2026-10-29T10:17:23",
   "version": 1
 }
