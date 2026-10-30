@@ -331,6 +331,11 @@
       "first_seen": "2026-08-25",
       "title": "Hope (2026)"
     },
+    "i-play-rocky": {
+      "first_seen": "2026-10-30",
+      "found_at": "2026-10-30T14:37:20",
+      "title": "I Play Rocky"
+    },
     "if-i-go-will-they-miss-me": {
       "first_seen": "2026-09-15",
       "title": "If I Go Will They Miss Me"
@@ -572,6 +577,11 @@
       "found_at": "2026-10-21T14:38:07",
       "title": "Green Room"
     },
+    "special-event-moulin-rouge-25th-anniversary": {
+      "first_seen": "2026-10-30",
+      "found_at": "2026-10-30T14:37:20",
+      "title": "Moulin Rouge!"
+    },
     "special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026": {
       "first_seen": "2026-09-05",
       "title": "Princess Mononoke (Dubbed)"
@@ -810,6 +820,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-29T10:17:23",
+  "updated": "2026-10-30T14:37:20",
   "version": 1
 }

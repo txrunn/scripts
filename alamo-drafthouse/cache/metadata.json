@@ -549,6 +549,14 @@
     "v": 2,
     "year": "2026"
   },
+  "i-play-rocky": {
+    "checked": "2026-10-30",
+    "tmdb_id": 1286656,
+    "tmdb_title": "I Play Rocky",
+    "trailer": "https://www.youtube.com/watch?v=V_g_Ut0jO-0",
+    "v": 2,
+    "year": "2026"
+  },
   "if-i-go-will-they-miss-me": {
     "checked": "2026-09-15",
     "tmdb_id": 1596248,
@@ -925,6 +933,14 @@
     "trailer": "https://www.youtube.com/watch?v=Q8XSARX3DQg",
     "v": 2,
     "year": "2016"
+  },
+  "special-event-moulin-rouge-25th-anniversary": {
+    "checked": "2026-10-30",
+    "tmdb_id": 824,
+    "tmdb_title": "Moulin Rouge!",
+    "trailer": "https://www.youtube.com/watch?v=2PpgPxjzbkA",
+    "v": 2,
+    "year": "2001"
   },
   "special-event-princess-mononoke-dubbed-studio-ghibli-fest-2026": {
     "checked": "2026-09-09",
