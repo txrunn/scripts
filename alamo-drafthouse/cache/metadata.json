@@ -428,6 +428,14 @@
     "v": 2,
     "year": "1998"
   },
+  "film-club-strangers-on-a-train-75th-anniversary": {
+    "checked": "2026-10-30",
+    "tmdb_id": 845,
+    "tmdb_title": "Strangers on a Train",
+    "trailer": "https://www.youtube.com/watch?v=PC62NBWBkjM",
+    "v": 2,
+    "year": "1951"
+  },
   "film-club-taxi-driver": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/ekstpH614fwDX8DUln1a2Opz0N8.jpg",
@@ -436,6 +444,14 @@
     "trailer": "https://www.youtube.com/watch?v=UUxD4-dEzn0",
     "v": 2,
     "year": "1976"
+  },
+  "film-club-the-big-sleep-1946-80th-anniversary": {
+    "checked": "2026-10-30",
+    "tmdb_id": 910,
+    "tmdb_title": "The Big Sleep",
+    "trailer": "https://www.youtube.com/watch?v=n-K49CUaeto",
+    "v": 2,
+    "year": "1946"
   },
   "first-blood": {
     "checked": "2026-09-09",
@@ -1037,6 +1053,14 @@
     "trailer": "https://www.youtube.com/watch?v=LdOM0x0XDMo",
     "v": 2,
     "year": "2020"
+  },
+  "terror-tuesday-henry-portrait-of-a-serial-killer": {
+    "checked": "2026-10-30",
+    "tmdb_id": 10692,
+    "tmdb_title": "Henry: Portrait of a Serial Killer",
+    "trailer": "https://www.youtube.com/watch?v=qxxZ8yspQyw",
+    "v": 2,
+    "year": "1986"
   },
   "terror-tuesday-in-the-mouth-of-madness-2": {
     "checked": "2026-09-18",
