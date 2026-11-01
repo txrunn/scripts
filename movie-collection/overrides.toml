@@ -52,3 +52,15 @@ disc_notes = "Collection 1 of 2 (Blu-ray)"
 # Nature series, 2019. Pinned so a future TMDB title collision cannot move it.
 ["Seven Worlds, One Planet"]
 tmdb_id = 90790
+
+# Criterion 4K UHD editions. The label is the one fact about these discs that
+# no API carries -- TMDB and OMDb describe the film, not the release -- and on
+# a shelf with three of them it is what tells them apart from a studio pressing.
+["Altered States (1980)"]
+disc_notes = "Criterion"
+
+["The Silence of the Lambs"]
+disc_notes = "Criterion"
+
+["Videodrome"]
+disc_notes = "Criterion"
