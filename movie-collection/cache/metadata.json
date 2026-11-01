@@ -316,6 +316,35 @@
       "verified": "2026-09-07",
       "year": 2019
     },
+    "Altered States (1980)": {
+      "directors": [
+        "Ken Russell"
+      ],
+      "genres": [
+        "Horror",
+        "Science Fiction",
+        "Thriller"
+      ],
+      "imdb_id": "tt0080360",
+      "imdb_rating": 6.9,
+      "key": "Altered States (1980)",
+      "letterboxd": "https://letterboxd.com/film/altered-states/",
+      "overview": "A research scientist explores the boundaries and frontiers of human consciousness. Using sensory deprivation and hallucinogenic mixtures from Native American shamans, he explores these altered states of cognizance and finds that memory, time, and reality itself are states of mind.",
+      "parent": null,
+      "poster": "/fsoaPN5SWYgZ4B7GG9nRNj33so.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 85,
+      "runtime": 103,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Altered States",
+      "tmdb_id": 11542,
+      "verified": "2026-11-01",
+      "year": 1980
+    },
     "Anna (2019)": {
       "directors": [
         "Luc Besson"
@@ -3604,6 +3633,35 @@
       "verified": "2026-09-07",
       "year": 1980
     },
+    "The Silence of the Lambs": {
+      "directors": [
+        "Jonathan Demme"
+      ],
+      "genres": [
+        "Crime",
+        "Thriller",
+        "Drama"
+      ],
+      "imdb_id": "tt0102926",
+      "imdb_rating": 8.6,
+      "key": "The Silence of the Lambs",
+      "letterboxd": "https://letterboxd.com/film/the-silence-of-the-lambs/",
+      "overview": "Clarice Starling is a top student at the FBI's training academy.  Jack Crawford wants Clarice to interview Dr. Hannibal Lecter, a brilliant psychiatrist who is also a violent psychopath, serving life behind bars for various acts of murder and cannibalism.  Crawford believes that Lecter may have insight into a case and that Starling, as an attractive young woman, may be just the bait to draw him out.",
+      "parent": null,
+      "poster": "/uS9m8OBk1A8eM9I042bx8XXpqAq.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 95,
+      "runtime": 119,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "The Silence of the Lambs",
+      "tmdb_id": 274,
+      "verified": "2026-11-01",
+      "year": 1991
+    },
     "The Sugarland Express": {
       "directors": [
         "Steven Spielberg"
@@ -3848,6 +3906,35 @@
       "tmdb_id": 426,
       "verified": "2026-09-07",
       "year": 1958
+    },
+    "Videodrome": {
+      "directors": [
+        "David Cronenberg"
+      ],
+      "genres": [
+        "Horror",
+        "Science Fiction",
+        "Mystery"
+      ],
+      "imdb_id": "tt0086541",
+      "imdb_rating": 7.2,
+      "key": "Videodrome",
+      "letterboxd": "https://letterboxd.com/film/videodrome/",
+      "overview": "As the president of a trashy TV channel, Max Renn is desperate for new programming to attract viewers. When he happens upon \"Videodrome,\" a TV show dedicated to gratuitous torture and punishment, Max sees a potential hit and broadcasts the show on his channel. However, after his girlfriend auditions for the show and never returns, Max investigates the truth behind Videodrome and discovers that the graphic violence may not be as fake as he thought.",
+      "parent": null,
+      "poster": "/qqqkiZSU9EBGZ1KiDmfn07S7qvv.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 83,
+      "runtime": 88,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Videodrome",
+      "tmdb_id": 837,
+      "verified": "2026-11-01",
+      "year": 1983
     },
     "Waterworld": {
       "directors": [
