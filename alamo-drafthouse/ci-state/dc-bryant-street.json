@@ -367,6 +367,11 @@
       "first_seen": "2026-08-25",
       "title": "LINKIN PARK: UNSHATTER"
     },
+    "littermates": {
+      "first_seen": "2026-11-03",
+      "found_at": "2026-11-03T18:58:37",
+      "title": "Littermates"
+    },
     "live-q-a-butthole-surfers-the-hole-truth-and-nothing-butt": {
       "first_seen": "2026-08-25",
       "title": "Butthole Surfers: The Hole Truth and Nothing Butt"
@@ -835,6 +840,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-10-30T18:58:04",
+  "updated": "2026-11-03T18:58:37",
   "version": 1
 }
