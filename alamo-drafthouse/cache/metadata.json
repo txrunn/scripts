@@ -242,6 +242,14 @@
     "v": 2,
     "year": "2026"
   },
+  "elsinore": {
+    "checked": "2026-11-05",
+    "tmdb_id": 1599230,
+    "tmdb_title": "Elsinore",
+    "trailer": "https://www.youtube.com/watch?v=SzopCeFAWF0",
+    "v": 2,
+    "year": "2026"
+  },
   "epic-sunday-django-unchained": {
     "checked": "2026-09-18",
     "tmdb_id": 68718,
@@ -467,6 +475,14 @@
     "tmdb_id": 1401459,
     "tmdb_title": "Fjord",
     "trailer": "https://www.youtube.com/watch?v=0gdRZZVoinM",
+    "v": 2,
+    "year": "2026"
+  },
+  "focker-in-law": {
+    "checked": "2026-11-05",
+    "tmdb_id": 1400336,
+    "tmdb_title": "Focker-in-Law",
+    "trailer": "https://www.youtube.com/watch?v=vyISuWUWcFs",
     "v": 2,
     "year": "2026"
   },

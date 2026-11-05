@@ -146,6 +146,11 @@
       "first_seen": "2026-08-25",
       "title": "Dune: Part Three"
     },
+    "elsinore": {
+      "first_seen": "2026-11-05",
+      "found_at": "2026-11-05T13:44:59",
+      "title": "Elsinore"
+    },
     "epic-sunday-django-unchained": {
       "first_seen": "2026-09-18",
       "title": "Django Unchained"
@@ -279,6 +284,11 @@
       "first_seen": "2026-10-07",
       "found_at": "2026-10-07T16:37:06",
       "title": "Fjord"
+    },
+    "focker-in-law": {
+      "first_seen": "2026-11-05",
+      "found_at": "2026-11-05T13:44:59",
+      "title": "Focker-In-Law"
     },
     "forgotten-island": {
       "first_seen": "2026-09-08",
@@ -840,6 +850,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-03T18:58:37",
+  "updated": "2026-11-05T13:44:59",
   "version": 1
 }
