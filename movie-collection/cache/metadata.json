@@ -1330,6 +1330,34 @@
       "verified": "2026-09-07",
       "year": 2007
     },
+    "In the Mouth of Madness": {
+      "directors": [
+        "John Carpenter"
+      ],
+      "genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "imdb_id": "tt0113409",
+      "imdb_rating": 7.1,
+      "key": "In the Mouth of Madness",
+      "letterboxd": "https://letterboxd.com/film/in-the-mouth-of-madness/",
+      "overview": "An insurance investigator visits a small town while looking into the strange disappearance of a popular horror novelist. He soon finds that the impact of the author’s books is far more than inspirational.",
+      "parent": null,
+      "poster": "/msh4tEUzbnEqlHcFOUH4O0Zti8r.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 61,
+      "runtime": 95,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "In the Mouth of Madness",
+      "tmdb_id": 2654,
+      "verified": "2026-11-09",
+      "year": 1995
+    },
     "Independence Day: Resurgence": {
       "directors": [
         "Roland Emmerich"
@@ -2756,6 +2784,34 @@
       "verified": "2026-09-07",
       "year": 2012
     },
+    "Sound of Metal": {
+      "directors": [
+        "Darius Marder"
+      ],
+      "genres": [
+        "Drama",
+        "Music"
+      ],
+      "imdb_id": "tt5363618",
+      "imdb_rating": 7.7,
+      "key": "Sound of Metal",
+      "letterboxd": "https://letterboxd.com/film/sound-of-metal/",
+      "overview": "Metal drummer Ruben begins to lose his hearing. When a doctor tells him his condition will worsen, he thinks his career and life is over. His girlfriend Lou checks the former addict into a rehab for the deaf hoping it will prevent a relapse and help him adapt to his new life. After being welcomed and accepted just as he is, Ruben must choose between his new normal and the life he once knew.",
+      "parent": null,
+      "poster": "/3178oOJKKPDeQ2legWQvMPpllv.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 97,
+      "runtime": 121,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Sound of Metal",
+      "tmdb_id": 502033,
+      "verified": "2026-11-09",
+      "year": 2020
+    },
     "Spectre (2015)": {
       "directors": [
         "Sam Mendes"
@@ -4019,6 +4075,35 @@
       "tmdb_id": 11596,
       "verified": "2026-09-07",
       "year": 1994
+    },
+    "Wild at Heart": {
+      "directors": [
+        "David Lynch"
+      ],
+      "genres": [
+        "Crime",
+        "Thriller",
+        "Romance"
+      ],
+      "imdb_id": "tt0100935",
+      "imdb_rating": 7.2,
+      "key": "Wild at Heart",
+      "letterboxd": "https://letterboxd.com/film/wild-at-heart/",
+      "overview": "Young lovers Sailor and Lula hit the road to start a new life together away from the wrath of Lula’s deranged, disapproving mother, who has hired a team of hitmen to cut the lovers’ surreal honeymoon short.",
+      "parent": null,
+      "poster": "/uLUFI5sJIfWrBUWB2Y1dEuyvvVy.jpg",
+      "role": "item",
+      "rt_audience": null,
+      "rt_critic": 66,
+      "runtime": 125,
+      "section": "films",
+      "source_notes": [
+        "RT audience score and Theatrical_Score have no free API source; set them in overrides.toml"
+      ],
+      "title": "Wild at Heart",
+      "tmdb_id": 483,
+      "verified": "2026-11-09",
+      "year": 1990
     }
   },
   "version": 1
