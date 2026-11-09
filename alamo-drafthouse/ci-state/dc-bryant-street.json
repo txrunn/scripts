@@ -57,6 +57,11 @@
       "first_seen": "2026-09-09",
       "title": "Beetlejuice"
     },
+    "behemoth": {
+      "first_seen": "2026-11-09",
+      "found_at": "2026-11-09T13:47:30",
+      "title": "Behemoth!"
+    },
     "blue-velvet": {
       "first_seen": "2026-09-09",
       "title": "Blue Velvet"
@@ -855,6 +860,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-05T19:15:56",
+  "updated": "2026-11-09T13:47:30",
   "version": 1
 }
