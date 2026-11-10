@@ -258,6 +258,14 @@
     "v": 2,
     "year": "2026"
   },
+  "ebenezer": {
+    "checked": "2026-11-10",
+    "tmdb_id": 1567605,
+    "tmdb_title": "Ebenezer",
+    "trailer": "https://www.youtube.com/watch?v=A7lyvgnDuDE",
+    "v": 2,
+    "year": "2026"
+  },
   "elsinore": {
     "checked": "2026-11-05",
     "tmdb_id": 1599230,
@@ -1278,6 +1286,14 @@
     "trailer": "https://www.youtube.com/watch?v=7tQk8pKnnVY",
     "v": 2,
     "year": "2008"
+  },
+  "tokyo-godfathers-subtitled": {
+    "checked": "2026-11-10",
+    "tmdb_id": 13398,
+    "tmdb_title": "Tokyo Godfathers",
+    "trailer": "https://www.youtube.com/watch?v=ZL_2E-HfIZY",
+    "v": 2,
+    "year": "2003"
   },
   "tony": {
     "checked": "2026-09-09",

@@ -156,6 +156,11 @@
       "first_seen": "2026-08-25",
       "title": "Dune: Part Three"
     },
+    "ebenezer": {
+      "first_seen": "2026-11-10",
+      "found_at": "2026-11-10T18:19:20",
+      "title": "Ebenezer"
+    },
     "elsinore": {
       "first_seen": "2026-11-05",
       "found_at": "2026-11-05T13:44:59",
@@ -806,6 +811,11 @@
       "first_seen": "2026-08-25",
       "title": "Twilight (2008)"
     },
+    "tokyo-godfathers-subtitled": {
+      "first_seen": "2026-11-10",
+      "found_at": "2026-11-10T18:19:20",
+      "title": "Tokyo Godfathers (Subtitled)"
+    },
     "tony": {
       "first_seen": "2026-08-25",
       "title": "Tony"
@@ -860,6 +870,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-09T13:47:30",
+  "updated": "2026-11-10T18:19:20",
   "version": 1
 }
