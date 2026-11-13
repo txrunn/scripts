@@ -544,6 +544,11 @@
       "first_seen": "2026-09-05",
       "title": "Primetime"
     },
+    "prince-3121-las-vegas-live": {
+      "first_seen": "2026-11-13",
+      "found_at": "2026-11-13T11:21:37",
+      "title": "Prince 3121 Las Vegas Live"
+    },
     "psycho-1960": {
       "first_seen": "2026-09-09",
       "title": "PSYCHO (1960)"
@@ -905,6 +910,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-12T19:21:36",
+  "updated": "2026-11-13T11:21:37",
   "version": 1
 }
