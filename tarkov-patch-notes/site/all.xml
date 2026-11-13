@@ -5,9 +5,18 @@
 <link>https://www.escapefromtarkov.com/news</link>
 <description>Every official Escape from Tarkov announcement, patch notes included.</description>
 <language>en-us</language>
-<lastBuildDate>Thu, 12 Nov 2026 22:46:36 +0000</lastBuildDate>
+<lastBuildDate>Fri, 13 Nov 2026 11:07:03 +0000</lastBuildDate>
 <ttl>5</ttl>
 <atom:link href="https://txrunn.github.io/scripts/tarkov/all.xml" rel="self" type="application/rss+xml" />
+<item>
+<title>New in-game survey</title>
+<link>https://store.steampowered.com/news/app/3932890/view/1849192144186795</link>
+<guid isPermaLink="false">steam:1849192144186795</guid>
+<pubDate>Fri, 13 Nov 2026 11:07:03 +0000</pubDate>
+<source url="https://store.steampowered.com/news/app/3932890/view/1849192144186795">Steam</source>
+<description><![CDATA[<p>A new in-game survey is now available, focused on the EXFIL Brothers Program.</p><p>We'd like to hear your opinion on the current EXFIL Brothers system, its rewards and requirements, and how easy it was to understand how the program works.</p><p>Your responses will help us understand which elements of the program players find most interesting and which changes we should consider as we continue to develop it.</p><p>You will receive a participation reward in your in-game messages after completing the survey. Thank you for helping us make the game better!</p>]]></description>
+<content:encoded><![CDATA[<p>A new in-game survey is now available, focused on the EXFIL Brothers Program.</p><p>We'd like to hear your opinion on the current EXFIL Brothers system, its rewards and requirements, and how easy it was to understand how the program works.</p><p>Your responses will help us understand which elements of the program players find most interesting and which changes we should consider as we continue to develop it.</p><p>You will receive a participation reward in your in-game messages after completing the survey. Thank you for helping us make the game better!</p>]]></content:encoded>
+</item>
 <item>
 <title>Escape from Tarkov выйдет на консолях: анонс состоится в начале 2027 года</title>
 <link>https://store.steampowered.com/news/app/3932890/view/1849192144184951</link>
