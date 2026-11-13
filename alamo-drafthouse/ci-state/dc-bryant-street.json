@@ -314,6 +314,11 @@
       "first_seen": "2026-09-08",
       "title": "Forgotten Island"
     },
+    "free-victory-screening-a-christmas-story": {
+      "first_seen": "2026-11-12",
+      "found_at": "2026-11-12T19:21:36",
+      "title": "FREE VICTORY SCREENING: A CHRISTMAS STORY"
+    },
     "free-victory-screening-saving-private-ryan": {
       "first_seen": "2026-10-27",
       "found_at": "2026-10-27T12:37:14",
@@ -436,6 +441,11 @@
     "livestream-q-a-the-weight": {
       "first_seen": "2026-09-01",
       "title": "The Weight"
+    },
+    "love-actually": {
+      "first_seen": "2026-11-12",
+      "found_at": "2026-11-12T19:21:36",
+      "title": "LOVE ACTUALLY"
     },
     "marie-antoinette": {
       "first_seen": "2026-10-06",
@@ -635,6 +645,11 @@
       "first_seen": "2026-09-05",
       "title": "Princess Mononoke (Subtitled)"
     },
+    "special-event-romeo-juliet-30th-anniversary": {
+      "first_seen": "2026-11-12",
+      "found_at": "2026-11-12T19:21:36",
+      "title": "Romeo + Juliet"
+    },
     "special-event-spirited-away-dubbed-studio-ghibli-fest-2026": {
       "first_seen": "2026-09-05",
       "title": "Spirited Away (Dubbed)"
@@ -713,6 +728,11 @@
     "terror-tuesday-the-faculty": {
       "first_seen": "2026-08-25",
       "title": "The Faculty"
+    },
+    "the-apartment": {
+      "first_seen": "2026-11-12",
+      "found_at": "2026-11-12T19:21:36",
+      "title": "The Apartment"
     },
     "the-cat-in-the-hat-2026": {
       "first_seen": "2026-10-19",
@@ -856,6 +876,16 @@
       "first_seen": "2026-09-09",
       "title": "Manos: The Hands of Fate"
     },
+    "when-harry-met-sally": {
+      "first_seen": "2026-11-12",
+      "found_at": "2026-11-12T19:21:36",
+      "title": "When Harry Met Sally..."
+    },
+    "white-christmas": {
+      "first_seen": "2026-11-12",
+      "found_at": "2026-11-12T19:21:36",
+      "title": "WHITE CHRISTMAS"
+    },
     "wild-horse-nine": {
       "first_seen": "2026-10-12",
       "found_at": "2026-10-12T18:58:30",
@@ -875,6 +905,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-11T09:29:34",
+  "updated": "2026-11-12T19:21:36",
   "version": 1
 }

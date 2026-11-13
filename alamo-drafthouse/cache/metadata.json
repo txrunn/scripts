@@ -524,6 +524,11 @@
     "v": 2,
     "year": "2026"
   },
+  "free-victory-screening-a-christmas-story": {
+    "checked": "2026-11-12",
+    "tmdb_id": null,
+    "v": 2
+  },
   "free-victory-screening-saving-private-ryan": {
     "checked": "2026-10-27",
     "tmdb_id": null,
@@ -699,6 +704,14 @@
     "trailer": "https://www.youtube.com/watch?v=7YpuMymmiJ8",
     "v": 2,
     "year": "2026"
+  },
+  "love-actually": {
+    "checked": "2026-11-12",
+    "tmdb_id": 508,
+    "tmdb_title": "Love Actually",
+    "trailer": "https://www.youtube.com/watch?v=PP3g0WzGdQY",
+    "v": 2,
+    "year": "2003"
   },
   "marie-antoinette": {
     "checked": "2026-10-06",
@@ -1029,6 +1042,14 @@
     "v": 2,
     "year": "1997"
   },
+  "special-event-romeo-juliet-30th-anniversary": {
+    "checked": "2026-11-12",
+    "tmdb_id": 454,
+    "tmdb_title": "Romeo + Juliet",
+    "trailer": "https://www.youtube.com/watch?v=oO4jqwpt25k",
+    "v": 2,
+    "year": "1996"
+  },
   "special-event-spirited-away-dubbed-studio-ghibli-fest-2026": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg",
@@ -1127,6 +1148,14 @@
     "checked": "2026-09-09",
     "tmdb_id": null,
     "v": 2
+  },
+  "the-apartment": {
+    "checked": "2026-11-12",
+    "tmdb_id": 284,
+    "tmdb_title": "The Apartment",
+    "trailer": "https://www.youtube.com/watch?v=OcslkrBMLGc",
+    "v": 2,
+    "year": "1960"
   },
   "the-cat-in-the-hat-2026": {
     "checked": "2026-10-19",
@@ -1351,6 +1380,22 @@
     "trailer": "https://www.youtube.com/watch?v=sF03ZFt8t8w",
     "v": 2,
     "year": "1966"
+  },
+  "when-harry-met-sally": {
+    "checked": "2026-11-12",
+    "tmdb_id": 639,
+    "tmdb_title": "When Harry Met Sally...",
+    "trailer": "https://www.youtube.com/watch?v=-E10AcydCuk",
+    "v": 2,
+    "year": "1989"
+  },
+  "white-christmas": {
+    "checked": "2026-11-12",
+    "tmdb_id": 13368,
+    "tmdb_title": "White Christmas",
+    "trailer": "https://www.youtube.com/watch?v=3n3-UtakD3I",
+    "v": 2,
+    "year": "1954"
   },
   "wild-horse-nine": {
     "checked": "2026-10-12",
