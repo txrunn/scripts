@@ -121,6 +121,11 @@
       "first_seen": "2026-09-16",
       "title": "Yuri!!! on Ice (Subtitled)"
     },
+    "destination-planet-holiday-hundreds-of-beavers-a-northwoods-christmas": {
+      "first_seen": "2026-11-14",
+      "found_at": "2026-11-14T16:28:34",
+      "title": "Hundreds of Beavers"
+    },
     "destroy-all-monsters": {
       "first_seen": "2026-08-25",
       "title": "Destroy All Monsters"
@@ -295,6 +300,11 @@
     "film-club-the-furious": {
       "first_seen": "2026-08-25",
       "title": "The Furious"
+    },
+    "film-club-the-last-boy-scout-35th-anniversary": {
+      "first_seen": "2026-11-14",
+      "found_at": "2026-11-14T16:28:34",
+      "title": "The Last Boy Scout"
     },
     "first-blood": {
       "first_seen": "2026-08-25",
@@ -910,6 +920,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-13T11:21:37",
+  "updated": "2026-11-14T16:28:34",
   "version": 1
 }

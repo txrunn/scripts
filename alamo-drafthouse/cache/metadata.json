@@ -191,6 +191,14 @@
     "tmdb_id": null,
     "v": 2
   },
+  "destination-planet-holiday-hundreds-of-beavers-a-northwoods-christmas": {
+    "checked": "2026-11-14",
+    "tmdb_id": 1019939,
+    "tmdb_title": "Hundreds of Beavers",
+    "trailer": "https://www.youtube.com/watch?v=Dm5XHpQZvek",
+    "v": 2,
+    "year": "2024"
+  },
   "destroy-all-monsters": {
     "checked": "2026-09-09",
     "poster": "https://image.tmdb.org/t/p/w342/24r1hsRisfUidwLF67J0iMuWh7p.jpg",
@@ -489,6 +497,14 @@
     "trailer": "https://www.youtube.com/watch?v=n-K49CUaeto",
     "v": 2,
     "year": "1946"
+  },
+  "film-club-the-last-boy-scout-35th-anniversary": {
+    "checked": "2026-11-14",
+    "tmdb_id": 9319,
+    "tmdb_title": "The Last Boy Scout",
+    "trailer": "https://www.youtube.com/watch?v=i2Qiciv2of0",
+    "v": 2,
+    "year": "1991"
   },
   "first-blood": {
     "checked": "2026-09-09",
