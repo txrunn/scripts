@@ -689,6 +689,11 @@
       "first_seen": "2026-08-25",
       "title": "Star Trek: The Motion Picture - Director's Edition"
     },
+    "special-event-the-holiday-20th-anniversary": {
+      "first_seen": "2026-11-16",
+      "found_at": "2026-11-16T15:27:41",
+      "title": "The Holiday"
+    },
     "special-event-wild-at-heart-unrated": {
       "first_seen": "2026-10-06",
       "found_at": "2026-10-06T11:11:20",
@@ -920,6 +925,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-14T16:28:34",
+  "updated": "2026-11-16T15:27:41",
   "version": 1
 }

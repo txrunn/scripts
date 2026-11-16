@@ -1089,6 +1089,14 @@
     "v": 2,
     "year": "2001"
   },
+  "special-event-the-holiday-20th-anniversary": {
+    "checked": "2026-11-16",
+    "tmdb_id": 1581,
+    "tmdb_title": "The Holiday",
+    "trailer": "https://www.youtube.com/watch?v=wk9caHO3pW0",
+    "v": 2,
+    "year": "2006"
+  },
   "special-event-wild-at-heart-unrated": {
     "checked": "2026-10-06",
     "tmdb_id": 483,
