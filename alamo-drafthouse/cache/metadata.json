@@ -1418,6 +1418,22 @@
     "v": 2,
     "year": "1966"
   },
+  "werwulf": {
+    "checked": "2026-11-24",
+    "tmdb_id": 1421903,
+    "tmdb_title": "Werwulf",
+    "trailer": "https://www.youtube.com/watch?v=cmjpadVj-Vk",
+    "v": 2,
+    "year": "2026"
+  },
+  "werwulf-moonlight-screening-mandatory-bundle": {
+    "checked": "2026-11-24",
+    "tmdb_id": 1421903,
+    "tmdb_title": "Werwulf",
+    "trailer": "https://www.youtube.com/watch?v=cmjpadVj-Vk",
+    "v": 2,
+    "year": "2026"
+  },
   "when-harry-met-sally": {
     "checked": "2026-11-12",
     "tmdb_id": 639,

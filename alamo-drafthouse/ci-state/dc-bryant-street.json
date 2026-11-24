@@ -901,6 +901,16 @@
       "first_seen": "2026-09-09",
       "title": "Manos: The Hands of Fate"
     },
+    "werwulf": {
+      "first_seen": "2026-11-24",
+      "found_at": "2026-11-24T12:42:13",
+      "title": "Werwulf"
+    },
+    "werwulf-moonlight-screening-mandatory-bundle": {
+      "first_seen": "2026-11-24",
+      "found_at": "2026-11-24T12:42:13",
+      "title": "Werwulf"
+    },
     "when-harry-met-sally": {
       "first_seen": "2026-11-12",
       "found_at": "2026-11-12T19:21:36",
@@ -930,6 +940,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-17T17:22:11",
+  "updated": "2026-11-24T12:42:13",
   "version": 1
 }
