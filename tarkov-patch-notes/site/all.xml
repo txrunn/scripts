@@ -5,9 +5,18 @@
 <link>https://www.escapefromtarkov.com/news</link>
 <description>Every official Escape from Tarkov announcement, patch notes included.</description>
 <language>en-us</language>
-<lastBuildDate>Tue, 24 Nov 2026 12:33:03 +0000</lastBuildDate>
+<lastBuildDate>Wed, 25 Nov 2026 12:01:21 +0000</lastBuildDate>
 <ttl>5</ttl>
 <atom:link href="https://txrunn.github.io/scripts/tarkov/all.xml" rel="self" type="application/rss+xml" />
+<item>
+<title>2026 Steam Awards nomination!</title>
+<link>https://store.steampowered.com/news/app/3932890/view/1850460852980892</link>
+<guid isPermaLink="false">steam:1850460852980892</guid>
+<pubDate>Wed, 25 Nov 2026 12:01:21 +0000</pubDate>
+<source url="https://store.steampowered.com/news/app/3932890/view/1850460852980892">Steam</source>
+<description><![CDATA[<p>A full year has passed since the release of Escape from Tarkov and its launch on Steam. A lot has happened since then: a new location and story chapter, the launch of the seasonal system, numerous gameplay and technical improvements. One thing remains unchanged - while trying to escape from Tarkov, you inevitably find yourself coming back.</p><p>The release of version 1.0 wasn't the finish line for us: EFT remains a project that every member of our team pours their heart into. We would greatly appreciate it if you nominated Escape from Tarkov for the "<strong>Labor of Love</strong>" award.</p><p>And if you have a couple of minutes, let us know how you see Tarkov today by leaving a <strong>review</strong> on the store page or updating your old one. Your feedback is the best guide for us, and it will also help you upgrade your special Steam profile badge.</p><p>With gratitude,</p><p>Battlestate Games team</p><p><p><img src="https://clan.cloudflare.steamstatic.com/images/45781996/4c4edd69fad34f288be34e36c77b09564159d965.jpg" /></p></p>]]></description>
+<content:encoded><![CDATA[<p>A full year has passed since the release of Escape from Tarkov and its launch on Steam. A lot has happened since then: a new location and story chapter, the launch of the seasonal system, numerous gameplay and technical improvements. One thing remains unchanged - while trying to escape from Tarkov, you inevitably find yourself coming back.</p><p>The release of version 1.0 wasn't the finish line for us: EFT remains a project that every member of our team pours their heart into. We would greatly appreciate it if you nominated Escape from Tarkov for the "<strong>Labor of Love</strong>" award.</p><p>And if you have a couple of minutes, let us know how you see Tarkov today by leaving a <strong>review</strong> on the store page or updating your old one. Your feedback is the best guide for us, and it will also help you upgrade your special Steam profile badge.</p><p>With gratitude,</p><p>Battlestate Games team</p><p><p><img src="https://clan.cloudflare.steamstatic.com/images/45781996/4c4edd69fad34f288be34e36c77b09564159d965.jpg" /></p></p>]]></content:encoded>
+</item>
 <item>
 <title>Patch 1.3.5.0</title>
 <link>https://store.steampowered.com/news/app/3932890/view/1849827110445989</link>
@@ -2981,15 +2990,6 @@ Battlestate Games Team</p>]]></content:encoded>
 <source url="https://store.steampowered.com/news/app/3932890/view/1816307528968135">Steam</source>
 <description><![CDATA[<p><p><img src="https://clan.cloudflare.steamstatic.com/images/45781996/842fc4d35f4e1471fbabc0c93ff9fa9ca8948c6a.png" /></p></p><p>We have installed a technical update for Escape from Tarkov.</p><ul><li> Fixed issues with interacting with Jaeger; </li><li> Fixed an issue where some users' item icons were displayed in low resolution regardless of their graphics settings; </li><li> Fixed an issue where players could not load into the tutorial mission if the game client's localisation language was changed; </li><li> Fixed an issue where the game client would freeze after interacting with traders. </li></ul>]]></description>
 <content:encoded><![CDATA[<p><p><img src="https://clan.cloudflare.steamstatic.com/images/45781996/842fc4d35f4e1471fbabc0c93ff9fa9ca8948c6a.png" /></p></p><p>We have installed a technical update for Escape from Tarkov.</p><ul><li> Fixed issues with interacting with Jaeger; </li><li> Fixed an issue where some users' item icons were displayed in low resolution regardless of their graphics settings; </li><li> Fixed an issue where players could not load into the tutorial mission if the game client's localisation language was changed; </li><li> Fixed an issue where the game client would freeze after interacting with traders. </li></ul>]]></content:encoded>
-</item>
-<item>
-<title>Preoder rewards</title>
-<link>https://store.steampowered.com/news/app/3932890/view/1816307528955920</link>
-<guid isPermaLink="false">steam:1816307528955920</guid>
-<pubDate>Fri, 14 Nov 2025 19:41:12 +0000</pubDate>
-<source url="https://store.steampowered.com/news/app/3932890/view/1816307528955920">Steam</source>
-<description><![CDATA[<p><p><img src="https://clan.cloudflare.steamstatic.com/images/45781996/4107f2656d444caa7f35779c3f926c6cc4cb48bd.jpg" /></p></p><p>With Steam pre-orders launching yesterday, we want to thank every new PMC who joined us and helped bring the game into the Top 5 best-selling titles on Steam globally!</p><p>We also want to confirm that all specific release bonuses will be available for Steam players as well upon the game’s launch. Make your purchase by November 15 and create an account in Battlestate Games Account Center to receive all exclusive rewards on launch day.</p><p>Don't miss your chance to pre-order Escape from Tarkov on Steam with 25% discount that ends tomorrow: <p><a href="https://store.steampowered.com/app/3932890/Escape_from_Tarkov/">https://store.steampowered.com/app/3932890/Escape_from_Tarkov/</a></p></p>]]></description>
-<content:encoded><![CDATA[<p><p><img src="https://clan.cloudflare.steamstatic.com/images/45781996/4107f2656d444caa7f35779c3f926c6cc4cb48bd.jpg" /></p></p><p>With Steam pre-orders launching yesterday, we want to thank every new PMC who joined us and helped bring the game into the Top 5 best-selling titles on Steam globally!</p><p>We also want to confirm that all specific release bonuses will be available for Steam players as well upon the game’s launch. Make your purchase by November 15 and create an account in Battlestate Games Account Center to receive all exclusive rewards on launch day.</p><p>Don't miss your chance to pre-order Escape from Tarkov on Steam with 25% discount that ends tomorrow: <p><a href="https://store.steampowered.com/app/3932890/Escape_from_Tarkov/">https://store.steampowered.com/app/3932890/Escape_from_Tarkov/</a></p></p>]]></content:encoded>
 </item>
 <item>
 <title>Key features of the release update</title>
