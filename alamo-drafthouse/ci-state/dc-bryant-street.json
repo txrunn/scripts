@@ -301,6 +301,11 @@
       "first_seen": "2026-08-25",
       "title": "The Furious"
     },
+    "film-club-the-holdovers": {
+      "first_seen": "2026-11-24",
+      "found_at": "2026-11-24T21:26:22",
+      "title": "FILM CLUB: THE HOLDOVERS"
+    },
     "film-club-the-last-boy-scout-35th-anniversary": {
       "first_seen": "2026-11-14",
       "found_at": "2026-11-14T16:28:34",
@@ -940,6 +945,6 @@
       "title": "Your Mother Your Mother Your Mother"
     }
   },
-  "updated": "2026-11-24T12:42:13",
+  "updated": "2026-11-24T21:26:22",
   "version": 1
 }
